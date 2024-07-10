@@ -17,12 +17,11 @@ def get_database_path(config_file: Path) -> Path:
     return Path(config_parser["General"]["database"])
 
 def init_database(db_path: Path) -> int:
-    """Create and get connection to bojo database"""
-    connection = None
+    """Create bojo database and tables"""
     try:
-        connection = db.create_connection()
-        
+        db.initialize_db(db_path)
     except Exception:
         return DB_CREATE_ERROR
+    return SUCCESS
     
     

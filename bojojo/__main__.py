@@ -2,7 +2,8 @@
 Bojo entry point script
 """
 
-from bojojo import cli, __app_name__
+from bojojo import __app_name__
+from bojojo.src import cli
 
 def main():
     cli.app(prog_name=__app_name__)

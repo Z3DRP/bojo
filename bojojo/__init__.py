@@ -13,7 +13,7 @@ __version__ = "0.1.0"
     DB_CREATE_ERROR,
     JSON_ERROR,
     ID_ERROR,
-) = range(7)
+) = range(8)
 
 ERRORS = {
     DIR_ERROR: "config directory error",
