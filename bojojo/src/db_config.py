@@ -1,4 +1,5 @@
 """
+db_config.py
 This module provides sqlite db initialization
 """
 import configparser
