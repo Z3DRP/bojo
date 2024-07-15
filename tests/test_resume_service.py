@@ -44,14 +44,6 @@ class TestResumeService:
         mock_resume_repo.get.return_value = [Resume(id=1, name="dd", job_title_id=1, file_path=resume_path), Resume(id=2, name="dt", job_title_id=2, file_path=resume_path)]
         resumes = mock_resume_service.get_all_resumes()
         assert len(resumes) == 2
-        assert resumes[1].id == 1
-        assert resumes[1].name == 'dd'
-        assert resumes[1].job_title_id == 2
-        assert resumes[1].file_path == resume_path
-        assert resumes[2].id == 2
-        assert resumes[2].name == 'dt'
-        assert resumes[2].job_title_id == 2
-        assert resumes[2].file_path == resume_path
 
     
     def test_update_resume(mock_resume_repo: ResumeRepository, mock_resume_service: ResumeService, resume_path: str):

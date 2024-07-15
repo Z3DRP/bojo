@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class CompletedRuns(Base):
+class CompletedRun(Base):
     __tablename__ = "Completed_Runs"
     id = Column(Integer, name="id", primary_key=True)
     execution_date = Column(String, name="execution_date", nullable=False)

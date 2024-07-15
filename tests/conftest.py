@@ -70,7 +70,17 @@ def jobtitle_id(db_session):
         ("Database Developer", "mid", 3)
     )
     jtid = db_session.lastrowid
-    db_session.connection.comit()
+    db_session.connection.commit()
+    return jtid
+
+@pytest.fixture(scope="module")
+def jobtitleB_id(db_session):
+    db_session.execute(
+        "INSERT INTO Job_Titles (name, experience_level, experience_years) VALUES(?, ?, ?)",
+        ("Database mane", "senior", 6)
+    )
+    jtid = db_session.lastrowid
+    db_session.connection.commit()
     return jtid
 
 
@@ -101,4 +111,15 @@ def a_resume(db_session: Session, jobtitle_id: int):
         ("Db admin", jobtitle_id, 'resume/path')
     )
     return db_session.get(Resume, {"name": "Db admin"})
+
+
+@pytest.fixture(scope="module")
+def b_resume(db_session: Session, jobtitle_id: int):
+    db_session.execute(
+        "INSERT INTO Resumes (name, job_title_id, file_path) VALUES(?, ?, ?)",
+        ("Db developer", jobtitle_id, 'resume/path/next')
+    )
+    return db_session.get(Resume, {"name": "Db developer"})
+
+
 
