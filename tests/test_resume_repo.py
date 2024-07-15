@@ -15,7 +15,7 @@ class TestResumeRepo:
 
     
     def test_add_resume(self, db_session: Session, resume_repo: ResumeRepository, jobtitle_id: int, resume_path: str):
-        resume = Resume(name="dd", valid_jobtitle_id=jobtitle_id, file_path=resume_path)
+        resume = {'name': 'dd', 'job_title_id': jobtitle_id, 'file_path': resume_path}
         new_resume = resume_repo.add(resume)
         db_session.refresh(new_resume)
         assert new_resume.id is not None
@@ -26,7 +26,7 @@ class TestResumeRepo:
     
     def test_add_resume_error(self, resume_repo: ResumeRepository, simulated_db_err: str, mocker):
         mocker.patch.object(Session, 'execute', side_effect=SQLAlchemyError(simulated_db_err))
-        new_resume = Resume(id=1, name="dd", job_title_id=1, file_path="/docs/sm.pdf")
+        new_resume = {'id': 1, 'name': 'dd', 'job_title_id': 1, 'file_path': '/docs/sm.pdf'}
         with pytest.raises(SQLAlchemyError) as exc_info:
             resume_repo.add(new_resume)
         assert simulated_db_err in str(exc_info.value)
@@ -67,9 +67,7 @@ class TestResumeRepo:
 
     
     def test_update_resume(self, db_session: Session, a_resume: Resume, resume_repo: ResumeRepository):
-        resume = a_resume
-        resume.name = 'tster'
-        resume.file_path = 'new/path'
+        resume = {'id': a_resume.id, 'name': a_resume.name, 'file_path': a_resume.file_path}
         updated_resume = resume_repo.update(resume)
         db_session.refresh(resume)
         assert updated_resume.rowcount == 2
@@ -78,64 +76,16 @@ class TestResumeRepo:
 
     
     def test_update_resume_error(self, resume_repo: ResumeRepository, simulated_db_err: str, a_resume: Resume, mocker):
-        resume = a_resume
+        resume = {'id': a_resume.id, 'name': a_resume.name, 'file_path': a_resume.file_path}
         mocker.patch.object(Session, 'execute', side_effect=SQLAlchemyError(simulated_db_err))
         with pytest.raises(SQLAlchemyError) as exc_info:
             resume_repo.update(resume)
         assert simulated_db_err in str(exc_info.value)
 
-
-    def test_update_resume_path(self, db_session: Session, resume_repo: ResumeRepository, a_resume: Resume):
-        resume = a_resume
-        updated_resume = resume_repo.update_path(resume.id, 'new/path')
-        db_session.refresh(resume)
-        assert updated_resume.rowcount == 1
-        assert updated_resume.file_path == 'new/path'
-
-    
-    def test_update_resume_path_error(self, resume_repo: ResumeRepository, simulated_db_err: str, a_resume: Resume, mocker):
-        resume = a_resume
-        mocker.patch.object(Session, 'execute', side_effect=SQLAlchemyError(simulated_db_err))
-        with pytest.raises(SQLAlchemyError) as exc_info:
-            resume_repo.update_path(resume.id, 'new/path')
-        assert simulated_db_err in str(exc_info.value)    
-
-    
-    def test_update_resume_jobtitle(self, db_session: Session, resume_repo: ResumeRepository, a_resume: Resume, jobtitleB_id: int):
-        resume = a_resume
-        updated_resume = resume_repo.update_job_title(resume.id, jobtitleB_id)
-        db_session.refresh(resume)
-        assert updated_resume.rowcount == 1
-        assert updated_resume.job_title_id == jobtitleB_id
-
-
-    def test_update_resume_jobtitle_error(self, resume_repo: ResumeRepository, simulated_db_err: str, a_resume: Resume,jobtitleB_id: int, mocker):
-        resume = a_resume
-        mocker.patch.object(Session, 'execute', side_effect=SQLAlchemyError(simulated_db_err))
-        with pytest.raises(SQLAlchemyError) as exc_info:
-            resume_repo.update_job_title(resume.id, jobtitleB_id)
-        assert simulated_db_err in str(exc_info.value)
-
-    
-    def test_update_resume_name(self, db_session: Session, resume_repo: ResumeRepository, a_resume: Resume):
-        resume = a_resume
-        updated_resume = resume_repo.update_name(resume.id, 'db man')
-        db_session.refresh(resume)
-        assert updated_resume.rowcount == 1
-        assert updated_resume.name == 'db man'
-
-
-    def test_update_resume_error(self, resume_repo: ResumeRepository, simulated_db_err: str, a_resume: Resume, mocker):
-        resume = a_resume
-        mocker.patch.object(Session, 'execute', side_effect=SQLAlchemyError(simulated_db_err))
-        with pytest.raises(SQLAlchemyError) as exc_info:
-            resume_repo.update_name(resume.id, 'tst')
-        assert simulated_db_err in str(exc_info.value)
-
     
     def test_delete_resume(self, db_session: Session, resume_repo: ResumeRepository, a_resume: Resume):
         resume = a_resume
-        del_resume = resume_repo.delete(resume)
+        del_resume = resume_repo.delete(resume.id)
         assert del_resume.rowcount == 1
         dresume = db_session.execute(
             text("SELECT * FROM Resumes WHERE id = :rid"),
@@ -148,6 +98,6 @@ class TestResumeRepo:
         mocker.patch.object(Session, 'execute', side_effect=SQLAlchemyError(simulated_db_err))
         resume = a_resume
         with pytest.raises(SQLAlchemyError) as exc_info:
-            resume_repo.delete(resume)
+            resume_repo.delete(resume.id)
         assert simulated_db_err in str(exc_info.value)
 
