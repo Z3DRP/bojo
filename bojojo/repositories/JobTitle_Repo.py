@@ -12,7 +12,7 @@ class JobTitleRepository(repository):
         self.session = session    
 
     
-    def get(self, id: int) -> JobTitle:
+    def get(self, id:int) -> JobTitle:
         try:
             return self.session.execute(select(JobTitle).where(JobTitle.id==id)).scalars().first()
         except SQLAlchemyError as e:
@@ -26,11 +26,11 @@ class JobTitleRepository(repository):
             raise e
         
     
-    def add(self, jobTitle: JobTitle) -> JobTitle:
+    def add(self, **kwargs) -> JobTitle:
         try:
             nw_jobTitle = self.session.execute(
                 insert(JobTitle)
-                .values(name=jobTitle.name, experience_level=jobTitle.experience_level, experience_years=jobTitle.experience_years)
+                .values(**kwargs)
                 .returning(JobTitle)
             )
             self.session.commit()
@@ -40,12 +40,12 @@ class JobTitleRepository(repository):
             raise e
         
 
-    def update(self, jobTitle: JobTitle) -> JobTitle:
+    def update(self, id:int, **kwargs) -> JobTitle:
         try:
             results = self.session.execute(
                 update(JobTitle)
-                .where(JobTitle.id==jobTitle.id)
-                .values(name=jobTitle.name, experience_level=jobTitle.experience_level, experience_years=jobTitle.experience_years)
+                .where(JobTitle.id==id)
+                .values(**kwargs)
                 .returning(JobTitle)
             )
             self.session.commit()
@@ -55,9 +55,9 @@ class JobTitleRepository(repository):
             raise e
         
     
-    def delete(self, jobTitle: JobTitle) -> JobTitle:
+    def delete(self, id:int) -> JobTitle:
         try:
-            result = self.session.execute(delete(JobTitle).where(JobTitle.id==jobTitle.id).returning(JobTitle))
+            result = self.session.execute(delete(JobTitle).where(JobTitle.id==id).returning(JobTitle))
             self.session.commit()
             return result
         except SQLAlchemyError as e:

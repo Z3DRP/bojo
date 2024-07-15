@@ -26,17 +26,11 @@ class CompletedRunRepository(repository):
             raise e
         
     
-    def add(self, completedRun: CompletedRun) -> CompletedRun:
+    def add(self, **kwargs) -> CompletedRun:
         try:
             new_completedRun = self.session.execute(
                 insert(CompletedRun)
-                .values(
-                    execution_date=completedRun.execution_date,
-                    start=completedRun.start,
-                    finish=completedRun.finish,
-                    failed_submission=completedRun.failed_submissions,
-                    run_id=completedRun.run_id
-                )
+                .values(**kwargs)
                 .returning(CompletedRun)
             )
             return new_completedRun
@@ -45,18 +39,12 @@ class CompletedRunRepository(repository):
             raise e
         
     
-    def update(self, completedRun: CompletedRun) -> CompletedRun:
+    def update(self, id:int, **kwargs) -> CompletedRun:
         try:
             results = self.session.execute(
                 update(CompletedRun)
-                .where(CompletedRun.id==completedRun.id)
-                .values(
-                    execution_date=completedRun.execution_date,
-                    start=completedRun.start,
-                    finish=completedRun.finish,
-                    failed_submissions=completedRun.failed_submissions,
-                    run_id=completedRun.run_id
-                )
+                .where(CompletedRun.id==id)
+                .values(**kwargs)
                 .returning(CompletedRun)
             )
             self.session.commit()
@@ -66,9 +54,9 @@ class CompletedRunRepository(repository):
             raise e
         
     
-    def delete(self, completedRun: CompletedRun) -> CompletedRun:
+    def delete(self, id: int) -> CompletedRun:
         try:
-            result = self.session.execute(delete(CompletedRun).where(CompletedRun.id==completedRun.id).returning(CompletedRun))
+            result = self.session.execute(delete(CompletedRun).where(CompletedRun.id==id).returning(CompletedRun))
             self.session.commit()
             return result
         except SQLAlchemyError as e:

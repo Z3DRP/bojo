@@ -26,20 +26,11 @@ class ScheduledRunRepository(repository):
             raise e
         
     
-    def add(self, scheduleRun: ScheduledRun) -> ScheduledRun:
+    def add(self, **kwargs) -> ScheduledRun:
         try:
             nw_run = self.session.execute(
                 insert(ScheduledRun)
-                .values(
-                    creation_date=scheduleRun.creation_date,
-                    job_title_id=scheduleRun.job_title_id,
-                    job_board_id=scheduleRun.job_board_id,
-                    run_date=scheduleRun.run_date,
-                    run_time=scheduleRun.run_time,
-                    run_type=scheduleRun.run_type,
-                    recurring=scheduleRun.recurring,
-                    easy_apply_only=scheduleRun.easy_apply_only
-                )
+                .values(**kwargs)
                 .returning(ScheduledRun)
             )
             self.session.commit()
@@ -49,21 +40,12 @@ class ScheduledRunRepository(repository):
             raise e
         
     
-    def update(self, scheduledRun: ScheduledRun) -> ScheduledRun:
+    def update(self, id:int, **kwargs) -> ScheduledRun:
         try:
             results = self.session.execute(
                 update(ScheduledRun)
-                .where(ScheduledRun.id==scheduledRun.id)
-                .values(
-                    creation_date=scheduledRun.creation_date,
-                    job_title_id=scheduledRun.job_title_id,
-                    job_board_id=scheduledRun.job_board_id,
-                    run_date=scheduledRun.run_date,
-                    run_time=scheduledRun.run_time,
-                    run_type=scheduledRun.run_type,
-                    recurring=scheduledRun.recurring,
-                    easy_apply_only=scheduledRun.easy_apply_only
-                )
+                .where(ScheduledRun.id==id)
+                .values(**kwargs)
                 .returning(ScheduledRun)
             )
             self.session.commit()
@@ -73,9 +55,9 @@ class ScheduledRunRepository(repository):
             raise e
         
     
-    def delete(self, scheduledRun: ScheduledRun) -> ScheduledRun:
+    def delete(self, id:int) -> ScheduledRun:
         try:
-            result = self.session.execute(delete(ScheduledRun).where(ScheduledRun.id==scheduledRun.id).returning(ScheduledRun))
+            result = self.session.execute(delete(ScheduledRun).where(ScheduledRun.id==id).returning(ScheduledRun))
             self.session.commit()
             return result
         except SQLAlchemyError as e:

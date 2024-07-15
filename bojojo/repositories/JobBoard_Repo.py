@@ -26,11 +26,11 @@ class JobBoardRepository(repository):
             raise e
         
     
-    def add(self, jobBoard: JobBoard) -> JobBoard:
+    def add(self, **kwargs) -> JobBoard:
         try:
             nw_jobboard = self.session.execute(
                 insert(JobBoard)
-                .values(name=jobBoard.name, url=jobBoard.url, has_easy_apply=jobBoard.has_easy_apply)
+                .values(**kwargs)
                 .returning(JobBoard)
             )
             self.session.commit()
@@ -40,12 +40,12 @@ class JobBoardRepository(repository):
             raise e
         
     
-    def update(self, jobBoard: JobBoard) -> JobBoard:
+    def update(self, id: int, **kwargs) -> JobBoard:
         try:
             results = self.session.execute(
                 update(JobBoard)
-                .where(JobBoard.id==jobBoard.id)
-                .values(name=jobBoard.name, url=jobBoard.url, has_easy_apply=jobBoard.has_easy_apply)
+                .where(JobBoard.id==id)
+                .values(**kwargs)
                 .returning(JobBoard)
             )
             self.session.commit()
@@ -55,9 +55,9 @@ class JobBoardRepository(repository):
             raise e
         
     
-    def delete(self, jobBoard: JobBoard) -> JobBoard:
+    def delete(self, id: int) -> JobBoard:
         try:
-            result = self.session.execute(delete(JobBoard).where(JobBoard.id==jobBoard.id).returning(JobBoard))
+            result = self.session.execute(delete(JobBoard).where(JobBoard.id==id).returning(JobBoard))
             self.session.commit()
             return result
         except SQLAlchemyError as e:

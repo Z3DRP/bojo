@@ -2,10 +2,9 @@
 from typing import List
 from bojojo.models import Application
 from bojojo.repositories.Application_Repo import ApplicationRepository
-from sqlalchemy import 
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.utils import Blogger as blogger
-from bojojo import DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
+from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 
 
 class ApplicationService:
@@ -27,20 +26,32 @@ class ApplicationService:
             return self.repository.getAll()
         except SQLAlchemyError as e:
             blogger.error(f"[READ ERR]:: {e}")
+            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
 
         
-    def add_application(self, application: Application):
+    def add_application(self, application_data:dict):
         try: 
-            application = Application(
-                comapny=application.comapny,
-                job_title=application.job_title,
-                location=application.location,
-                pay=application.pay,
-                apply_date=application.apply_date,
-                submitted_successfully=application.submitted_successfully,
-                run_id=application.run_id
-            )
-            return self.repository.add(application)
+            return self.repository.add(**application_data)
         except SQLAlchemyError as e:
-            blogger.error(f"[INSERT APPLICATION ERR] Company: {application.company}")
+            blogger.error(DB_WRITE_ERROR, f"[INSERT APPLICATION ERR] Company: {application_data['company']}")
             raise AddError(f"DB-Error: An error ocurred while inserting application")
+
+
+    def update_application(self, id:int, application_data:dict):
+        try:
+            application = self.get_application(id)
+            if not application:
+                raise GetError(f"Application with id:{id} does not exist")
+            return self.repository.update(id, **application_data)
+        except SQLAlchemyError as e:
+            blogger.error(f"[UPDATE APPLICATION ERR] ApplicationId: {id}:: {e}" )
+            raise UpdateError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while updating Application")
+
+    
+    def delete_application(self, id:int):
+        try:
+            return self.repository.delete(id)
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE APPLICATION ERR] ApplicationId: {id}:: {e}")
+            raise DeleteError(DB_DELETE_ERROR, f"DB-ERROR: An error ocurred while deleting application")
+        

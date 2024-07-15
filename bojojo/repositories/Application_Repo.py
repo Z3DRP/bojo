@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -28,18 +28,10 @@ class ApplicationRepository(repository):
             raise e
         
     
-    def add(self, application: Application) -> Application:
+    def add(self, **kwargs) -> Application:
         try:
             new_application = self.session.execute(
-                insert(Application).values(
-                    company=application.company,
-                    job_title=application.job_title,
-                    location=application.location,
-                    pay=application.pay,
-                    apply_date=application.apply_date,
-                    submitted_successfully=application.submitted_successfully,
-                    run_id=application.run_id
-                )
+                insert(Application).values(**kwargs)
                 .returning(Application)
             )
             self.session.commit()
@@ -49,20 +41,12 @@ class ApplicationRepository(repository):
             raise e
         
     
-    def update(self, application: Application) -> Application:
+    def update(self, id:int, **kwargs) -> Application:
         try:
             results = self.session.execute(
                 update(Application)
-                .where(Application.id==application.id)
-                .values(
-                    company=application.company,
-                    job_title=application.job_title,
-                    location=application.location,
-                    pay=application.pay,
-                    apply_date=application.apply_date,
-                    submitted_successfully=application.submitted_successfully,
-                    run_id=application.run_id
-                )
+                .where(Application.id==id)
+                .values(**kwargs)
                 .returning(Application)
             )
             self.session.commit()
@@ -72,9 +56,9 @@ class ApplicationRepository(repository):
             raise e
 
 
-    def delete(self, application: Application) -> Application:
+    def delete(self, id: int ) -> Application:
         try:
-            result = self.session.execute(delete(Application).where(Application.id==application.id).returning(Application))
+            result = self.session.execute(delete(Application).where(Application.id==id).returning(Application))
             self.session.comit()
             return result
         except SQLAlchemyError as e:

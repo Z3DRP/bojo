@@ -82,4 +82,11 @@ class ResumeService:
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
             raise UpdateError(f"DB-Error: An error ocurred while updating resume name")
-        
+    
+
+    def delete_resume(self, id:int):
+        try:
+            return self.repository.delete(id)
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE ERR] ResumeId: {id}:: {e}")
+            raise DeleteError(f"DB-ERROR: An error ocurred while deleting resume")
