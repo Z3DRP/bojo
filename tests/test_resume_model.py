@@ -1,3 +1,4 @@
+from typing import Any
 import pytest
 from bojojo.repositories import Resume
 
@@ -17,3 +18,6 @@ class TestJobTitle:
         assert resume is not None
         assert resume[1] == valid_jobtitle_id
         assert resume[2] == "/path/to/resume.pdf"
+
+    def test_add_resume(self, session: Any, valid_jobtitle_id: int):
+        

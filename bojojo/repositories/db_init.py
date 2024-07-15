@@ -34,6 +34,7 @@ def initialize_db(path):
         CREATE_RESUMES = """
         CREATE TABLE IF NOT EXISTS Resumes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
             job_title_id INTEGER,
             file_path TEXT NOT NULL,
             FOREIGN KEY (job_title_id)

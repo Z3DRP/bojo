@@ -82,6 +82,22 @@ class ResumeRepository(repository):
             self.session.rollback()
             raise e
         
+    
+    def update_name(self, resume_id: int, name: str):
+        try:
+            result = self.session.execute(
+                update(Resume)
+                .where(Resume.id==resume_id)
+                .values(name=name)
+                .returning(Resume)
+            )
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+        
     def delete(self, resume: Resume):
         try:
             result = self.session.execute(delete(Resume).where(Resume.id==resume.id).returning(Resume))

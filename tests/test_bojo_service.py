@@ -1,8 +1,10 @@
+import pytest
 from typer.testing import CliRunner
 from bojojo import __app_name__, __version__, cli
 
 runner = CliRunner()
 
+@pytest.mark.cli
 def test_version():
     result = runner.invoke(cli.app, ["--version"])
     assert result.exit_code == 0
