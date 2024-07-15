@@ -16,7 +16,7 @@ class ResumeService:
         try:
             return self.repository.get(resume_id)
         except SQLAlchemyError as e:
-            blogger.error("error", f"[READ ERR] ResumeId: {resume_id}:: {e}")
+            blogger.error(f"[READ ERR] ResumeId: {resume_id}:: {e}")
             raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
         
 
@@ -24,7 +24,7 @@ class ResumeService:
         try:
             return self.repository.getAll()
         except SQLAlchemyError as e:
-            blogger.error("error", f"[READ ERR]:: {e}")
+            blogger.error(f"[READ ERR]:: {e}")
             raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
         
     
@@ -33,7 +33,7 @@ class ResumeService:
             resume = Resume(name="dd", job_title_id=job_title_id, file_path=file_path)
             return self.repository.add(resume)
         except SQLAlchemyError as e:
-            blogger.error('error', f"[INSERT ERR] ResumeJobTitleId: {job_title_id}, Path: {file_path}:: {e}")
+            blogger.error(f"[INSERT RESUME ERR] ResumeJobTitleId: {job_title_id}, Path: {file_path}:: {e}")
             raise AddError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while inserting resume")
         
     
@@ -47,7 +47,7 @@ class ResumeService:
             resume.file_path = file_path
             return self.repository.update(resume)
         except SQLAlchemyError as e:
-            blogger.error('error', f"[UPDATE ERR] ResumeId: {resume_id}:: {e}")
+            blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
             raise UpdateError(f"DB-ERROR: An error ocurred while updating resume")
         
         
@@ -58,7 +58,7 @@ class ResumeService:
                 raise GetError(f"Resume with id {resume_id} does not exist")
             return self.repository.update_job_title(resume_id=resume_id, job_title_id=job_title_id)
         except SQLAlchemyError as e:
-            blogger.error('error', f"[UPDATE ERR] ResumeId: {resume_id}:: {e}")
+            blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
             raise UpdateError(f"DB-ERROR: An error ocurred while updating resume job title id")
         
 
@@ -69,7 +69,7 @@ class ResumeService:
                 raise GetError(f"Resume with id {resume_id} does not exist")
             return self.repository.update_path(resume_id=resume_id, file_path=path)
         except SQLAlchemyError as e:
-            blogger.error(f"[UPDATE ERR] ResumeId: {resume_id}:: {e}")
+            blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
             raise UpdateError(f"DB-ERROR: An error ocurred while updating resume file path")
         
     
@@ -80,6 +80,6 @@ class ResumeService:
                 raise GetError(f"Resume with id {resume_id} does not exist")
             return self.repository.update_name(resume_id=resume_id, name=name)
         except SQLAlchemyError as e:
-            blogger.error(f"[UPDATE ERR] ResumeId: {resume_id}:: {e}")
+            blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
             raise UpdateError(f"DB-Error: An error ocurred while updating resume name")
         

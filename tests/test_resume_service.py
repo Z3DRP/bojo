@@ -28,7 +28,7 @@ class TestResumeService:
                 mock_resume_service.add_resume('dd', job_title_id=1, file_path="/some/arbitrary/path")
             assert exc_info.value.code == DB_WRITE_ERROR
             assert "DB-ERROR" in str(exc_info.value)
-            mock_logger.assert_called_with(f"[INSERT ERR] ResumeJobTitleId: 1, Path: /some/arbitrary/path:: Simulated DB error")
+            mock_logger.assert_called_with(f"[INSERT RESUME ERR] ResumeJobTitleId: 1, Path: /some/arbitrary/path:: Simulated DB error")
 
     
     def test_get_resume(self, mock_resume_repo: ResumeRepository, mock_resume_service: ResumeService, resume_path: str):
@@ -69,7 +69,7 @@ class TestResumeService:
             with pytest.raises(UpdateError) as exc_info:
                 mock_resume_service.update_resume(1, 'dd', 2, f"new/{resume_path}")
             assert "DB-ERROR" in str(exc_info.value)
-            mock_logger.assert_called_with('[UPDATE ERR] ResumeId: 1:: Simulated DB error')
+            mock_logger.assert_called_with('[UPDATE RESUME ERR] ResumeId: 1:: Simulated DB error')
 
     
     def test_update_resume_jobtitle(self, mock_resume_repo: ResumeRepository, mock_resume_service: ResumeService, resume_path: str):
@@ -95,7 +95,7 @@ class TestResumeService:
             with pytest.raises(UpdateError) as exc_info:
                 mock_resume_service.update_job_title_id(1, 'dd', 2, resume_path)
             assert "DB-ERROR" in str(exc_info.value)
-            mock_logger.assert_called_with("[UPDATE ERR] ResumeId: 1:: Simulated DB error")
+            mock_logger.assert_called_with("[UPDATE RESUME ERR] ResumeId: 1:: Simulated DB error")
 
 
     def test_update_resume_path(self, mock_resume_repo: ResumeRepository, mock_resume_service: ResumeService, resume_path: str):
@@ -120,7 +120,7 @@ class TestResumeService:
             with pytest.raises(UpdateError) as exc_info:
                 mock_resume_service.update_file_path(1, 'dd', 1, f"new/{resume_path}")
             assert "DB-ERROR" in str(exc_info.value)
-            mock_logger.assert_called_with("[UPDATE ERR] ResumeId: 1:: Simulated DB error")
+            mock_logger.assert_called_with("[UPDATE RESUME ERR] ResumeId: 1:: Simulated DB error")
 
     
     def test_update_resume_name(self, mock_resume_repo: ResumeRepository, mock_resume_service: ResumeService, resume_path: str, jobtitle_id):
@@ -146,4 +146,4 @@ class TestResumeService:
             with pytest.raises(UpdateError) as exc_info:
                 mock_resume_service.update_name(1, 'td')
             assert 'DB-ERROR' in str(exc_info.value)
-            mock_logger.assert_called_with("[UPDATE ERR] ResumeId: 1:: Simulated DB error")
+            mock_logger.assert_called_with("[UPDATE RESUME ERR] ResumeId: 1:: Simulated DB error")

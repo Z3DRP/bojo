@@ -1,4 +1,5 @@
 import sqlite3
+from typing import List
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -15,14 +16,14 @@ class ResumeRepository(repository):
         self.session = session
 
 
-    def get(self, rid: int):
+    def get(self, rid: int) -> Resume:
         try:
             result = self.session.execute(select(Resume).where(Resume.id==rid)).scalars().first()
             return result
         except SQLAlchemyError as e:
             raise e
         
-    def getAll(self):
+    def getAll(self) -> List[Resume]:
         try:
             results = self.session.execute(select(Resume)).scalars().all()
             return results
@@ -30,17 +31,17 @@ class ResumeRepository(repository):
             raise e
 
     
-    def add(self, resume: Resume):
+    def add(self, resume: Resume) -> Resume:
         try:
-            self.session.execute(insert(Resume).values(job_title_id=resume.job_title_id, file_path=resume.file_path).returning(Resume))
+            nw_resume = self.session.execute(insert(Resume).values(job_title_id=resume.job_title_id, file_path=resume.file_path).returning(Resume))
             self.session.commit()
-            return resume
+            return nw_resume
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
 
     
-    def update(self, resume: Resume):
+    def update(self, resume: Resume) -> Resume:
         try:
             results = self.session.execute(
                 update(Resume)
@@ -54,7 +55,7 @@ class ResumeRepository(repository):
             self.session.rollback()
             raise e
         
-    def update_path(self, resume_id: int, file_path: str):
+    def update_path(self, resume_id: int, file_path: str) -> Resume:
         try:
             result = self.session.execute(
                 update(Resume)
@@ -68,7 +69,7 @@ class ResumeRepository(repository):
             self.session.rollback()
             raise e
         
-    def update_job_title(self, resume_id: int, job_title_id: int):
+    def update_job_title(self, resume_id: int, job_title_id: int) -> Resume:
         try:
             result = self.session.execute(
                 update(Resume)
@@ -83,7 +84,7 @@ class ResumeRepository(repository):
             raise e
         
     
-    def update_name(self, resume_id: int, name: str):
+    def update_name(self, resume_id: int, name: str) -> Resume:
         try:
             result = self.session.execute(
                 update(Resume)
@@ -98,7 +99,7 @@ class ResumeRepository(repository):
             raise e
         
         
-    def delete(self, resume: Resume):
+    def delete(self, resume: Resume) -> Resume:
         try:
             result = self.session.execute(delete(Resume).where(Resume.id==resume.id).returning(Resume))
             self.session.commit()
