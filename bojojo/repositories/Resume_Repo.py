@@ -1,5 +1,6 @@
 import sqlite3
 from typing import List
+from injector import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,6 +13,7 @@ class ResumeRepository(repository):
 
     #TODO possibly change this setup, remove AddError exceptions out into the
     #service class that will use this repository....
+    @inject
     def __init__(self, session: Session):
         self.session = session
 

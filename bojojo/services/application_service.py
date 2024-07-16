@@ -1,5 +1,7 @@
 
 from typing import List
+
+from injector import inject
 from bojojo.models import Application
 from bojojo.repositories.Application_Repo import ApplicationRepository
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,6 +11,7 @@ from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, Get
 
 class ApplicationService:
     
+    @inject
     def __init__(self, repo: ApplicationRepository):
         self.repository = repo
 

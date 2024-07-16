@@ -1,3 +1,4 @@
+from injector import inject
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.models import Resume
 from bojojo.repositories.Resume_Repo import ResumeRepository
@@ -7,7 +8,7 @@ from typing import List
 
 class ResumeService:
     
-
+    @inject
     def __init__(self, repo: ResumeRepository):
         self.repository = repo
 

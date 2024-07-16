@@ -1,4 +1,6 @@
 from typing import List
+
+from injector import inject
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, DeleteError, GetError, UpdateError
 from bojojo.models.Job_Board import JobBoard
 from bojojo.repositories.JobBoard_Repo import JobBoardRepository
@@ -6,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from bojojo.utils.bologger import Blogger as blogger
 class JobBoardService:
     
+    @inject
     def __init__(self, repo: JobBoardRepository):
         self.repository = repo
 
