@@ -54,6 +54,7 @@ def initialize_db(path):
         CREATE_SCHEDULED_RUNS = """
         CREATE TABLE IF NOT EXISTS Scheduled_Runs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
             creation_date TEXT NOT NULL,
             job_title_id INTEGER NOT NULL,
             job_board_id INTEGER NOT NULL,

@@ -15,7 +15,8 @@ __version__ = "0.1.0"
     DB_CREATE_ERROR,
     JSON_ERROR,
     ID_ERROR,
-) = range(10)
+    FILE_PATH_ERROR,
+) = range(11)
 
 ERRORS = {
     DIR_ERROR: "config directory error",
@@ -26,7 +27,8 @@ ERRORS = {
     DB_UPDATE_ERROR: "database update error",
     DB_DELETE_ERROR: "database delete error",
     JSON_ERROR: "json parsing error",
-    ID_ERROR: "bojo id error"
+    ID_ERROR: "bojo id error",
+    FILE_PATH_ERROR: "file path does not exist"
 }
 
 class RepoException(Exception):

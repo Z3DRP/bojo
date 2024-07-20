@@ -7,6 +7,7 @@ Base = declarative_base()
 class ScheduledRun(Base):
     __tablename__ = "Scheduled_Runs"
     id = Column(Integer, name="id", primary_key=True)
+    name = Column(String, name="name")
     creation_date = Column(String, name="creation_date", nullable=False)
     job_title_id = Column(Integer, ForeignKey("Job_Titles.id"), name="job_title_id", nullable=False)
     job_board_id = Column(Integer, ForeignKey("Job_Boards.id"), name="job_board_id", nullable=False)

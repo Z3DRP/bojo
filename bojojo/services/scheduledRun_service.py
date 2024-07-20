@@ -25,6 +25,14 @@ class ScheduledRunService:
         except SQLAlchemyError as e:
             blogger.error(f"[READ SCHEDULED-RUN ERR]:: {e}")
             raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
+        
+    
+    def get_scheduledRunByName(self, name:str) -> ScheduledRun:
+        try:
+            return self.repository.getByName(name)
+        except SQLAlchemyError as e:
+            blogger.error(f"[READ SCHEDULED-RUN ERR]:: {e}")
+            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
     
 
     def add_scheduled_run(self, run_data:dict) -> ScheduledRun:

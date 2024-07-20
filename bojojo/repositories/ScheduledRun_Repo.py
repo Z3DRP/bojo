@@ -28,6 +28,13 @@ class ScheduledRunRepository(repository):
             raise e
         
     
+    def getByName(self, name:str) -> ScheduledRun:
+        try:
+            return self.session.execute(select(ScheduledRun).where(ScheduledRun.name==name).returning(ScheduledRun)).scalars().first()
+        except SQLAlchemyError as e:
+            raise e
+        
+    
     def add(self, **kwargs) -> ScheduledRun:
         try:
             nw_run = self.session.execute(

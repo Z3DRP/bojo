@@ -396,6 +396,17 @@ class DbHandler:
             return self.get_db_err(DB_READ_ERROR)
     
 
+    def read_scheduled_run_byName(self, name:str) -> DbResponse:
+        try:
+            run = self.scheduledRunService.get_scheduledRunByName(name)
+            try:
+                return DbResponse(self.get_list_response(run), SUCCESS)
+            except:
+                return self.get_json_err()
+        except GetError:
+            return self.get_db_err(DB_READ_ERROR)
+        
+
     def write_scheduled_run(self, run_data:dict) -> DbResponse:
         try:
             run = self.scheduledRunService.add_scheduled_run(run_data)
