@@ -63,3 +63,13 @@ class CompletedRunRepository(repository):
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
+        
+    
+    def deleteAll(self) -> CompletedRun:
+        try:
+            result = self.session.execute(delete(CompletedRun).returning(CompletedRun))
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e

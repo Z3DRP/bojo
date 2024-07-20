@@ -21,6 +21,14 @@ class JobBoardService:
             raise GetError(DB_READ_ERROR, f"DB-ERROR: An error occurred while reading")
         
     
+    def get_jobBoard_by_name(self, jname:str) -> JobBoard:
+        try:
+            return self.repository.getByName(jname)
+        except SQLAlchemyError as e:
+            blogger.error(f"[READ JOB-BOARD ERR] JobBoardName: {jname}:: {e}")
+            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+        
+    
     def get_all_jobBoards(self) -> List[JobBoard]:
         try:
             return self.repository.getAll()
@@ -54,4 +62,12 @@ class JobBoardService:
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-BOARD ERR] JobBoardId: {id}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting Job Board")
+        
+    
+    def delete_all_jobBoards(self) -> JobBoard:
+        try:
+            return self.repository.deleteAll()
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE JOB-BOARD ALL ERR] :: {e}")
+            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting all Job Boards")
         

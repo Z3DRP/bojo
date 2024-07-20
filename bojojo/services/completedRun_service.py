@@ -53,3 +53,11 @@ class CompletedRunService:
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE COMPLETED-RUN ERR] CompletedRunId: {id}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting completed run")
+        
+    
+    def delete_all_completedRuns(self) -> CompletedRun:
+        try:
+            return self.repository.deleteAll()
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE COMPLETED-RUN ALL ERR] :: {e}")
+            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting all completed runs")

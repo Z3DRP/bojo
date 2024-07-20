@@ -60,7 +60,17 @@ class ApplicationRepository(repository):
     def delete(self, id: int ) -> Application:
         try:
             result = self.session.execute(delete(Application).where(Application.id==id).returning(Application))
-            self.session.comit()
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
+    def deleteAll(self) -> Application:
+        try:
+            result = self.session.execute(delete(Application))
+            self.session.commit()
             return result
         except SQLAlchemyError as e:
             self.session.rollback()

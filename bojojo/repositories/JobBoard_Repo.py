@@ -21,6 +21,13 @@ class JobBoardRepository(repository):
             raise e
         
     
+    def getByName(self, jname:str) -> JobBoard:
+        try:
+            return self.session.execute(select(JobBoard).where(JobBoard.name==jname)).scalars().first()
+        except SQLAlchemyError as e:
+            raise e
+        
+    
     def getAll(self) -> List[JobBoard]:
         try:
             return self.session.execute(select(JobBoard)).scalars().all()
@@ -60,6 +67,16 @@ class JobBoardRepository(repository):
     def delete(self, id: int) -> JobBoard:
         try:
             result = self.session.execute(delete(JobBoard).where(JobBoard.id==id).returning(JobBoard))
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+
+    def deleteAll(self) -> JobBoard:
+        try:
+            result = self.session.execute(delete(JobBoard).returning(JobBoard))
             self.session.commit()
             return result
         except SQLAlchemyError as e:

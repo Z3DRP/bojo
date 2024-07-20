@@ -25,6 +25,14 @@ class ResumeRepository(repository):
         except SQLAlchemyError as e:
             raise e
         
+    
+    def getByName(self, name:str) -> Resume:
+        try:
+            return self.session.execute(select(Resume).where(Resume.name==name)).scalars().first()
+        except SQLAlchemyError as e:
+            raise e
+        
+        
     def getAll(self) -> List[Resume]:
         try:
             results = self.session.execute(select(Resume)).scalars().all()
@@ -66,3 +74,13 @@ class ResumeRepository(repository):
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
+        
+    
+    def deleteAll(self) -> Resume:
+        try:
+            result = self.sessin.execute(delete(Resume).returning(Resume))
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            raise e
+        

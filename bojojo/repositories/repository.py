@@ -17,3 +17,7 @@ class Repository(ABC):
     @abstractmethod
     def delete(self, entity_id):
         pass
+
+    @abstractmethod
+    def deleteAll(self):
+        pass

@@ -19,7 +19,16 @@ class JobTitleService:
             return self.repository.get(id)
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+
     
+    def get_job_title_by_name(self, title:str) -> JobTitle:
+        try:
+            return self.repository.getByName(title)
+        except SQLAlchemyError as e:
+            blogger.error(f"[READ JOB-TITLE ERR] JobTitleName: {title}:: {e}")
+            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+
 
     def get_all_jobTitles(self) -> List[JobTitle]:
         try:
@@ -54,4 +63,12 @@ class JobTitleService:
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting Job Title")
+        
+    
+    def delete_all_jobTitles(self) -> JobTitle:
+        try:
+            return self.repository.deleteAll()
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE JOB-TITLE ALL ERR] :: {e}")
+            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting all Job Titles")
         

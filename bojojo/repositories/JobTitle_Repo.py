@@ -21,6 +21,13 @@ class JobTitleRepository(repository):
             raise e
         
     
+    def getByName(self, title:str) -> JobTitle:
+        try:
+            return self.session.execute(select(JobTitle).where(JobTitle.name==title)).scalars().first()
+        except SQLAlchemyError as e:
+            raise e
+        
+    
     def getAll(self) -> List[JobTitle]:
         try:
             return self.session.execute(select(JobTitle)).scalars().all()
@@ -65,3 +72,11 @@ class JobTitleRepository(repository):
         except SQLAlchemyError as e:
             raise e
             
+
+    def deleteAll(self) -> JobTitle:
+        try:
+            result = self.session.execute(delete(JobTitle).returning(JobTitle))
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            raise e
