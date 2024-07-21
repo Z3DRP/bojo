@@ -58,9 +58,10 @@ def initialize_db(path):
             creation_date TEXT NOT NULL,
             job_title_id INTEGER NOT NULL,
             job_board_id INTEGER NOT NULL,
-            run_date TEXT NOT NULL,
+            run_date TEXT,
+            run_dayOf_week TEXT,
             run_time TEXT NOT NULL,
-            run_type TEXT NOT NULL CHECK (run_type IN ('once', 'daily', 'weekly', 'biweekly', 'monthly')),
+            run_type TEXT NOT NULL CHECK (run_type IN ('once', 'reboot', 'daily', 'hourly', 'weekly', 'monthly', 'midnight')),
             recurring INTEGER NOT NULL DEFAULT 0 CHECK (recurring IN (0, 1)),
             easy_apply_only INTEGER NOT NULL DEFAULT 0 CHECK (easy_apply_only IN (0, 1))
             FOREIGN KEY (job_title_id)

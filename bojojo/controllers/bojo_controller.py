@@ -218,15 +218,16 @@ class BojoController:
         return self.createItem(result)
     
 
-    def addScheduledRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runDate:str, runTime:str, runType:str, repeat:int, onlyEasyApply:int) -> CurrentItem:
+    def addScheduledRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runDay:str, runMonth:str, runDayOfWeek:str, runTime:str, runType:str, repeat:int, onlyEasyApply:int) -> CurrentItem:
         """Create Scheduled Run to automatically apply to job title on specific job board"""
         sname = " ".join(name)
         scheduledRun = {
             "name": sname,
             "job_title_id": jobBoardId,
             "job_board_id": jobBoardId,
-            "run_date": runDate,
+            "run_date": f"{runDay}/{runMonth}",
             "run_type": runType,
+            "run_dayOf_week": runDayOfWeek,
             "run_time": runTime,
             "creation_date": datetime.datetime.now(),
             "reocurring": repeat,
@@ -235,11 +236,10 @@ class BojoController:
         #TODO make sure this works need to double check that crontab lib actually makes cronjobs and
         # if there is anything else that needs to be done when this is ran like permissions etc..
         #NOTE Read about CronTab lib
+
+        #TODO create instance of cron_schedul cls then pass cron_schedul,  and script args(dbLoc, website, jobtitle) to scheduelrCls
         
         # crontab areas on linux = /var/spool/cron or /var/spool/cron/crontabs/ on mac /var/cron/tabs/
-        rnDate = runDate.split('/')
-        day = rnDate[0] if len(rnDate[0]) == 2 else f"0{rnDate}"
-        month = rnDate[1] if len(rnDate[1]) == 2 else f"0{rnDate}"
         isoDateTime = f"{rnDate[2]}-{month}-{day}"
         time = runTime.split(':')
         hr = time[0]
@@ -248,6 +248,7 @@ class BojoController:
         cronJobScheduler = SchedulerService.getScheduler()
         cronJobScheduler.scheduleJob(schedule)
 
+        #Keep db result
         dbresult = self.dbHandler.add_scheduled_run(scheduledRun)
         return self.createItem(dbresult)
 
