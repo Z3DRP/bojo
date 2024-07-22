@@ -1,13 +1,17 @@
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
-from bojojo import DB_READ_ERROR, DB_WRITE_ERROR, FILE_PATH_ERROR
+from bojojo import BOOLEAN_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
 from bojojo.adapters.current_item import CurrentItem
 from bojojo.adapters.current_item_list import CurrentItemList
+from bojojo.factories.schedule_factory import ScheduleFactory
 from bojojo.handlers import db_handler
 from injector import inject
 import datetime
 
+from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.services.scheduler_service import SchedulerService
+from bojojo.types.schedule_types import ScheduleType
+from bojojo.utils.dict_mapper import object_to_dict
 
 
 class BojoController:
@@ -29,12 +33,13 @@ class BojoController:
         return CurrentItem(item=errObj, excCode=errCode)
     
 
-    def getRoot(self) -> Path:
-        pathlib.
+    def joinNameStr(self, name):
+        return " ".join(name)
+    
     
     def addJobBoard(self, name: List[str], url:str, hasEasyApply:int=0) -> CurrentItem:
         """Add a new job board to database to be used for job application submission"""
-        nameTxt = " ".join(name)
+        nameTxt = self.joinNameStr(name)
         jboard = {
             "name": nameTxt,
             "url": url,
@@ -58,13 +63,13 @@ class BojoController:
     
     def getJobBoardByName(self, name:List[str]) -> CurrentItem:
         """Return a specific job board by name"""
-        result = self.dbHandler.read_job_board_byName(" ".join(name))
+        result = self.dbHandler.read_job_board_byName(self.joinNameStr(name))
         return self.createItem(result)
     
 
     def modifyJobBoard(self, id:int, name: List[str], url:str, hasEasyApply:int=0) -> CurrentItem:
         """Update existing job board"""
-        nameTxt = " ".join(name)
+        nameTxt = self.joinNameStr(name)
         jboard = {
             "name": nameTxt,
             "url": url,
@@ -88,7 +93,7 @@ class BojoController:
 
     def addJobTitle(self, name:List[str], experienceLvl:str, experienceYrs:int) -> CurrentItem:
         """Add job title to apply for"""
-        nameTxt = " ".join(name)
+        nameTxt = self.joinNameStr(name)
         title = {
             "name": nameTxt,
             "experience_level": experienceLvl,
@@ -112,13 +117,13 @@ class BojoController:
     
     def getJobTitleByName(self, name:List[str]) -> CurrentItem:
         """Get a specific job title by name"""
-        result = self.dbHandler.get_job_title_byName(" ".join(name))
+        result = self.dbHandler.get_job_title_byName(self.joinNameStr(name))
         return self.createItem(result)
     
 
     def modifyJobTitle(self, id:int, name:List[str], experienceLvl:str, experienceYrs:int) -> CurrentItem:
         """Update an existing job title"""
-        jname = " ".join(name)
+        jname = self.joinNameStr(name)
         title = {
             "name": jname,
             "experience_level": experienceLvl,
@@ -148,7 +153,7 @@ class BojoController:
 
     def getResume(self, name:List[str]) -> CurrentItem:
         """Get a specific resume by name"""
-        result = self.dbHandler.read_resume_byName(" ".join(name))
+        result = self.dbHandler.read_resume_byName(self.joinNameStr(name))
         return self.createItem(result)
     
 
@@ -160,7 +165,7 @@ class BojoController:
 
     def addResume(self, name:List[str], jobTitleId:int, filePath:str) -> CurrentItem:
         """Add resume to be used for a specific job title"""
-        rname = " ".join(name)
+        rname = self.joinNameStr(name)
         file_path = Path(filePath)
         resume = {
             "name": rname,
@@ -175,7 +180,7 @@ class BojoController:
 
     def modifyResume(self, id:int, name:List[str], jobTitleId:int, filePath: str) -> CurrentItem:
         """Update existing resume"""
-        rname = " ".join(name)
+        rname = self.joinNameStr(name)
         file_path = Path(filePath)
         resume = {
             "name": rname,
@@ -214,43 +219,83 @@ class BojoController:
 
     def getScheduledRun(self, name:List[str]) -> CurrentItem:
         """Get a specific scheduled run by name"""
-        result = self.dbHandler.read_scheduled_run_byName(" ".join(name))
+        result = self.dbHandler.read_scheduled_run_byName(self.joinNameStr(name))
         return self.createItem(result)
     
 
-    def addScheduledRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runDay:str, runMonth:str, runDayOfWeek:str, runTime:str, runType:str, repeat:int, onlyEasyApply:int) -> CurrentItem:
-        """Create Scheduled Run to automatically apply to job title on specific job board"""
-        sname = " ".join(name)
+    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runType:str, onlyEasyApply:int):
+        """Save a Scheduled Run then enable it with enable command to automatically apply for a job title on specific job board"""
+
+        sname = self.joinNameStr(name)
+
+        #TODO might be able to handle in cli module
+        # if onlyEasyApply != 0 or onlyEasyApply != 1:
+        #     return BooleanError(BOOLEAN_ERROR)
+        
         scheduledRun = {
             "name": sname,
-            "job_title_id": jobBoardId,
+            "job_title_id": jobTitleId,
             "job_board_id": jobBoardId,
-            "run_date": f"{runDay}/{runMonth}",
             "run_type": runType,
-            "run_dayOf_week": runDayOfWeek,
-            "run_time": runTime,
+            "reocurring": 0 if runType.upper() == ScheduleType.ONCE.name else 1,
             "creation_date": datetime.datetime.now(),
-            "reocurring": repeat,
             "easy_apply_only": onlyEasyApply
         }
+
+        dbresult = self.dbHandler.add_scheduled_run(scheduledRun)
+        return self.createItem(dbresult)
+    
+
+    # TODO create schedule run method to add a scheduleRun that runs every so many hrs and mins
+    def enableScheduledRun(self, name:List[str], runDay:int, runDayOfWeek:str, runHr:int, runMin:int, durMin:float, numSubmisn:int) -> CurrentItem:
+        """Enable an exsisting Scheduled Run by adding a schedule to automatically apply for a job title on job board"""
+
+        sname = self.joinNameStr(name)
+        run = self.dbHandler.read_schedule_run_byName(sname)
+
+        if not run:
+            return NoRecordError('schedule run', sname)
+        
+        run.run_day = runDay
+        run.run_dayOf_week = runDayOfWeek
+        run.run_time = f"{runHr}:{runMin}"
+        run.durration_minutes = durMin
+        run.number_of_submissions = numSubmisn
+        dbresult = self.handler.modify_schedule_run(run.id, object_to_dict(run))
+
+        if not dbresult.excCode == SUCCESS:
+            return self.createItem(dbresult)
+        sched = {
+            "scheduleName": run.name,
+            "day":run.run_day,
+            "dayOfWeek":run.run_dayOf_week,
+            "hour":runHr,
+            "minute":runMin,
+            "everyHour":None,
+            "everyMinute":None,
+            "durr":durMin,
+            "numberSubmissions":numSubmisn            
+
+        }
+        schedule = ScheduleFactory.getSchedule('other', **sched)
+        #TODO applier bot will have to fetch jobTitle and jobBoard from db
+        cron_scheduler = SchedulerService.getScheduler(
+            schedule, 
+            [run.job_title_id, run.job_board_id, self.dbHandler.get_path()]
+        )
         #TODO make sure this works need to double check that crontab lib actually makes cronjobs and
         # if there is anything else that needs to be done when this is ran like permissions etc..
         #NOTE Read about CronTab lib
-
-        #TODO create instance of cron_schedul cls then pass cron_schedul,  and script args(dbLoc, website, jobtitle) to scheduelrCls
         
         # crontab areas on linux = /var/spool/cron or /var/spool/cron/crontabs/ on mac /var/cron/tabs/
-        isoDateTime = f"{rnDate[2]}-{month}-{day}"
-        time = runTime.split(':')
-        hr = time[0]
-        minutes = time[1]
-        schedule = datetime.datetime(rnDate[2], rnDate[1], rnDate[0], hr, minutes)
-        cronJobScheduler = SchedulerService.getScheduler()
-        cronJobScheduler.scheduleJob(schedule)
-
+        cron_scheduler.configureJobSchedule()
         #Keep db result
-        dbresult = self.dbHandler.add_scheduled_run(scheduledRun)
         return self.createItem(dbresult)
+    
+
+    
+
+
 
 
 

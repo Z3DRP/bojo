@@ -22,6 +22,10 @@ class DbHandler:
         self.scheduledRunService = scheduledRunService
 
     
+    def get_path(self):
+        return self.__db_path
+
+    
     def read_all_applications(self) -> DbResponse:
         try:
             apps = self.appService.get_all_applications()

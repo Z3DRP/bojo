@@ -1,5 +1,7 @@
 from crontab import CronTab
 
+from bojojo.models.Cron_Schedule import CronSchedule
+
 class SchedulerService:
     
     def __init__(self, cronSchedule, *args):
@@ -9,8 +11,8 @@ class SchedulerService:
         # wil need need add arguements to be passed to path for applier script
         self.scriptArguements = None
         for arg in args:
-            self.scriptArguements += f" {arg}"
-        self.command = f'python3 {self.bojoRunnerPath} "{self.scriptArguements}"'
+            self.scriptArguements += f' "{arg}"'
+        self.command = f'python3 {self.bojoRunnerPath} {self.scriptArguements} "{cronSchedule.durration}" "{cronSchedule.numberOfSubmissions}"'
         self.cronSchedule = cronSchedule
         self.job = self.cron.new(command=self.command, comment=self.cronSchedule.name)
         self.schedule = None
@@ -42,18 +44,20 @@ class SchedulerService:
             self.job.setall(f"{self.minute} {self.hour} * * 1")
         if self.cronSchedule.hour and self.cronSchedule.minute and self.cronSchedule.dayOfWeek and self.cronSchedule.weekly:
             self.job.setall(f"{self.minute} {self.hour} * * {self.dayOfWeek}")
+        self.writeJob()
 
 
-    def writeJob(self, schedule: str) -> None:
-        self.setall(schedule)
+    def writeJob(self) -> None:
         self.cron.write()
     
 
+    #TODO change method to be static so it can just iter crontabs and remove
     def removeAllScheduledJobs(self) -> None:
         self.cron.remove_all()
         self.cron.write()
 
-    
+
+    #TODO change method to be static so it can just iter crontabs and remove
     def removeScheduledJob(self, schedule:str) -> None: 
         jobCount = 0
         for job in self.cron:
@@ -62,5 +66,10 @@ class SchedulerService:
                 jobCount += 1
         if jobCount > 0:
             self.cron.write()
+
+    
+    @classmethod
+    def getScheduler(cls, sched:CronSchedule, argList):
+        return cls(sched, argList)
             
         

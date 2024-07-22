@@ -16,7 +16,10 @@ __version__ = "0.1.0"
     JSON_ERROR,
     ID_ERROR,
     FILE_PATH_ERROR,
-) = range(11)
+    INPUT_ERROR,
+    BOOLEAN_ERROR,
+    NO_RECORD_ERROR,
+) = range(14)
 
 ERRORS = {
     DIR_ERROR: "config directory error",
@@ -28,7 +31,10 @@ ERRORS = {
     DB_DELETE_ERROR: "database delete error",
     JSON_ERROR: "json parsing error",
     ID_ERROR: "bojo id error",
-    FILE_PATH_ERROR: "file path does not exist"
+    FILE_PATH_ERROR: "file path does not exist",
+    INPUT_ERROR: "invalid input",
+    BOOLEAN_ERROR: "invalid integer type for boolean conversion",
+    NO_RECORD_ERROR: "record not found for "
 }
 
 class RepoException(Exception):
@@ -52,3 +58,14 @@ class UpdateError(RepoException):
 class DeleteError(RepoException):
     """Exception raised for delete error"""
     pass
+
+class BooleanError(RepoException):
+    """Exception for boolean fields not equal to 1 or 0"""
+    super(BOOLEAN_ERROR, ERRORS.get(BOOLEAN_ERROR))
+
+class NoRecordError:
+    def __init__(self, recType, identifier):
+        self.record_type = recType
+        self.identifier = identifier
+        self.message = f"{ERRORS.get(NO_RECORD_ERROR)} {recType} {identifier}"
+        self.err_code = NO_RECORD_ERROR
