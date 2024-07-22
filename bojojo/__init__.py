@@ -1,4 +1,4 @@
-"""TOP-LEVEL package for Scrappy web scrapper"""
+"""TOP-LEVEL package for Bojo cli app used to schedule Job Search Bots"""
 #wbscrapper/__init__.py
 
 __app_name__ = "bojo"
