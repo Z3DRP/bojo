@@ -2,7 +2,7 @@ from injector import inject
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.models import Resume
 from bojojo.repositories.Resume_Repo import ResumeRepository
-from bojojo.utils import Blogger as blogger
+from bojojo.utils.bologger import blogger as blogger
 from bojojo import DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from typing import List
 

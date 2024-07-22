@@ -5,7 +5,7 @@ from injector import inject
 from bojojo.models import Application
 from bojojo.repositories.Application_Repo import ApplicationRepository
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.utils import Blogger as blogger
+from bojojo.utils.bologger import blogger as blogger
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 
 

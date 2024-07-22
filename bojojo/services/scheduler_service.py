@@ -44,7 +44,10 @@ class SchedulerService:
             self.job.setall(f"{self.minute} {self.hour} * * 1")
         if self.cronSchedule.hour and self.cronSchedule.minute and self.cronSchedule.dayOfWeek and self.cronSchedule.weekly:
             self.job.setall(f"{self.minute} {self.hour} * * {self.dayOfWeek}")
-        self.writeJob()
+        try:
+            self.writeJob()
+        except RuntimeError as e:
+            raise e
 
 
     def writeJob(self) -> None:

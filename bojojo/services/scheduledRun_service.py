@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from bojojo.models.Scheduled_Run import ScheduledRun
 from bojojo.repositories.ScheduledRun_Repo import ScheduledRunRepository
-from bojojo.utils import Blogger as blogger
+from bojojo.utils.bologger import blogger as blogger
 
 class ScheduledRunService:
 
