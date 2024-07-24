@@ -4,6 +4,11 @@
 __app_name__ = "bojo"
 __version__ = "0.1.0"
 
+from pathlib import Path
+
+import typer
+
+
 (
     SUCCESS,
     DIR_ERROR,
@@ -36,6 +41,9 @@ ERRORS = {
     BOOLEAN_ERROR: "invalid integer type for boolean conversion",
     NO_RECORD_ERROR: "record not found for "
 }
+
+CONFIG_DIR_PATH = Path(typer.get_app_dir(__app_name__))
+CONFIG_FILE_PATH = CONFIG_DIR_PATH / "config.ini"
 
 class RepoException(Exception):
     """Base clas for all repo errors"""

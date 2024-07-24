@@ -1,11 +1,12 @@
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
+
+import inject
 from bojojo import BOOLEAN_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
 from bojojo.adapters.current_item import CurrentItem
 from bojojo.adapters.current_item_list import CurrentItemList
 from bojojo.factories.schedule_factory import ScheduleFactory
 from bojojo.handlers import db_handler
-from injector import inject
 import datetime
 
 from bojojo.models.Cron_Schedule import CronSchedule
@@ -16,9 +17,8 @@ from bojojo.utils.dict_mapper import object_to_dict
 
 class BojoController:
     
-    @inject
-    def __init__(self, dbHandler: db_handler):
-        self.dbHandler = dbHandler
+    def __init__(self):
+        self.dbHandler = inject.instance(db_handler)
 
     
     def createItem(self, reslt:Any) -> CurrentItem:

@@ -1,5 +1,5 @@
 from typing import List
-from injector import inject
+import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,9 +9,9 @@ from bojojo.repositories import repository
 
 class ScheduledRunRepository(repository):
 
-    @inject
+
     def __init__(self, session: Session):
-        self.session = session    
+        self.session = inject.instance(Session)    
 
     
     def get(self, id: int) -> ScheduledRun:

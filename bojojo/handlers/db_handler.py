@@ -10,16 +10,14 @@ from bojojo.services import ApplicationService, CompletedRunService, JobBoardSer
 class DbHandler:
 
 
-    @inject
-    def __init__(self, db_path: Path, appService: ApplicationService, completedRunService: CompletedRunService, jobBoardService: JobBoardService,
-                 jobTitleService: JobTitleService, resumeService: ResumeService, scheduledRunService: ScheduledRunService) -> None:
+    def __init__(self, db_path: Path) -> None:
         self.__db_path = db_path
-        self.appService = appService
-        self.completedRunService = completedRunService
-        self.jobBoardService = jobBoardService
-        self.jobTitleService = jobTitleService
-        self.resumeService = resumeService
-        self.scheduledRunService = scheduledRunService
+        self.appService = inject.instance(ApplicationService)
+        self.completedRunService = inject.instance(CompletedRunService)
+        self.jobBoardService = inject.instance(JobBoardService)
+        self.jobTitleService = inject.instance(JobTitleService)
+        self.resumeService = inject.instance(ResumeService)
+        self.scheduledRunService = inject.instance(ScheduledRunService)
 
     
     def get_path(self):

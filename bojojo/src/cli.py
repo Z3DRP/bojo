@@ -36,6 +36,7 @@ def init(
         )
         raise typer.Exit(1)
     else:
+        #add configure code here
         typer.secho(f"Bojo database created successfully at {db_path}", fg=typer.colors.GREEN)
 
 def _version_callback(value: bool) -> None:

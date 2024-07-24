@@ -3,11 +3,9 @@ from pathlib import Path
 import typer
 
 from bojojo import (
-    DB_READ_ERROR, DB_WRITE_ERROR, DB_CREATE_ERROR, DIR_ERROR, FILE_ERROR, SUCCESS, __app_name__
+    CONFIG_DIR_PATH, CONFIG_FILE_PATH, DB_READ_ERROR, DB_WRITE_ERROR, DB_CREATE_ERROR, DIR_ERROR, FILE_ERROR, SUCCESS, __app_name__
 )
 
-CONFIG_DIR_PATH = Path(typer.get_app_dir(__app_name__))
-CONFIG_FILE_PATH = CONFIG_DIR_PATH / "config.ini"
 
 def init_app(db_path: str) -> int:
     """Initialize the application."""
