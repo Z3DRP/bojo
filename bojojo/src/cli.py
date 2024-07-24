@@ -4,13 +4,17 @@ This module provides the Bojo CLI
 """
 from pathlib import Path
 from typing import Optional
+import inject
 import typer
 from bojojo import ERRORS, __app_name__, __version__
 from bojojo.src import config, db_config
 from bojojo.repositories import db_init
+from bojojo.inject_config import base_config
+
 
 app = typer.Typer()
 
+#TODO remove abilities to add alternate db path
 @app.command()
 def init(
     db_path: str = typer.Option(
@@ -36,7 +40,6 @@ def init(
         )
         raise typer.Exit(1)
     else:
-        #add configure code here
         typer.secho(f"Bojo database created successfully at {db_path}", fg=typer.colors.GREEN)
 
 def _version_callback(value: bool) -> None:

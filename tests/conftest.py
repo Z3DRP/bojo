@@ -1,9 +1,12 @@
+#conftest.py
 from unittest.mock import MagicMock
+import inject
 import pytest
 import tempfile
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from bojojo.inject_config.di_config import test_config
 from bojojo.models.Application import Base
 from bojojo.repositories import db_init
 from bojojo.repositories.Resume_Repo import ResumeRepository
@@ -120,6 +123,13 @@ def b_resume(db_session: Session, jobtitle_id: int):
         ("Db developer", jobtitle_id, 'resume/path/next')
     )
     return db_session.get(Resume, {"name": "Db developer"})
+
+
+#new ver of testing services etc
+@pytest.fixture(scope="module")
+def mresume_service():
+    inject.configure(test_config)
+    return inject.instance(ResumeService)
 
 
 

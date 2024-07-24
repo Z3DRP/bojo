@@ -1,0 +1,1 @@
+from .di_config import base_config
