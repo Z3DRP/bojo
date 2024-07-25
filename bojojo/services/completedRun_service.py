@@ -1,5 +1,5 @@
 from typing import List
-from injector import inject
+import inject
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.models.Completed_Run import CompletedRun
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
@@ -7,9 +7,10 @@ from bojojo.repositories.CompletedRun_Repo import CompletedRunRepository
 from bojojo.utils.bologger import blogger as blogger
 class CompletedRunService:
 
-    @inject
-    def __init__(self, repo:CompletedRunRepository):
-        self.repository = repo
+    
+    repository = inject.attr(CompletedRunRepository)
+    def __init__(self) -> None:
+        pass
 
     
     def get_completed_run(self, id:int) -> CompletedRun:

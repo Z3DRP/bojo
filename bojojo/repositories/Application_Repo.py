@@ -9,10 +9,9 @@ from bojojo.repositories import repository
 
 class ApplicationRepository(repository):
 
-
+    session = inject.attr(Session)
     def __init__(self):
-        self.session = inject.instance(Session)
-
+        pass
 
     def get(self, id: int) -> Application:
         try:

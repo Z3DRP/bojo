@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 from adapters import DbResponse
-from injector import inject
+import inject
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, JSON_ERROR, SUCCESS, AddError, DeleteError, GetError, UpdateError
 from bojojo.adapters import CurrentItem, DbResponse
 from bojojo.models.Completed_Run import CompletedRun
@@ -9,15 +9,15 @@ from bojojo.services import ApplicationService, CompletedRunService, JobBoardSer
 
 class DbHandler:
 
-
+    appService = inject.atrr(ApplicationService)
+    completedRunService = inject.attr(CompletedRunService)
+    jobBoardService = inject.attr(JobBoardService)
+    jobTitleService = inject.attr(JobTitleService)
+    resumeService = inject.attr(ResumeService)
+    scheduledRunService = inject.attr(ScheduledRunService)
+    
     def __init__(self, db_path: Path) -> None:
         self.__db_path = db_path
-        self.appService = inject.instance(ApplicationService)
-        self.completedRunService = inject.instance(CompletedRunService)
-        self.jobBoardService = inject.instance(JobBoardService)
-        self.jobTitleService = inject.instance(JobTitleService)
-        self.resumeService = inject.instance(ResumeService)
-        self.scheduledRunService = inject.instance(ScheduledRunService)
 
     
     def get_path(self):

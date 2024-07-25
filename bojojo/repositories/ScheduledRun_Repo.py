@@ -10,8 +10,9 @@ from bojojo.repositories import repository
 class ScheduledRunRepository(repository):
 
 
+    session = inject.attr(Session)
     def __init__(self, session: Session):
-        self.session = inject.instance(Session)    
+        pass
 
     
     def get(self, id: int) -> ScheduledRun:

@@ -1,4 +1,4 @@
-from injector import inject
+import inject
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.models import Resume
 from bojojo.repositories.Resume_Repo import ResumeRepository
@@ -8,9 +8,10 @@ from typing import List
 
 class ResumeService:
     
-    @inject
-    def __init__(self, repo: ResumeRepository):
-        self.repository = repo
+    
+    repository = inject.attr(ResumeRepository)
+    def __init__(self) -> None:
+        pass
 
 
     def get_resume(self, resume_id: int) -> Resume:

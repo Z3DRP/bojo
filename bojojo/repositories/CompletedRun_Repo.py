@@ -9,10 +9,10 @@ from bojojo.models.Completed_Run import CompletedRun
 class CompletedRunRepository(repository):
 
 
-
+    session = inject.attr(Session)
     def __init__(self):
-        self.session = inject.instance(Session)    
-
+        pass
+    
 
     def get(self, id: int) -> CompletedRun:
         try:

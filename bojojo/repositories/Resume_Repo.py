@@ -11,9 +11,7 @@ from bojojo.repositories import db_init
 class ResumeRepository(repository):
 
 
-    #TODO possibly change this setup, remove AddError exceptions out into the
-    #service class that will use this repository....
-
+    session = inject.attr(Session)
     def __init__(self):
         self.session = inject.instance(Session)
 

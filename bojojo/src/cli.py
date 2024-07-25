@@ -4,7 +4,6 @@ This module provides the Bojo CLI
 """
 from pathlib import Path
 from typing import Optional
-import inject
 import typer
 from bojojo import ERRORS, __app_name__, __version__
 from bojojo.src import config, db_config

@@ -10,8 +10,9 @@ from bojojo.repositories import repository
 class JobBoardRepository(repository):
 
 
+    session = inject.attr(Session)
     def __init__(self):
-        self.session = inject.instance(Session)    
+        pass
 
     
     def get(self, id: int) -> JobBoard:

@@ -15,23 +15,24 @@ from bojojo.services.jobBoard_service import JobBoardService
 from bojojo.services.jobTitle_service import JobTitleService
 from bojojo.services.resume_service import ResumeService
 from bojojo.services.scheduledRun_service import ScheduledRunService
+from bojojo.utils.config_reader import get_db_path
 
 
 def base_config(binder):
     binder.bind(Session, session_provider())
-    binder.bind(ResumeRepository, ResumeRepository(Session))
-    binder.bind(ResumeService, ResumeService(ResumeRepository))
-    binder.bind(ApplicationRepository, ApplicationRepository(Session))
-    binder.bind(ApplicationService, ApplicationService(ApplicationRepository))
-    binder.bind(CompletedRunRepository, CompletedRunRepository(Session))
-    binder.bind(CompletedRunService, CompletedRunService(CompletedRunRepository))
-    binder.bind(JobBoardRepository, JobBoardRepository(Session))
-    binder.bind(JobBoardService, JobBoardService(JobBoardRepository))
-    binder.bind(JobTitleRepository, JobTitleRepository(Session))
-    binder.bind(JobTitleService, JobTitleService(JobTitleRepository))
-    binder.bind(ScheduledRunRepository, ScheduledRunRepository(Session))
-    binder.bind(ScheduledRunService, ScheduledRunService(ScheduledRunRepository))
-    binder.bind(db_handler, to=db_handler)
+    binder.bind(ResumeRepository, ResumeRepository())
+    binder.bind(ApplicationRepository, ApplicationRepository())
+    binder.bind(CompletedRunRepository, CompletedRunRepository())
+    binder.bind(JobBoardRepository, JobBoardRepository())
+    binder.bind(JobTitleRepository, JobTitleRepository())
+    binder.bind(ScheduledRunRepository, ScheduledRunRepository())
+    binder.bind(ResumeService, ResumeService)
+    binder.bind(ApplicationService, ApplicationService)
+    binder.bind(CompletedRunService, CompletedRunService)
+    binder.bind(JobBoardService, JobBoardService)
+    binder.bind(JobTitleService, JobTitleService)
+    binder.bind(ScheduledRunService, ScheduledRunService)
+    binder.bind(db_handler, db_handler(get_db_path()))
 
 
 def test_config(binder):
