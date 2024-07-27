@@ -64,6 +64,13 @@ class ScheduledRunService:
             raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting Scheduled Run")
         
     
+    def delete_scheduledRun_byName(self, name:str) -> ScheduledRun:
+        try:
+            return self.repository.delete_byName(name)
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE SCHEDULED-RUN ERR] ScheduledRunName: {name}:: {e}")
+        
+    
     def delete_all_scheduledRuns(self) -> ScheduledRun:
         try:
             return self.repository.deleteAll()

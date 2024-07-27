@@ -10,7 +10,7 @@ from bojojo.handlers import db_handler
 import datetime
 
 from bojojo.models.Cron_Schedule import CronSchedule
-from bojojo.services.scheduler_service import SchedulerService
+from bojojo.services.crontab_service import CronTabService, SchedulerService
 from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.dict_mapper import object_to_dict
 
@@ -223,7 +223,7 @@ class BojoController:
         return self.createItem(result)
     
 
-    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runType:str, onlyEasyApply:int):
+    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runType:str, onlyEasyApply:int) -> CurrentItem:
         """Save a Scheduled Run then enable it with enable command to automatically apply for a job title on specific job board"""
 
         sname = self.joinNameStr(name)
@@ -279,7 +279,7 @@ class BojoController:
         }
         schedule = ScheduleFactory.getSchedule('other', **sched)
         #TODO applier bot will have to fetch jobTitle and jobBoard from db
-        cron_scheduler = SchedulerService.getScheduler(
+        cron_scheduler = CronTabService.getScheduler(
             schedule, 
             [run.job_title_id, run.job_board_id, self.dbHandler.get_path()]
         )
@@ -291,6 +291,26 @@ class BojoController:
         cron_scheduler.configureJobSchedule()
         #Keep db result
         return self.createItem(dbresult)
+    
+
+    def removeScheduledRun_byName(self, name:List[str]) -> CurrentItem:
+        """Delete scheduled run from crontab and db by name"""
+        sname = self.joinNameStr(name)
+        runRslt = self.dbHandler.remove_scheduledRun_byName(sname)
+        if not runRslt:
+            return self.createErrorItem(runRslt.entityList, runRslt.excCode)
+        requestRslt = CronTabService.removeScheduledJob()
+        return CurrentItem(None, requestRslt)
+    
+
+    def removeAllScheduledRuns(self):
+        runDbRslt = self.dbHandler.remove_all_scheduledRuns()
+        if runDbRslt.excCode != SUCCESS:
+            return self.createErrorItem({}, runDbRslt.excCode)
+        cronRslt = CronTabService.removeAllScheduledJobs()
+        if not cronRslt == SUCCESS:
+            return [{}, cronRslt]
+        return self.createItem(runDbRslt)
     
 
     

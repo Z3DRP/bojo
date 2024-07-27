@@ -4,4 +4,4 @@ from .jobBoard_service import JobBoardService
 from .jobTitle_service import JobTitleService
 from .resume_service import ResumeService
 from .scheduledRun_service import ScheduledRunService
-from .scheduler_service import SchedulerService
+from .crontab_service import CronTabService

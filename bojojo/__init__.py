@@ -24,6 +24,7 @@ import typer
     INPUT_ERROR,
     BOOLEAN_ERROR,
     NO_RECORD_ERROR,
+    CRON_NOT_FOUND,
 ) = range(14)
 
 ERRORS = {
@@ -39,35 +40,36 @@ ERRORS = {
     FILE_PATH_ERROR: "file path does not exist",
     INPUT_ERROR: "invalid input",
     BOOLEAN_ERROR: "invalid integer type for boolean conversion",
-    NO_RECORD_ERROR: "record not found for "
+    NO_RECORD_ERROR: "record not found for ",
+    CRON_NOT_FOUND: "crontab does not have record for specified value: "
 }
 
 CONFIG_DIR_PATH = Path(typer.get_app_dir(__app_name__))
 CONFIG_FILE_PATH = CONFIG_DIR_PATH / "config.ini"
 
-class RepoException(Exception):
-    """Base clas for all repo errors"""
+class BojoException(Exception):
+    """Base clas for all errors"""
     def __init__(self, errCode, msg):
         self.err_code = errCode
         self.message = msg
 
-class AddError(RepoException):
+class AddError(BojoException):
     """Exception raised for errors durring add operation"""
     pass
 
-class GetError(RepoException):
+class GetError(BojoException):
     """Exception raise for get operations"""
     pass
 
-class UpdateError(RepoException):
+class UpdateError(BojoException):
     """Exception raised for update operations"""
     pass
 
-class DeleteError(RepoException):
+class DeleteError(BojoException):
     """Exception raised for delete error"""
     pass
 
-class BooleanError(RepoException):
+class BooleanError(BojoException):
     """Exception for boolean fields not equal to 1 or 0"""
     super(BOOLEAN_ERROR, ERRORS.get(BOOLEAN_ERROR))
 
@@ -77,3 +79,8 @@ class NoRecordError:
         self.identifier = identifier
         self.message = f"{ERRORS.get(NO_RECORD_ERROR)} {recType} {identifier}"
         self.err_code = NO_RECORD_ERROR
+
+
+class NoCronJobFound(BojoException):
+    def __init__(self, value):
+        super().__init__(CRON_NOT_FOUND, f"{ERRORS.get(CRON_NOT_FOUND)}{value}")

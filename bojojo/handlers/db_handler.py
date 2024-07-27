@@ -442,6 +442,17 @@ class DbHandler:
             return self.get_db_err(DB_DELETE_ERROR)
         
     
+    def remove_scheduledRun_byName(self, name:str) -> DbResponse:
+        try:
+            run = self.scheduledRunService.delete_scheduledRun_byName()
+            try:
+                return DbResponse(self.get_response(run), SUCCESS)
+            except:
+                return self.get_json_err()
+        except DeleteError:
+            return self.get_db_err(DB_DELETE_ERROR)
+            
+    
     def remove_all_scheduledRuns(self) -> DbResponse:
         try:
             run = self.scheduledRunService.delete_all_scheduledRuns()

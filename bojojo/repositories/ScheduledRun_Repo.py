@@ -75,6 +75,16 @@ class ScheduledRunRepository(repository):
             raise e
         
     
+    def delete_byName(self, name:str) -> ScheduledRun:
+        try:
+            result = self.session.execute(delete(ScheduledRun).where(ScheduledRun.name==name).returning(ScheduledRun))
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
     def deleteAll(self) -> ScheduledRun:
         try:
             result = self.session.execute(delete(ScheduledRun).returning(ScheduledRun))

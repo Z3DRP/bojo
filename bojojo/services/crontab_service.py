@@ -1,25 +1,37 @@
 from crontab import CronTab
 
+from bojojo import CRON_NOT_FOUND, SUCCESS, NoCronJobFound
 from bojojo.models.Cron_Schedule import CronSchedule
 
-class SchedulerService:
+class CronTabService:
     
-    def __init__(self, cronSchedule, *args):
-        # might have to update to user created in docker container
-        self.cron = CronTab(user='root')
+    def __init__(self):
+        self.initailize_cron()
         self.bojoRunnerPath = "/path/to/update/for/autoApply"
         # wil need need add arguements to be passed to path for applier script
         self.scriptArguements = None
+        self.command = None
+        self.cronSchedule = None
+        self.job = None
+        self.schedule = None
+
+    
+    def initailize_cron(self):
+        # might have to update to user created in docker container
+        self.cron = CronTab(user='root')
+
+    
+    def configureJob(self, cronSchedule, *args) -> None:
         for arg in args:
             self.scriptArguements += f' "{arg}"'
         self.command = f'python3 {self.bojoRunnerPath} {self.scriptArguements} "{cronSchedule.durration}" "{cronSchedule.numberOfSubmissions}"'
         self.cronSchedule = cronSchedule
         self.job = self.cron.new(command=self.command, comment=self.cronSchedule.name)
         self.schedule = None
-        self.configureJobSchedule()
+        self.configureJobSchedule() 
     
 
-    def configureJobSchedule(self):
+    def configureSchedule(self):
         if self.cronSchedule.dayOfWeek:
             self.job.dow.on(self.dayOfWeek)
         if self.cronSchedule.month:
@@ -54,25 +66,35 @@ class SchedulerService:
         self.cron.write()
     
 
-    #TODO change method to be static so it can just iter crontabs and remove
-    def removeAllScheduledJobs(self) -> None:
-        self.cron.remove_all()
-        self.cron.write()
+    @classmethod
+    def removeAllScheduledJobs(cls) -> None:
+        service = cls()
+        try:
+            service.cron.remove_all()
+            service.cron.write()
+            return SUCCESS
+        except Exception as e:
+            return e
 
 
+    @classmethod
     #TODO change method to be static so it can just iter crontabs and remove
-    def removeScheduledJob(self, schedule:str) -> None: 
+    def removeScheduledJob(cls, scheduleName:str) -> None: 
+        service = cls()
         jobCount = 0
-        for job in self.cron:
-            if job.slices == schedule:
-                self.cron.remove(job)
-                jobCount += 1
+        jobIter = service.cron.find_comment(scheduleName)
+        if not jobIter:
+            return CRON_NOT_FOUND
+        for job in jobIter:
+            service.cron.remove(job)
+            jobCount += 1
         if jobCount > 0:
-            self.cron.write()
+            service.cron.write()
+        return SUCCESS
 
     
     @classmethod
     def getScheduler(cls, sched:CronSchedule, argList):
-        return cls(sched, argList)
+        return cls().configureJob(sched, argList)
             
         
