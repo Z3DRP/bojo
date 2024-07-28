@@ -313,9 +313,55 @@ class BojoController:
         return self.createItem(runDbRslt)
     
 
+    def getCompletedRun(self, id:int) -> CurrentItem:
+        crun = self.dbHandler.read_completed_run(id)
+        return self.createItem(crun)
     
 
+    def getAllCompletedRuns(self) -> CurrentItemList:
+        cruns = self.dbHandler.read_all_completedRuns()
+        return self.createItemList(cruns)
 
 
+    def addCompletedRun(self, excDate:str, start:str, finish:str, apps_finished:int, failed_sumbissions:int, run_id:int) -> CurrentItem:
+        crun = {
+            "execution_date": excDate,
+            "start": start,
+            "finish": finish,
+            "applications_finished": apps_finished,
+            "failed_submissions": failed_sumbissions,
+            "run_id": run_id
+        }
+        dbResult = self.dbHandler.write_completed_run(crun)
+        return self.createItem(dbResult)
+    
+    
+    def removeCompletedRun(self, id:int) -> CurrentItem:
+        dbRslt = self.dbHandler.remove_completed_run(id)
+        return self.createItem(dbRslt)
 
 
+    def removeAllCompletedRuns(self) -> CurrentItemList:
+        dbRslt = self.dbHandler.remove_all_completedRuns()
+        return self.createItemList(dbRslt)
+    
+
+    def getApplication(self, name:str) -> CurrentItem:
+        dbRslt = self.dbHandler.read_application(name)
+        return self.createItem(dbRslt)
+    
+
+    def getAllApplications(self) -> CurrentItemList:
+        dbRslt = self.dbHandler.read_all_applications()
+        return self.createItemList(dbRslt)
+    
+
+    def deleteApplication(self, id:int) -> CurrentItem:
+        dbRslt = self.dbHandler.delete_application(id)
+        return self.createItem(dbRslt)
+    
+    
+    def deleteAllApplications(self) -> CurrentItemList:
+        dbRslt = self.dbHandler.delete_all_applications()
+        return self.createItemList(dbRslt)
+    

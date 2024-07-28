@@ -20,7 +20,7 @@ class JobTitleService:
             return self.repository.get(id)
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-TITLE ERR] JobTitleId: {id}:: {e}")
-            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_WRITE_ERROR, e._message)
 
     
     def get_job_title_by_name(self, title:str) -> JobTitle:
@@ -28,7 +28,7 @@ class JobTitleService:
             return self.repository.getByName(title)
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-TITLE ERR] JobTitleName: {title}:: {e}")
-            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_WRITE_ERROR, e._message)
 
 
     def get_all_jobTitles(self) -> List[JobTitle]:
@@ -36,7 +36,7 @@ class JobTitleService:
             return self.repository.getAll()
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-TITLE ERR]:: {e}")
-            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_WRITE_ERROR, e._message)
         
     
     def add_job_title(self, job_data:dict) -> JobTitle:
@@ -44,7 +44,7 @@ class JobTitleService:
             return self.repository.add(**job_data)
         except SQLAlchemyError as e:
             blogger.error(f"[INSERT JOB-TITLE ERR] JobTitleId: {id}:: {e}")
-            raise AddError(DB_WRITE_ERROR, f"DB-ERROR: An error ocurred while inserting Job Title")
+            raise AddError(DB_WRITE_ERROR, e._message)
     
 
     def update_job_title(self, id:int, job_data:dict) -> JobTitle:
@@ -55,7 +55,7 @@ class JobTitleService:
             return self.repository.update(id, **job_data)
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
-            raise UpdateError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while updating Job Title")
+            raise UpdateError(DB_WRITE_ERROR, e._message)
         
     
     def delete_job_title(self, id:int) -> JobTitle:
@@ -63,7 +63,7 @@ class JobTitleService:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
-            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting Job Title")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
     def delete_all_jobTitles(self) -> JobTitle:
@@ -71,5 +71,5 @@ class JobTitleService:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-TITLE ALL ERR] :: {e}")
-            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting all Job Titles")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
         

@@ -92,7 +92,8 @@ def initialize_db(path):
         CREATE TABLE IF NOT EXISTS Applications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             company TEXT NOT NULL,
-            job_title TEXT NOT NULL,
+            job_title_id INTEGER NOT NULL,
+            job_board_id INTEGER NOT NULL,
             location TEXT NOT NULL,
             pay REAL,
             apply_date TEXT NOT NULL,
@@ -100,6 +101,10 @@ def initialize_db(path):
             run_id INTEGER,
             FOREIGN KEY (run_id)
                 REFERENCES Completed_Runs (id)
+            FOREIGN KEY (job_title_id)
+                REFERENCES Job_Titles (id)
+            FOREIGN KEY (job_board_id)
+                REFERENCES Job_Boards (id)
         );
         """
 

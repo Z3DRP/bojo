@@ -35,9 +35,9 @@ class DbHandler:
             return self.get_db_err(DB_READ_ERROR)
         
 
-    def read_application(self, id: int) -> DbResponse:
+    def read_application(self, name: str) -> DbResponse:
         try:
-            app = self.appService.get_application(id)
+            app = self.appService.get_application(name)
             try:
                 return DbResponse(self.get_response(app), SUCCESS)
             except:

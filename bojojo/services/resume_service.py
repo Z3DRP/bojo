@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from bojojo.models import Resume
 from bojojo.repositories.Resume_Repo import ResumeRepository
 from bojojo.utils.bologger import blogger as blogger
-from bojojo import DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
+from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from typing import List
 
 class ResumeService:
@@ -19,7 +19,7 @@ class ResumeService:
             return self.repository.get(resume_id)
         except SQLAlchemyError as e:
             blogger.error(f"[READ RESUME ERR] ResumeId: {resume_id}:: {e}")
-            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_READ_ERROR, e._message)
         
     
     def get_resume_byName(self, name:str) -> Resume:
@@ -27,7 +27,7 @@ class ResumeService:
             return self.repository.getByName(name)
         except SQLAlchemyError as e:
             blogger.error(f"[READ RESUME ERR] ResumeName: {name}:: {e}")
-            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_READ_ERROR, e._message)
         
 
     def get_all_resumes(self) -> List[Resume]:
@@ -35,7 +35,7 @@ class ResumeService:
             return self.repository.getAll()
         except SQLAlchemyError as e:
             blogger.error(f"[READ ERR]:: {e}")
-            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_READ_ERROR, e._message)
         
     
     def add_resume(self, resume_data:dict) -> Resume:
@@ -43,7 +43,7 @@ class ResumeService:
             return self.repository.add(**resume_data)
         except SQLAlchemyError as e:
             blogger.error(f"[INSERT RESUME ERR] ResumeJobTitleId: {resume_data['job_title_id']}, Path: {resume_data['file_path']}:: {e}")
-            raise AddError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while inserting Resume")
+            raise AddError(DB_WRITE_ERROR, e._message)
         
     
     def update_resume(self, resume_id:int, resume_data:dict) -> Resume:
@@ -54,7 +54,7 @@ class ResumeService:
             return self.repository.update(**resume_data)
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
-            raise UpdateError(f"DB-ERROR: An error ocurred while updating Resume")
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
     
 
     def delete_resume(self, id:int) -> Resume:
@@ -62,7 +62,7 @@ class ResumeService:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE RESUME ERR] ResumeId: {id}:: {e}")
-            raise DeleteError(f"DB-ERROR: An error ocurred while deleting Resume")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
     def delete_all_resumes(self) -> Resume:
@@ -70,4 +70,4 @@ class ResumeService:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE RESUME ALL ERR] :: {e}")
-            raise DeleteError(f"DB-ERROR: An error ocurred while deleting all Resums")
+            raise DeleteError(DB_DELETE_ERROR, e._message)

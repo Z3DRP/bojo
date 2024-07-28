@@ -8,7 +8,8 @@ class Application(Base):
     __tablename__ = "Applications"
     id = Column(Integer, name="id", primary_key=True)
     company = Column(String, name="company", nullable=False)
-    job_title = Column(String, name="job_title", nullable=False)
+    job_title_id = Column(Integer, ForeignKey("Job_Titles.id"), name="job_title_id")
+    job_board_id = Column(Integer, ForeignKey("Job_Boards.id"), name="job_board_id")
     location = Column(String, name="location", nullable=False)
     pay = Column(Double, name="pay", nullable=True)
     apply_date = Column(String, nullable=False)

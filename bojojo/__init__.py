@@ -84,3 +84,8 @@ class NoRecordError:
 class NoCronJobFound(BojoException):
     def __init__(self, value):
         super().__init__(CRON_NOT_FOUND, f"{ERRORS.get(CRON_NOT_FOUND)}{value}")
+
+class DbError:
+    def __init__(self, errcode, exceptionMsg):
+        self.error_code
+        self.exception_msg = exceptionMsg

@@ -1,7 +1,7 @@
 from typing import List
 import inject
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
+from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from bojojo.models.Scheduled_Run import ScheduledRun
 from bojojo.repositories.ScheduledRun_Repo import ScheduledRunRepository
 from bojojo.utils.bologger import blogger as blogger
@@ -19,6 +19,7 @@ class ScheduledRunService:
             return self.repository.get(id)
         except SQLAlchemyError as e:
             blogger.error(f"[READ SCHEDULED-RUN ERR] ScheduledRunId: {id}:: {e}")
+            raise GetError(DB_READ_ERROR, e._message)
     
 
     def get_all_scheduledRuns(self) -> List[ScheduledRun]:
@@ -26,7 +27,7 @@ class ScheduledRunService:
             return self.repository.getAll()
         except SQLAlchemyError as e:
             blogger.error(f"[READ SCHEDULED-RUN ERR]:: {e}")
-            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_READ_ERROR, e._message)
         
     
     def get_scheduledRunByName(self, name:str) -> ScheduledRun:
@@ -34,7 +35,7 @@ class ScheduledRunService:
             return self.repository.getByName(name)
         except SQLAlchemyError as e:
             blogger.error(f"[READ SCHEDULED-RUN ERR]:: {e}")
-            raise GetError(DB_READ_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_READ_ERROR, e._message)
     
 
     def add_scheduled_run(self, run_data:dict) -> ScheduledRun:
@@ -42,7 +43,7 @@ class ScheduledRunService:
             return self.repository.add(**run_data)
         except SQLAlchemyError as e:
             blogger.error(f"[INSERT SCHEDULED-RUN ERR] ScheduledRunId: {id}:: {e}")
-            raise AddError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while inserting Scheduled Run")
+            raise AddError(DB_WRITE_ERROR, e._message)
     
 
     def update_scheduled_run(self, id:int, run_data:dict) -> ScheduledRun:
@@ -53,7 +54,7 @@ class ScheduledRunService:
             return self.repository.update(id, **run_data)
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE SCHEDULED-RUN ERR] ScheduledRunId: {id}:: {e}")
-            raise UpdateError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while updating Scheduled Run")
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
     def delete_scheduled_run(self, id:int) -> ScheduledRun:
@@ -61,7 +62,7 @@ class ScheduledRunService:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE SCHEDULED-RUN ERR] ScheduledRunId: {id}:: {e}")
-            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting Scheduled Run")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
     def delete_scheduledRun_byName(self, name:str) -> ScheduledRun:
@@ -69,11 +70,11 @@ class ScheduledRunService:
             return self.repository.delete_byName(name)
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE SCHEDULED-RUN ERR] ScheduledRunName: {name}:: {e}")
-        
+            raise DeleteError(DB_DELETE_ERROR, e._message)
     
     def delete_all_scheduledRuns(self) -> ScheduledRun:
         try:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE SCHEDULED-RUN ALL ERR] :: {e}")
-            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting all Scheduled Runs")
+            raise DeleteError(DB_DELETE_ERROR, e._message)

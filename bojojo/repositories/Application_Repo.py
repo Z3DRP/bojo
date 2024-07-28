@@ -13,9 +13,9 @@ class ApplicationRepository(repository):
     def __init__(self):
         pass
 
-    def get(self, id: int) -> Application:
+    def get(self, name: str) -> Application:
         try:
-            result = self.session.execute(select(Application).where(Application.id==id)).scalars().first()
+            result = self.session.execute(select(Application).where(Application.name==name)).scalars().first()
             return result
         except SQLAlchemyError as e:
             raise e

@@ -1,6 +1,6 @@
 from typing import List
 import inject
-from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, DeleteError, GetError, UpdateError
+from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, DeleteError, GetError, UpdateError
 from bojojo.models.Job_Board import JobBoard
 from bojojo.repositories.JobBoard_Repo import JobBoardRepository
 from sqlalchemy.exc import SQLAlchemyError
@@ -18,7 +18,7 @@ class JobBoardService:
             return self.repository.get(id)
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-BOARD ERR] JobId: {id}:: {e}")
-            raise GetError(DB_READ_ERROR, f"DB-ERROR: An error occurred while reading")
+            raise GetError(DB_READ_ERROR, e._message)
         
     
     def get_jobBoard_by_name(self, jname:str) -> JobBoard:
@@ -26,7 +26,7 @@ class JobBoardService:
             return self.repository.getByName(jname)
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-BOARD ERR] JobBoardName: {jname}:: {e}")
-            raise GetError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise GetError(DB_WRITE_ERROR, e._message)
         
     
     def get_all_jobBoards(self) -> List[JobBoard]:
@@ -34,7 +34,7 @@ class JobBoardService:
             return self.repository.getAll()
         except SQLAlchemyError as e:
             blogger.error(f"[READ JOB-BOARD ERR] :: {e}")
-            raise AddError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while reading")
+            raise AddError(DB_WRITE_ERROR, e._message)
         
     
     def add_job_board(self, board_data:dict) -> JobBoard:
@@ -42,7 +42,7 @@ class JobBoardService:
             return self.repository.add(**board_data)
         except SQLAlchemyError as e:
             blogger.error(f"[INSERT JOB-BOARD ERR] JobBoardName: {board_data['name']}")
-            raise AddError(DB_WRITE_ERROR, "DB-ERROR: An error occurred while inserting Job Board")
+            raise AddError(DB_WRITE_ERROR, e._message)
     
 
     def update_job_board(self, id:int, board_data:dict) -> JobBoard:
@@ -53,7 +53,7 @@ class JobBoardService:
             return self.repository.update(id, **board_data)
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE JOB-BOARD ERR] JobBoardId: {id}:: {e}")
-            raise UpdateError(DB_WRITE_ERROR, "DB-ERROR: An error ocurred while updating Job Board")
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
     def delete_job_board(self, id:int) -> JobBoard:
@@ -61,7 +61,7 @@ class JobBoardService:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-BOARD ERR] JobBoardId: {id}:: {e}")
-            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting Job Board")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
     def delete_all_jobBoards(self) -> JobBoard:
@@ -69,5 +69,5 @@ class JobBoardService:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-BOARD ALL ERR] :: {e}")
-            raise DeleteError(DB_DELETE_ERROR, "DB-ERROR: An error ocurred while deleting all Job Boards")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
         
