@@ -174,6 +174,63 @@ def add_job_title(
         ttable = get_singlerow_table(**jobtitle)
         console = get_console()
         console.print(ttable)
+        
+
+@app.command
+def update_job_title(
+    name: Annotated[List[str], typer.Option("--name", "-n", help="Change the name of a saved job title")],
+    experience_years: Annotated[float, typer.Option("--xp-years", "-y", help="Update the years of experience for a job title")],
+    experience_level: Annotated[str, typer.Option("--xp-level", "-l", help="Update the level of experience for a job title, expected values 'junior, mid, senior'")]
+) -> None:
+    """Update a job title to apply for"""
+    bcontroller = get_controller()
+    updatedJob, exCode = bcontroller.modifyJobTitle(name, experienceYrs=experience_years, experienceLvl=experience_level)
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Updating job title {name} failed with "{ERRORS[exCode]}',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"Job title: {updatedJob['name']} was updated successfully"
+        )
+        ttable = get_singlerow_table(**updatedJob)
+        console = get_console()
+        console.print(ttable)
+
+
+#TODO need to add a delete by name method and update name of current delete method
+@app.command
+def remove_job_title(
+    name: Annotated[List[str], typer.Option("--name", "-n", help="Specifies the name of a job title to delete")],
+    job_id: Annotated[int, typer.Option("--job-title-id", "-jti", help="Specifies the id of a job title to delete")]
+) -> None:
+    """Delete a job title using the name or id"""
+    bcontroller = get_controller()
+    deletedJob = None
+    
+    if name and not job_id:
+        deletedJob, exCode = bcontroller.removeJobTitleByName(name)
+    elif job_id and not name:
+        deleteByVal = name if name is not None else job_id
+        deletedJob, exCode = bcontroller.removeJobTitleById(job_id)
+    else:
+        typer.secho(
+            "Error, please only specify a job title name or job title id",
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Deleting job title {deleteByVal} failed with "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"Job title: {deletedJob['name']} was deleted successfully"
+        )
 
 
 
