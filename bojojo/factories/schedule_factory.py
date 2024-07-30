@@ -12,14 +12,14 @@ class ScheduleFactory:
     @staticmethod
     def getSchedule(type, **kwargs):
 
-        if type.upper() == ScheduleType.DAILY.name:
+        if type == ScheduleType.DAILY.value:
             return DailyCronSchedule(**kwargs)
         
-        elif type.upper() == ScheduleType.WEEKLY.name:
+        elif type == ScheduleType.WEEKLY.value:
             return WeeklyCronSchedule(**kwargs)
         
-        elif type.upper() == ScheduleType.MONTHLY.name:
+        elif type == ScheduleType.MONTHLY.value:
             return MonthlyCronSchedule(**kwargs)
-        
+        #returns a Once schedule
         else:
             return CronSchedule(**kwargs)

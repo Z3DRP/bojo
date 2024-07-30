@@ -46,22 +46,22 @@ class ResumeService:
             raise AddError(DB_WRITE_ERROR, e._message)
         
     
-    def update_resume(self, resume_id:int, resume_data:dict) -> Resume:
+    def update_resume(self, resume_name:str, resume_data:dict) -> Resume:
         try:
-            resume = self.get_resume(resume_id)
+            resume = self.get_resume(resume_name)
             if not resume:
-                raise GetError(f"Resume with id {resume_id} does not exist")
+                raise GetError(f"Resume with id {resume_name} does not exist")
             return self.repository.update(**resume_data)
         except SQLAlchemyError as e:
-            blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_id}:: {e}")
+            blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_name}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
     
 
-    def delete_resume(self, id:int) -> Resume:
+    def delete_resume(self, name:str) -> Resume:
         try:
-            return self.repository.delete(id)
+            return self.repository.delete(name)
         except SQLAlchemyError as e:
-            blogger.error(f"[DELETE RESUME ERR] ResumeId: {id}:: {e}")
+            blogger.error(f"[DELETE RESUME ERR] ResumeId: {name}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     

@@ -131,6 +131,18 @@ class BojoController:
         }
         result = self.dbHandler.modify_job_title(id, title)
         return self.createItem(result)
+    
+
+    def modifyJobTitleByName(self, name:List[str], experienceLvl:str, experienceYrs:int) -> CurrentItem:
+        """Update an existing job title"""
+        jname = self.joinNameStr(name)
+        title = {
+            "name": jname,
+            "experience_level": experienceLvl,
+            "experience_years": experienceYrs
+        }
+        result = self.dbHandler.modify_jobTitle_byName(title)
+        return self.createItem(result)
 
 
     def removeJobTitle(self, id:int) -> CurrentItem:
@@ -178,7 +190,7 @@ class BojoController:
         return self.createItem(result)
     
 
-    def modifyResume(self, id:int, name:List[str], jobTitleId:int, filePath: str) -> CurrentItem:
+    def modifyResume(self, name:List[str], jobTitleId:int, filePath: str) -> CurrentItem:
         """Update existing resume"""
         rname = self.joinNameStr(name)
         file_path = Path(filePath)
@@ -189,13 +201,13 @@ class BojoController:
         }
         if not file_path.exists():
             return self.createErrorItem(resume, FILE_PATH_ERROR)
-        result = self.dbHandler.modify_resume(id, resume)
+        result = self.dbHandler.modify_resume(name, resume)
         return self.createItem(result)
     
 
-    def removeResume(self, id:int) -> CurrentItem:
+    def removeResume(self, name:str) -> CurrentItem:
         """Delete existing resume"""
-        result = self.dbHandler.remove_resume(id)
+        result = self.dbHandler.remove_resume(name)
         return self.createItem(result)
     
 
@@ -223,7 +235,7 @@ class BojoController:
         return self.createItem(result)
     
 
-    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, runType:str, onlyEasyApply:int) -> CurrentItem:
+    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, onlyEasyApply:int, runType:ScheduleType=None) -> CurrentItem:
         """Save a Scheduled Run then enable it with enable command to automatically apply for a job title on specific job board"""
 
         sname = self.joinNameStr(name)
@@ -236,8 +248,8 @@ class BojoController:
             "name": sname,
             "job_title_id": jobTitleId,
             "job_board_id": jobBoardId,
-            "run_type": runType,
-            "reocurring": 0 if runType.upper() == ScheduleType.ONCE.name else 1,
+            "run_type": runType.value,
+            "reocurring": 0 if runType == ScheduleType.ONCE.value else 1,
             "creation_date": datetime.datetime.now(),
             "easy_apply_only": onlyEasyApply
         }

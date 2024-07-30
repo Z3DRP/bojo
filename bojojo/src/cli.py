@@ -12,6 +12,7 @@ from bojojo.repositories import db_init
 from bojojo.inject_config import base_config
 from rich.console import Console
 
+from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.cli_tables import get_singlerow_table
 
 
@@ -149,6 +150,35 @@ def update_resume(
         console.print(rtable)
 
 
+@app.command
+def remove_resume(
+    name: Annotated[List[str], typer.Option("--name", "-n", help="Name of resume to delete")],
+    all: Annotated[bool, typer.Option("--all", "-a", help="Delete all saved resumes")]
+) -> None:
+    """Delete a resume or all resumes"""
+    bcontroller = get_controller()
+    resume = None
+    exCode = None
+    if all:
+        resume, exCode = bcontroller.removeAllResumes()
+    else:
+        resume, exCode = bcontroller.removeResume
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Deleting resume(s) failed with "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"Resume(s) deleted successfully",
+            fg=typer.colors.GREEN
+        )
+        rtable = get_singlerow_table(**resume)
+        console = get_console()
+        console.print(rtable)
+
+
 #TODO note date times can be used on dt values from typer cli arg types
 #TODO might have to update experience years in service cls
 @app.command
@@ -178,13 +208,24 @@ def add_job_title(
 
 @app.command
 def update_job_title(
+    job_id: Annotated[int, typer.Option("--jid", "-id", help="Specifies the id of the job title to change")],
     name: Annotated[List[str], typer.Option("--name", "-n", help="Change the name of a saved job title")],
     experience_years: Annotated[float, typer.Option("--xp-years", "-y", help="Update the years of experience for a job title")],
     experience_level: Annotated[str, typer.Option("--xp-level", "-l", help="Update the level of experience for a job title, expected values 'junior, mid, senior'")]
 ) -> None:
     """Update a job title to apply for"""
     bcontroller = get_controller()
-    updatedJob, exCode = bcontroller.modifyJobTitle(name, experienceYrs=experience_years, experienceLvl=experience_level)
+    updatedJob = None
+    exCode = None
+    if name and not job_id:
+        updatedJob, exCode = bcontroller.modifyJobTitle(job_id, experienceYrs=experience_years, experienceLvl=experience_level)
+    elif job_id and not name:
+        updatedJob, exCode = bcontroller.modifyJobTitleByName(name, experienceLvl=experience_level, experienceYrs=experience_years)
+    else:
+        typer.secho(
+            "Error, please only specify a job title or job title id",
+            fg=typer.colors.RED
+        )
     if exCode != SUCCESS:
         typer.secho(
             f'Updating job title {name} failed with "{ERRORS[exCode]}',
@@ -204,23 +245,27 @@ def update_job_title(
 @app.command
 def remove_job_title(
     name: Annotated[List[str], typer.Option("--name", "-n", help="Specifies the name of a job title to delete")],
-    job_id: Annotated[int, typer.Option("--job-title-id", "-jti", help="Specifies the id of a job title to delete")]
+    job_id: Annotated[int, typer.Option("--job-title-id", "-jti", help="Specifies the id of a job title to delete")],
+    all: Annotated[bool, typer.Option("--all", "-a", help="Delete all saved job titles")]
 ) -> None:
     """Delete a job title using the name or id"""
     bcontroller = get_controller()
     deletedJob = None
-    
-    if name and not job_id:
-        deletedJob, exCode = bcontroller.removeJobTitleByName(name)
-    elif job_id and not name:
-        deleteByVal = name if name is not None else job_id
-        deletedJob, exCode = bcontroller.removeJobTitleById(job_id)
+    exCode = None
+    if all:
+        deletedJob, exCode = bcontroller.removeAllJobTitles()
     else:
-        typer.secho(
-            "Error, please only specify a job title name or job title id",
-            fg=typer.colors.RED
-        )
-        raise typer.Exit(1)
+        if name and not job_id:
+            deletedJob, exCode = bcontroller.removeJobTitleByName(name)
+        elif job_id and not name:
+            deleteByVal = name if name is not None else job_id
+            deletedJob, exCode = bcontroller.removeJobTitleById(job_id)
+        else:
+            typer.secho(
+                "Error, please only specify a job title name or job title id",
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
     if exCode != SUCCESS:
         typer.secho(
             f'Deleting job title {deleteByVal} failed with "{ERRORS[exCode]}"',
@@ -233,7 +278,26 @@ def remove_job_title(
         )
 
 
+@app.command
+#needs name,jobTitleId,jobBoardId,runType,easyApplyOnly
+def addScheduledSearch(
+    name: Annotated[List[str], typer.Argument("--name", "-n", help="Specify a name to identify a scheduled search")],
+    jobTitleId: Annotated[int, typer.Option("--title-id", "-jtid", help="Specify the job title to apply for")],
+    jobName: Annotated[List[str], typer.Option("--title-name", "--jtn", help="Specify the job title name to apply for")],
+    jobBoardId: Annotated[int, typer.Option("--board-id", "-jbid", help="Specify the job board id to use for search")],
+    jobBoardName: Annotated[List[str], typer.Option("--board-name", "-jbn", help="Specify the job board name to use for search")],
+    runType: Annotated[ScheduleType, typer.Option("--run-type", "-rt", case_sensitive=False, help="Sets the interval for schedule job search to run, defaults to Once")] = ScheduleType.ONCE
+) -> None:
+    """Create a scheduled job search runs automatically on specified schedule using crontab, can be set to run once, daily, weekly, monthlly"""
 
+
+
+@app.command
+#needs name,runDay,runDayOfWeek,runHr,runMin,durMin,numbSubmissions
+def enableScheduledSearch(
+
+) -> None:
+    pass
 
 @app.callback()
 def main(

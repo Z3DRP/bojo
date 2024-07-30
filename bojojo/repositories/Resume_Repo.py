@@ -49,11 +49,11 @@ class ResumeRepository(repository):
             raise e
 
     
-    def update(self, id:int, **kwargs) -> Resume:
+    def update(self, name:str, **kwargs) -> Resume:
         try:
             results = self.session.execute(
                 update(Resume)
-                .where(Resume.id==id)
+                .where(Resume.name==name)
                 .values(**kwargs)
                 .returning(Resume)
             )
@@ -64,9 +64,9 @@ class ResumeRepository(repository):
             raise e
         
         
-    def delete(self, id:int) -> Resume:
+    def delete(self, name:str) -> Resume:
         try:
-            result = self.session.execute(delete(Resume).where(Resume.id==id).returning(Resume))
+            result = self.session.execute(delete(Resume).where(Resume.name==name).returning(Resume))
             self.session.commit()
             return result
         except SQLAlchemyError as e:

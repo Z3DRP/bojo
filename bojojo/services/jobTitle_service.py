@@ -1,7 +1,7 @@
 from typing import List
 import inject
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
+from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from bojojo.models.Job_Title import JobTitle
 from bojojo.repositories.JobTitle_Repo import JobTitleRepository
 from bojojo.utils.bologger import blogger as blogger
@@ -47,7 +47,7 @@ class JobTitleService:
             raise AddError(DB_WRITE_ERROR, e._message)
     
 
-    def update_job_title(self, id:int, job_data:dict) -> JobTitle:
+    def update_jobTitle_byId(self, id:int, job_data:dict) -> JobTitle:
         try:
             jobTitle = self.get_job_title(id)
             if not jobTitle:
@@ -55,7 +55,18 @@ class JobTitleService:
             return self.repository.update(id, **job_data)
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
-            raise UpdateError(DB_WRITE_ERROR, e._message)
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
+        
+    
+    def update_jobTitle_byName(self, name:str, job_data:dict) -> JobTitle:
+        try:
+            jobTitle = self.get_job_title_by_name(name)
+            if not jobTitle:
+                raise GetError(f"Job Title with name: {name} does not exist")
+            return self.repository.update_by_name(name)
+        except SQLAlchemyError as e:
+            blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
     def delete_job_title(self, id:int) -> JobTitle:
@@ -63,6 +74,14 @@ class JobTitleService:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
             blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
+        
+    
+    def delete_jobTitle_byName(self, name:str) -> JobTitle:
+        try:
+            return self.repository.delete(name)
+        except SQLAlchemyError as e:
+            blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     

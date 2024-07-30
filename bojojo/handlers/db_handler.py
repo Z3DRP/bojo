@@ -288,9 +288,31 @@ class DbHandler:
             return self.get_db_err(DB_UPDATE_ERROR)
         
     
+    def modify_jobTitle_byName(self, name:str, job_data:dict) -> DbResponse:
+        try:
+            jtitle = self.jobTitleService.update_jobTitle_byName(name, job_data)
+            try:
+                return DbResponse(self.get_response(jtitle), SUCCESS)
+            except:
+                return self.get_json_err()
+        except UpdateError:
+            return self.get_db_err(DB_UPDATE_ERROR)
+        
+    
     def remove_job_title(self, id:int) -> DbResponse:
         try:
             jtitle = self.jobTitleService.delete_job_title(id)
+            try:
+                return DbResponse(self.get_response(jtitle), SUCCESS)
+            except:
+                return self.get_json_err()
+        except DeleteError:
+            return self.get_db_err(DB_DELETE_ERROR)
+        
+    
+    def remove_jobTitle_byName(self, name:str) -> DbResponse:
+        try:
+            jtitle = self.jobTitleService.delete_jobTitle_byName(name)
             try:
                 return DbResponse(self.get_response(jtitle), SUCCESS)
             except:
@@ -343,9 +365,9 @@ class DbHandler:
             return self.get_db_err(DB_WRITE_ERROR)
     
     
-    def modify_resume(self, id:int, resume_data:dict) -> DbResponse:
+    def modify_resume(self, name:str, resume_data:dict) -> DbResponse:
         try:
-            resume = self.resumeService.update_resume(id, resume_data)
+            resume = self.resumeService.update_resume(name, resume_data)
             try:
                 return DbResponse(self.get_response(resume), SUCCESS)
             except:
@@ -354,9 +376,9 @@ class DbHandler:
             return self.get_db_err(DB_UPDATE_ERROR)
         
     
-    def remove_resume(self, id:int) -> DbResponse:
+    def remove_resume(self, name:str) -> DbResponse:
         try:
-            resume = self.resumeService.delete_resume(id)
+            resume = self.resumeService.delete_resume(name)
             try:
                 return DbResponse(self.get_response(resume), SUCCESS)
             except:

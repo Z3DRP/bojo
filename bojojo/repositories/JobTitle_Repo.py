@@ -65,9 +65,33 @@ class JobTitleRepository(repository):
             raise e
         
     
+    def update_by_name(self, name:str, **kwargs) -> JobTitle:
+        try:
+            results = self.session.execute(
+                update(JobTitle)
+                .where(JobTitle.name==name)
+                .values(**kwargs)
+                .returning(JobTitle)
+            )
+            self.session.commit()
+            return results
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
     def delete(self, id:int) -> JobTitle:
         try:
             result = self.session.execute(delete(JobTitle).where(JobTitle.id==id).returning(JobTitle))
+            self.session.commit()
+            return result
+        except SQLAlchemyError as e:
+            raise e
+        
+    
+    def delete_by_name(self, name:str) -> JobTitle:
+        try:
+            result = self.session.execute(delete(JobTitle).where(JobTitle.Name==name).returning(JobTitle))
             self.session.commit()
             return result
         except SQLAlchemyError as e:
