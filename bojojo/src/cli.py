@@ -2,6 +2,7 @@
 This module provides the Bojo CLI
 # bojo/cli.py
 """
+import datetime
 from pathlib import Path
 from typing import Annotated, List, Optional
 import typer
@@ -12,8 +13,9 @@ from bojojo.repositories import db_init
 from bojojo.inject_config import base_config
 from rich.console import Console
 
+from bojojo.types.days import WeekDays
 from bojojo.types.schedule_types import ScheduleType
-from bojojo.utils.cli_tables import get_singlerow_table
+from bojojo.utils.cli_tables import get_multirow_table, get_singlerow_table
 
 
 app = typer.Typer()
@@ -73,7 +75,7 @@ def get_console() -> Console:
     return Console()
 
 
-@app.command()
+@app.command
 def add_job_board(
     name: Annotated[List[str], typer.Argument(help="Enter name of a job board to apply for jobs")],
     url: Annotated[str, typer.Argument(help="Enter the url for the job board")],
@@ -97,6 +99,53 @@ def add_job_board(
         jbtable = get_singlerow_table(**jboard)
         console = get_console()
         console.print(jbtable)
+
+
+@app.command
+def update_job_board(
+    name: Annotated[List[str], typer.Option(help="Name of job board to update")],
+    id: Annotated[int, typer.Option(help="Id of job board to update")],
+    url: Annotated[str, typer.Option(help="Url for job board")],
+    has_easy_apply: Annotated[Optional[bool], typer.Option("--easy", "-e", help="Indicates if the job board has a easy apply feature")]
+) -> None:
+    """Update a existing job board that is being used for job search"""
+    bcontroller = get_controller()
+    has_easy = 1 if has_easy_apply else 0
+    jobBoard = None
+    exCode = None
+    jid = None
+    if name:
+        jb = bcontroller.getJobBoardByName(''.join(name))
+        if not jb.item:
+            typer.secho(
+                f'Update job board failed, no job board with name "{" ".join(name)}" exists, please enter a valid job board name or id',
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
+        jid = jb['id']
+    if id:
+        jb = bcontroller.getJobBoard(id)
+        if not jb.item:
+            typer.secho(
+                f'Update job board failed, no job board with id "{id}" exists, please enter a valid job board id or name',
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
+    if not name and not id:
+        typer.secho(f"Command failed, please specify a job board name or id", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    
+    jobBoard, exCode = bcontroller.modifyJobBoard(id=jid if name else id, name=name, url=url, hasEasyApply=has_easy)
+    if exCode != SUCCESS:
+        typer.secho(
+            f"Update job board failed with {ERRORS[exCode]}",
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        jtable = get_singlerow_table(**jtable)
+        console = get_console()
+        console.print(jtable)
 
 
 @app.command
@@ -157,12 +206,12 @@ def remove_resume(
 ) -> None:
     """Delete a resume or all resumes"""
     bcontroller = get_controller()
-    resume = None
+    resumes = None
     exCode = None
     if all:
-        resume, exCode = bcontroller.removeAllResumes()
+        resumes, exCode = bcontroller.removeAllResumes()
     else:
-        resume, exCode = bcontroller.removeResume
+        resumes, exCode = bcontroller.removeResume
     if exCode != SUCCESS:
         typer.secho(
             f'Deleting resume(s) failed with "{ERRORS[exCode]}"',
@@ -174,7 +223,11 @@ def remove_resume(
             f"Resume(s) deleted successfully",
             fg=typer.colors.GREEN
         )
-        rtable = get_singlerow_table(**resume)
+        rtable = None
+        if all:
+            rtable = get_multirow_table(*resumes)
+        else:
+            rtable = get_singlerow_table(**resumes)
         console = get_console()
         console.print(rtable)
 
@@ -234,7 +287,8 @@ def update_job_title(
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"Job title: {updatedJob['name']} was updated successfully"
+            f"Job title: {''.join(name)} was updated successfully",
+            fg=typer.colors.GREEN
         )
         ttable = get_singlerow_table(**updatedJob)
         console = get_console()
@@ -250,16 +304,16 @@ def remove_job_title(
 ) -> None:
     """Delete a job title using the name or id"""
     bcontroller = get_controller()
-    deletedJob = None
+    deletedJobs = None
     exCode = None
     if all:
-        deletedJob, exCode = bcontroller.removeAllJobTitles()
+        deletedJobs, exCode = bcontroller.removeAllJobTitles()
     else:
         if name and not job_id:
-            deletedJob, exCode = bcontroller.removeJobTitleByName(name)
+            deletedJobs, exCode = bcontroller.removeJobTitleByName(name)
         elif job_id and not name:
             deleteByVal = name if name is not None else job_id
-            deletedJob, exCode = bcontroller.removeJobTitleById(job_id)
+            deletedJobs, exCode = bcontroller.removeJobTitleById(job_id)
         else:
             typer.secho(
                 "Error, please only specify a job title name or job title id",
@@ -274,8 +328,16 @@ def remove_job_title(
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"Job title: {deletedJob['name']} was deleted successfully"
+            f"Job title: {''.join(name)} was deleted successfully",
+            fg=typer.colors.GREEN
         )
+        jTable = None
+        if all:
+            jTable = get_multirow_table(*deletedJobs)
+        else:
+            jTable = get_singlerow_table(**deletedJobs)
+        console = get_console()
+        console.print(jTable)
 
 
 @app.command
@@ -286,18 +348,97 @@ def addScheduledSearch(
     jobName: Annotated[List[str], typer.Option("--title-name", "--jtn", help="Specify the job title name to apply for")],
     jobBoardId: Annotated[int, typer.Option("--board-id", "-jbid", help="Specify the job board id to use for search")],
     jobBoardName: Annotated[List[str], typer.Option("--board-name", "-jbn", help="Specify the job board name to use for search")],
+    useEasyApplyOnly: Annotated[bool, typer.Option("--easy-only", "-e", help="Specifies if job search should only use the easy apply feature on the job board")] = False,
     runType: Annotated[ScheduleType, typer.Option("--run-type", "-rt", case_sensitive=False, help="Sets the interval for schedule job search to run, defaults to Once")] = ScheduleType.ONCE
 ) -> None:
     """Create a scheduled job search runs automatically on specified schedule using crontab, can be set to run once, daily, weekly, monthlly"""
-
+    bcontroller = get_controller()
+    jtid = None
+    jbid = None
+    if jobName and not jobTitleId:
+        jobTitle = bcontroller.getJobTitleByName("".join(jobName))
+        if not jobTitle.item:
+            typer.secho(f"Command failed, no job title found with name '{jobName}', please enter valid job title name or id", fg=typer.colors.RED)
+        else:
+            jtid = jobTitle.item["id"]
+    elif not jobName and jobTitleId:
+        jobTitle = bcontroller.getJobtitle(jobTitleId)
+        if not jobTitle.item:
+            typer.secho(f"Command failed, no job title found with id '{jobTitleId}', please enter a valid job title name or id", fg=typer.colors.RED)
+    if jobBoardName and not jobBoardId:
+        jobBoard = bcontroller.getJobBoardByName("".join(jobBoardName))
+        if not jobBoard.item:
+            typer.secho(f"Command faild, no job board found with name '{jobBoardName}', please enter a valid job board name or id", fg=typer.colors.RED)
+        else:
+            jbid = jobBoard.item["id"]
+    elif not jobBoardName and jobBoardId:
+        jobBoard = bcontroller.getJobBoard(jobBoardId)
+        if not jobBoard.item:
+            typer.secho(f"Command failed, no job board found with id '{jobBoardId}, please enter a valid job board name or id", fg=typer.colors.RED)
+    if not jobTitleId and not jobName:
+        typer.secho("You must specifiy either a job title name or job title id", fg=typer.colors.RED)
+    if not jobBoardId and not jobBoardName:
+        typer.secho("You must specify either a job board name or job board id")
+    scheduledRun, exCode = bcontroller.addScheduleRun(
+        name,
+        jobTitleId=jtid if jobName else jobTitleId,
+        jobBoardId=jbid if jobBoardName else jobBoardId,
+        onlyEasyApply=1 if useEasyApplyOnly else 0,
+        runType=runType
+    )
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Creating schedule run failed with "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"Scheduled Run created successfully",
+            fg=typer.colors.GREEN
+        )
+        stable = get_singlerow_table(**scheduledRun)
+        console = get_console()
+        console.print(stable)
 
 
 @app.command
 #needs name,runDay,runDayOfWeek,runHr,runMin,durMin,numbSubmissions
 def enableScheduledSearch(
-
+    name: Annotated[List[str], typer.Argument("--name", "-n", help="Name of a previously created scheduled search")],
+    runTDateTime: Annotated[
+        datetime, 
+        typer.Argument(
+            "--run-dt", "-rdt", 
+            help="The date and time of the initial run", 
+            formats=["%d/%m/%Y%H:%M", "%d/%m/%Y %H:%M", "%d-%m-%Y %H:%M"]
+        )],
+    runDayOfWeek: Annotated[WeekDays, typer.Option("--week-day", "-wd", help="Specifies the day of the week scheduled search should occur on")]=WeekDays.MON,
+    durrationMinutes: Annotated[int, typer.Option("--dur-mins", "-m", help="Sets the the length of time in minutes the search runs")]=30,
+    numberOfSubmissions: Annotated[int, typer.Option("--submissions", "-s", help="Indicates the number of submissions the search should complete before exiting")]=None,
+    everyHours: Annotated[int, typer.Option("--every-hours", "-eh", help="Sets the scheduled search to run every x hours")]=None,
+    everyMins: Annotated[int, typer.Option("--every-mins", "-em", help="Sets the scheduled search to run every x minutes")]=None
 ) -> None:
+    """Enables previous scheduled searches to automatically run at a set date and time, certain days of weeks, certain days of the month, every x amount of hours, or every x amount of minutes"""
     pass
+
+
+# for these next 3 commands pass in a date time and then a day of week or day of month have opt for every hour/mins
+@app.command
+def addDailyScheduledSearch():
+    pass
+
+
+@app.command
+def addWeeklyScheduledSearch():
+    pass
+
+
+@app.command
+def addMontlyScheduledSearch():
+    pass
+
+
 
 @app.callback()
 def main(
