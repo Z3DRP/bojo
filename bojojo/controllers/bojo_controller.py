@@ -11,6 +11,10 @@ import datetime
 
 from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.services.crontab_service import CronTabService, SchedulerService
+from bojojo.types import run_date
+from bojojo.types.days import get_weekday
+from bojojo.types.months import get_month_str
+from bojojo.types.run_date import RunDate
 from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.dict_mapper import object_to_dict
 
@@ -259,7 +263,7 @@ class BojoController:
     
 
     # TODO create schedule run method to add a scheduleRun that runs every so many hrs and mins
-    def enableScheduledRun(self, name:List[str], runDay:int, runDayOfWeek:str, runHr:int, runMin:int, durMin:float, numSubmisn:int) -> CurrentItem:
+    def enableScheduledRun(self, name:List[str], run_date:RunDate, durMin:float, numSubmisn:int, repeat:bool) -> CurrentItem:
         """Enable an exsisting Scheduled Run by adding a schedule to automatically apply for a job title on job board"""
 
         sname = self.joinNameStr(name)
@@ -268,9 +272,10 @@ class BojoController:
         if not run:
             return NoRecordError('schedule run', sname)
         
-        run.run_day = runDay
-        run.run_dayOf_week = runDayOfWeek
-        run.run_time = f"{runHr}:{runMin}"
+        run.run_day = run_date.day_of_month
+        run.month = get_month_str(run_date.month)
+        run.run_dayOf_week = get_weekday(run_date.day_of_week)
+        run.run_time = f"{run_date.hour}:{run_date.minute}"
         run.durration_minutes = durMin
         run.number_of_submissions = numSubmisn
         dbresult = self.handler.modify_schedule_run(run.id, object_to_dict(run))
@@ -281,10 +286,11 @@ class BojoController:
             "scheduleName": run.name,
             "day":run.run_day,
             "dayOfWeek":run.run_dayOf_week,
-            "hour":runHr,
-            "minute":runMin,
-            "everyHour":None,
-            "everyMinute":None,
+            "hour":run_date.hour,
+            "month": run_date.month,
+            "minute":run_date.minute,
+            "everyHour":run_date.everyHour,
+            "everyMinute":run_date.everyMin,
             "durr":durMin,
             "numberSubmissions":numSubmisn            
 

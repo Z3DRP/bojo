@@ -13,7 +13,9 @@ from bojojo.repositories import db_init
 from bojojo.inject_config import base_config
 from rich.console import Console
 
-from bojojo.types.days import WeekDays
+from bojojo.types.days import WeekDays, get_weekday_int
+from bojojo.types.months import Months, get_month_str
+from bojojo.types.run_date import RunDate
 from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.cli_tables import get_multirow_table, get_singlerow_table
 
@@ -404,24 +406,67 @@ def addScheduledSearch(
 
 @app.command
 #needs name,runDay,runDayOfWeek,runHr,runMin,durMin,numbSubmissions
+# TODO if initial start is different than the day of week then use day of week instead of datetime day
 def enableScheduledSearch(
     name: Annotated[List[str], typer.Argument("--name", "-n", help="Name of a previously created scheduled search")],
-    runTDateTime: Annotated[
+    runDateTime: Annotated[
         datetime, 
         typer.Argument(
             "--run-dt", "-rdt", 
             help="The date and time of the initial run", 
             formats=["%d/%m/%Y%H:%M", "%d/%m/%Y %H:%M", "%d-%m-%Y %H:%M"]
         )],
-    runDayOfWeek: Annotated[WeekDays, typer.Option("--week-day", "-wd", help="Specifies the day of the week scheduled search should occur on")]=WeekDays.MON,
+    runDayOfWeek: Annotated[WeekDays, typer.Option("--week-day", "-wd", help="Specifies the day of the week scheduled search should occur on")]=None,
+    runMonth: Annotated[Months, typer.Options("--month", "-m", help="Sets the month schedule search should run")]=None,
     durrationMinutes: Annotated[int, typer.Option("--dur-mins", "-m", help="Sets the the length of time in minutes the search runs")]=30,
     numberOfSubmissions: Annotated[int, typer.Option("--submissions", "-s", help="Indicates the number of submissions the search should complete before exiting")]=None,
     everyHours: Annotated[int, typer.Option("--every-hours", "-eh", help="Sets the scheduled search to run every x hours")]=None,
-    everyMins: Annotated[int, typer.Option("--every-mins", "-em", help="Sets the scheduled search to run every x minutes")]=None
+    everyMins: Annotated[int, typer.Option("--every-mins", "-em", help="Sets the scheduled search to run every x minutes")]=None,
+    repeat: Annotated[bool, typer.Option("--repeat", "-r", help="Indicates if the scheduled search should repeat or not, defaults to TRUE")]=True
+
 ) -> None:
     """Enables previous scheduled searches to automatically run at a set date and time, certain days of weeks, certain days of the month, every x amount of hours, or every x amount of minutes"""
-    pass
+    bcontroller = get_controller()
+    scheduledRun, exCode = bcontroller.getScheduledRun(name)
+    if not scheduledRun:
+        typer.secho(
+            f'Enabled scheduled search failed with error "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    
+    run_date = RunDate(
+        monthDay = runDateTime.weekday() if not runDayOfWeek else get_weekday_int(runDayOfWeek), 
+        weekDay = runDateTime.day, 
+        month = runDateTime.month if not runMonth else runMonth, 
+        hour = runDateTime.hour, 
+        minute = runDateTime.minute, 
+        everyHr = everyHours,
+        everyMin = everyMins, 
+        repeat = repeat
+    )
+    scheduledRun, exCode = bcontroller.enableScheduledRun(
+        name, 
+        run_date,
+        durrationMinutes,
+        numberOfSubmissions
+    )
 
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Enable scheduled search failed with error "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    
+    typer.secho(
+        f'Scheduled search "{scheduledRun["name"]}" was enabled successfully, it will begin executing at "{datetime.isofrmat(runDateTime)}"',
+        fg=typer.colors.GREEN
+    )
+    stable = get_singlerow_table(**scheduledRun)
+    console = get_console()
+    console.print(stable)
+        
 
 # for these next 3 commands pass in a date time and then a day of week or day of month have opt for every hour/mins
 @app.command
