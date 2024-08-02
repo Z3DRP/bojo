@@ -19,3 +19,5 @@ class ScheduledRun(Base):
     easy_apply_only = Column(Integer, name="easy_apply_only", default=0)
     durration_minutes = Column(Double, name="durration_minutes")
     number_of_submissions = Column(Integer, name="number_of_submissions")
+    every_hour = Column(Integer, name="every_hour")
+    every_minute = Column(Integer, name="every_minute")

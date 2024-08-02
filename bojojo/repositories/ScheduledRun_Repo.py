@@ -50,11 +50,11 @@ class ScheduledRunRepository(repository):
             raise e
         
     
-    def update(self, id:int, **kwargs) -> ScheduledRun:
+    def update(self, name:str, **kwargs) -> ScheduledRun:
         try:
             results = self.session.execute(
                 update(ScheduledRun)
-                .where(ScheduledRun.id==id)
+                .where(ScheduledRun.name==name)
                 .values(**kwargs)
                 .returning(ScheduledRun)
             )

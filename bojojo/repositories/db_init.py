@@ -66,6 +66,8 @@ def initialize_db(path):
             recurring INTEGER DEFAULT 0 CHECK (recurring IN (0, 1)),
             easy_apply_only INTEGER NOT NULL DEFAULT 0 CHECK (easy_apply_only IN (0, 1)),
             durration_minutes REAL,
+            every_hour INTEGER,
+            every_minute INTEGER,
             number_of_submissions INTEGER,
             FOREIGN KEY (job_title_id)
                 REFERENCES Job_Titles (id),

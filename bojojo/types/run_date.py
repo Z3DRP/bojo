@@ -8,3 +8,13 @@ class RunDate:
         self.everyHour = everyHr
         self.everyMin = everyMin
         self.repeat = repeat
+
+
+    @classmethod
+    def create_daily(cls, hour:int, minute:int, everyHr:int, everyMin:int):
+        return cls(None, None, None, hour, minute, everyHr, everyMin)
+    
+
+    @classmethod
+    def create_weekly(cls, weekDay:int, hour:int, minute:int, everyHr:int, everyMin:int):
+        return cls(None, weekDay, None, hour, minute, everyHr, everyMin)

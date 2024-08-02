@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
 
 import inject
-from bojojo import BOOLEAN_ERROR, DB_READ_ERROR, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
+from bojojo import BOOLEAN_ERROR, CRON_WRITE_ERR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
 from bojojo.adapters.current_item import CurrentItem
 from bojojo.adapters.current_item_list import CurrentItemList
 from bojojo.factories.schedule_factory import ScheduleFactory
@@ -10,6 +10,7 @@ from bojojo.handlers import db_handler
 import datetime
 
 from bojojo.models.Cron_Schedule import CronSchedule
+from bojojo.models.Scheduled_Run import ScheduledRun
 from bojojo.services.crontab_service import CronTabService, SchedulerService
 from bojojo.types import run_date
 from bojojo.types.days import get_weekday
@@ -20,11 +21,13 @@ from bojojo.utils.dict_mapper import object_to_dict
 
 
 class BojoController:
-    
-    def __init__(self):
-        self.dbHandler = inject.instance(db_handler)
 
+
+    dbHandler = inject.attr(db_handler)
+    def __init__(self):
+        pass
     
+
     def createItem(self, reslt:Any) -> CurrentItem:
         return CurrentItem(reslt.entityList, reslt.excCode)
     
@@ -253,7 +256,6 @@ class BojoController:
             "job_title_id": jobTitleId,
             "job_board_id": jobBoardId,
             "run_type": runType.value,
-            "reocurring": 0 if runType == ScheduleType.ONCE.value else 1,
             "creation_date": datetime.datetime.now(),
             "easy_apply_only": onlyEasyApply
         }
@@ -278,39 +280,124 @@ class BojoController:
         run.run_time = f"{run_date.hour}:{run_date.minute}"
         run.durration_minutes = durMin
         run.number_of_submissions = numSubmisn
-        dbresult = self.handler.modify_schedule_run(run.id, object_to_dict(run))
+        run.recurring = 1 if repeat else 0
+        run.every_hour = run_date.everyHour
+        run.every_minute = run_date.everyMin
+        dbresult = self.handler.update_scheduled_run(sname, object_to_dict(run))
 
         if not dbresult.excCode == SUCCESS:
             return self.createItem(dbresult)
-        sched = {
-            "scheduleName": run.name,
-            "day":run.run_day,
-            "dayOfWeek":run.run_dayOf_week,
-            "hour":run_date.hour,
-            "month": run_date.month,
-            "minute":run_date.minute,
-            "everyHour":run_date.everyHour,
-            "everyMinute":run_date.everyMin,
-            "durr":durMin,
-            "numberSubmissions":numSubmisn            
-
-        }
+        sched = self.get_schedule_dict(
+            run.name,
+            run.run_day,
+            run.run_dayOf_week,
+            run_date.hour,
+            run_date.month,
+            run_date.minute,
+            run_date.everyHour,
+            run_date.everyMin,
+            durMin,
+            numSubmisn
+        )
         schedule = ScheduleFactory.getSchedule('other', **sched)
         #TODO applier bot will have to fetch jobTitle and jobBoard from db
-        cron_scheduler = CronTabService.getScheduler(
-            schedule, 
-            [run.job_title_id, run.job_board_id, self.dbHandler.get_path()]
-        )
+        cron_scheduler = self.get_cron_service(schedule, run, self.dbHandler.get_path())
+
         #TODO make sure this works need to double check that crontab lib actually makes cronjobs and
         # if there is anything else that needs to be done when this is ran like permissions etc..
         #NOTE Read about CronTab lib
         
         # crontab areas on linux = /var/spool/cron or /var/spool/cron/crontabs/ on mac /var/cron/tabs/
-        cron_scheduler.configureJobSchedule()
+        try:
+            cron_scheduler.configureJobSchedule()
+        except Exception as e:
+            return self.createErrorItem({"EXC": e._message}, CRON_WRITE_ERR)
         #Keep db result
         return self.createItem(dbresult)
     
 
+    def enableDailyScheduledRun(self, name:List[str], run_date:RunDate, durrMin:int, numbSubmissions:int) -> CurrentItem:
+        sname = self.joinNameStr(name)
+        run = self.dbHandler.read_scheduledRun_byName(sname)
+
+        if not run:
+            return NoRecordError('scheduled run', sname)
+        run.run_day = run_date.day_of_month
+        run.month = run_date.month
+        run.run_dayOf_week = get_weekday(run_date.day_of_week)
+        run.run_time = f"{run_date.hour}:{run_date.minute}"
+        run.durration_minutes = durrMin
+        run.number_of_submissions = numbSubmissions
+        run.recurring = 1
+        run.every_hour = run_date.everyHour
+        run.every_minute = run_date.everyMin
+        rslt, exCode = self.dbHandler.update_scheduled_run(sname, object_to_dict(run))
+        if exCode != SUCCESS:
+            return self.createErrorItem({}, DB_UPDATE_ERROR)
+        
+        sched = self.get_schedule_dict(
+            run.name, 
+            run.run_day,
+            run.run_dayOf_week,
+            run_date.hour,
+            run_date.month,
+            run_date.minute,
+            run_date.everyHour,
+            run_date.everyMin,
+            durrMin,
+            numbSubmissions
+        )
+        dailySchedule = ScheduleFactory.getSchedule('daily', **sched)
+        cron_scheduler = self.get_cron_service(dailySchedule, run, self.dbHandler.get_path())
+
+        try:
+            cron_scheduler.configureJobSchedule()
+        except Exception as e:
+            return self.createErrorItem({"EXC": e._message}, CRON_WRITE_ERR)
+        return self.createItem(rslt)
+    
+
+    def enableWeeklyScheduledRun(self, name:List[str], run_date:RunDate, durrMin:int, numbSubmissions:int) -> CurrentItem:
+        sname = self.joinNameStr(name)
+        run = self.dbHandler.read_scheduledRun_byName(sname)
+        if not run:
+            return NoRecordError('scheduled run', sname)
+        run.run_day = run_date.day_of_month
+        run.month = run_date.month
+        run.run_dayOf_week = get_weekday(run_date.day_of_week)
+        run.run_time = f"{run_date.hour}:{run_date.minute}"
+        run.durration_minutes = durrMin
+        run.number_of_submissions = numbSubmissions
+        run.recourring = 1
+        run.every_hour = run_date.everyHour
+        run.every_minute = run_date.everyMin
+        rslt, exCode = self.dbHandler.update_scheduled_run(sname, object_to_dict(run))
+
+        if exCode != SUCCESS:
+            return self.createErrorItem({}, DB_UPDATE_ERROR)
+        
+        sched = self.get_schedule_dict(
+            run.name,
+            run.run_day,
+            run.run_dayOf_week,
+            run_date.hour,
+            run_date.month,
+            run_date.minute,
+            run_date.everyHour,
+            run_date.everyMin,
+            durrMin,
+            numbSubmissions
+        )
+        weeklySchedule = ScheduleFactory.getSchedule('weekly', **sched)
+        cron_scheduler = self.get_cron_service(weeklySchedule, run, self.dbHandler.get_path())
+
+        try:
+            cron_scheduler.configureJobSchedule()
+        except Exception as e:
+            return self.createErrorItem({"EXC": e._message}, CRON_WRITE_ERR)
+        return self.createItem(rslt)
+
+    
     def removeScheduledRun_byName(self, name:List[str]) -> CurrentItem:
         """Delete scheduled run from crontab and db by name"""
         sname = self.joinNameStr(name)
@@ -382,4 +469,26 @@ class BojoController:
     def deleteAllApplications(self) -> CurrentItemList:
         dbRslt = self.dbHandler.delete_all_applications()
         return self.createItemList(dbRslt)
+    
+
+    def get_cron_service(schedule:CronSchedule, run:ScheduledRun, dbpath:str):
+        return CronTabService.getScheduler(
+            schedule,
+            [run.job_title_id, run.job_board_id, dbpath]
+        )        
+    
+    
+    def get_schedule_dict(name, day, dayWeek, hr, mn, mnth, eHr, eMin, dMin, nSubs) -> Dict[str, Any]:
+        return {
+            "scheduleName": name,
+            "day": day,
+            "dayOfWeek": dayWeek,
+            "hour": hr,
+            "month": mnth,
+            "minute": mn,
+            "everyHour": eHr,
+            "everyMinute": eMin,
+            "durr": dMin,
+            "numberSubmissions": nSubs            
+        }
     

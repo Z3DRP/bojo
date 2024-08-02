@@ -25,7 +25,8 @@ import typer
     BOOLEAN_ERROR,
     NO_RECORD_ERROR,
     CRON_NOT_FOUND,
-) = range(14)
+    CRON_WRITE_ERR
+) = range(15)
 
 ERRORS = {
     DIR_ERROR: "config directory error",
@@ -41,7 +42,8 @@ ERRORS = {
     INPUT_ERROR: "invalid input",
     BOOLEAN_ERROR: "invalid integer type for boolean conversion",
     NO_RECORD_ERROR: "record not found for ",
-    CRON_NOT_FOUND: "crontab does not have record for specified value: "
+    CRON_NOT_FOUND: "crontab does not have record for specified value: ",
+    CRON_WRITE_ERR: "error ocurred while creating cron job",
 }
 
 CONFIG_DIR_PATH = Path(typer.get_app_dir(__app_name__))

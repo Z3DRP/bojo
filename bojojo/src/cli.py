@@ -73,8 +73,10 @@ def get_controller() -> BojoController:
             fg=typer.colors.RED
         )
 
-def get_console() -> Console:
-    return Console()
+
+def print_table(table) -> None:
+    console = Console()
+    console.print(table)
 
 
 @app.command
@@ -99,8 +101,7 @@ def add_job_board(
             fg=typer.colors.GREEN
         )
         jbtable = get_singlerow_table(**jboard)
-        console = get_console()
-        console.print(jbtable)
+        print_table(jbtable)
 
 
 @app.command
@@ -146,8 +147,7 @@ def update_job_board(
         raise typer.Exit(1)
     else:
         jtable = get_singlerow_table(**jtable)
-        console = get_console()
-        console.print(jtable)
+        print_table(jtable)
 
 
 @app.command
@@ -171,8 +171,7 @@ def add_resume(
             fg=typer.colors.GREEN
         )
         rtable = get_singlerow_table(**resume)
-        console = get_console()
-        console.print(rtable)
+        print_table(rtable)
     
 
 #TODO update resume to update based off name not id
@@ -197,8 +196,7 @@ def update_resume(
             fg=typer.colors.GREEN
         )
         rtable = get_singlerow_table(**resume)
-        console = get_console()
-        console.print(rtable)
+        print_table(rtable)
 
 
 @app.command
@@ -230,8 +228,7 @@ def remove_resume(
             rtable = get_multirow_table(*resumes)
         else:
             rtable = get_singlerow_table(**resumes)
-        console = get_console()
-        console.print(rtable)
+        print_table(rtable)
 
 
 #TODO note date times can be used on dt values from typer cli arg types
@@ -257,8 +254,7 @@ def add_job_title(
             fg=typer.colors.GREEN
         )
         ttable = get_singlerow_table(**jobtitle)
-        console = get_console()
-        console.print(ttable)
+        print_table(ttable)
         
 
 @app.command
@@ -293,8 +289,7 @@ def update_job_title(
             fg=typer.colors.GREEN
         )
         ttable = get_singlerow_table(**updatedJob)
-        console = get_console()
-        console.print(ttable)
+        print_table(ttable)
 
 
 #TODO need to add a delete by name method and update name of current delete method
@@ -338,8 +333,7 @@ def remove_job_title(
             jTable = get_multirow_table(*deletedJobs)
         else:
             jTable = get_singlerow_table(**deletedJobs)
-        console = get_console()
-        console.print(jTable)
+        print_table(jTable)
 
 
 @app.command
@@ -400,8 +394,7 @@ def addScheduledSearch(
             fg=typer.colors.GREEN
         )
         stable = get_singlerow_table(**scheduledRun)
-        console = get_console()
-        console.print(stable)
+        print_table(stable)
 
 
 @app.command
@@ -464,23 +457,112 @@ def enableScheduledSearch(
         fg=typer.colors.GREEN
     )
     stable = get_singlerow_table(**scheduledRun)
-    console = get_console()
-    console.print(stable)
+    print_table(stable)
         
 
 # for these next 3 commands pass in a date time and then a day of week or day of month have opt for every hour/mins
 @app.command
-def addDailyScheduledSearch():
-    pass
+def enableDailyScheduledSearch(
+    name: Annotated[List[str], typer.Argument("--name", "-n", help="The name of a previously saved scheduled search")],
+    time: Annotated[
+        datetime, 
+        typer.Arguement(
+            "--time",
+            "-t", 
+            formats=["%H:%M", "%H %M"],
+            help='Time the scheduled search should occur'
+    )],
+    everyHour: Annotated[int, typer.Option("--every-hour", "-eh", help="Sets the scheduled search to run every x hours")],
+    everyMin: Annotated[int, typer.Option("--every-min", "-em", help="Sets the scheduled search to run every x minutes")],
+    durrationMin: Annotated[int, typer.Argument("--durration", "-d", help="Sets the durration of the search in minutes, defaults to 30")]=30,
+    numberOfSubs: Annotated[int, typer.Option("--number-submissions", "-ns", help="Sets the number of submissions for search to complete before exiting")]=None
+) -> None:
+    """Enable a scheduled search to run daily at a specific time"""
+    bcontroller = get_controller()
+    scheduledRun, exCode = bcontroller.getScheduledRun(name)
+    if not scheduledRun:
+        typer.secho(
+            f'Enable daily search failed, there is no previous scheduled run named "{" ".join(name)}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Enabled daily search failed with errors: "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    run_data = RunDate.create_daily(time.hour, time.minute, everyHour, everyMin, durrationMin)
+    scheduledRun, exCode = bcontroller.enableDailyScheduledRun(name, run_data, durrationMin, numberOfSubs)
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Enabled daily search failed with errors: "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    typer.secho(
+        f'Daily search for "{name}" enabled successfully',
+        fg=typer.colors.GREEN
+    )
+    stable = get_singlerow_table(**scheduledRun)
+    print_table(stable)
 
 
 @app.command
-def addWeeklyScheduledSearch():
-    pass
+def enableWeeklyScheduledSearch(
+    name: Annotated[List[str], typer.Argument("--name", "-n", help="The name of a previously saved scheduled search")],
+    time: Annotated[
+        datetime,
+        typer.Argument(
+            "--time",
+            "-t",
+            formats=["%H:%M", "%H %M"],
+            help="Time the daily scheduled search should occur"
+    )],
+    weekday: Annotated[WeekDays, typer.Argument("--day", "-d", help="The day of the week the scheduled search should run")],
+    everyHour: Annotated[int, typer.Option("--every-hour", "-eh", help="Sets the search to run every x hours")],
+    everyMin: Annotated[int, typer.Option("--every-min", "-em", help="Sets the search to run every x minutes")],
+    durrationMin: Annotated[int, typer.Option("--durration", "-d", help="Sets the durration of the search in minutes, defatuls to 30")]=30,
+    numberOfSubs: Annotated[int, typer.Option("--number-submissions", "-ns", help="Sets the number of submissions for search to complete before exiting")]=None
+) -> None:
+    """Enable a schedule search to run weekly on a specific day and time"""
+    bcontroller = get_controller()
+    scheduledRun, exCode = bcontroller.getScheduledRun(name)
+    if not scheduledRun:
+        typer.secho(
+            f'Enable daily search failed, there is no previous scheduled run named "{" ".join(name)}"',
+            fg=typer.colors.RED            
+        )
+        raise typer.Exit(1)
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Enabled daily search failed with errors: "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    run_data = RunDate.create_weekly(weekday, time.hour, time.minute, everyHour, everyMin, durrationMin)
+    scheduledRun, exCode = bcontroller.enableWeeklyScheduledRun(name, run_data, durrationMin, numberOfSubs)        
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Enabled daily search failed with errors: "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)        
+    typer.secho(
+        f'Weekly search for "{name}" enabled successfully',
+        fg=typer.colors.GREEN
+    )
+    stable = get_singlerow_table(**scheduledRun)
+    print_table(stable)    
 
 
 @app.command
-def addMontlyScheduledSearch():
+def enableMontlyScheduledSearch():
+    """Enable a schedule search to run montly on a specific day and time"""
+    typer.secho(
+        "Enable monthly schedule not implemented yet",
+        fg=typer.colors.YELLOW
+    )
     pass
 
 

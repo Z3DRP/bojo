@@ -46,12 +46,12 @@ class ScheduledRunService:
             raise AddError(DB_WRITE_ERROR, e._message)
     
 
-    def update_scheduled_run(self, id:int, run_data:dict) -> ScheduledRun:
+    def update_scheduled_run(self, name:str, run_data:dict) -> ScheduledRun:
         try:
-            schRun = self.get_scheduled_run(id)
+            schRun = self.get_scheduled_run(name)
             if not schRun:
-                raise GetError(f"Scheduled Run with id:{id} does not exist")
-            return self.repository.update(id, **run_data)
+                raise GetError(f"Scheduled Run with name:{name} does not exist")
+            return self.repository.update(name, **run_data)
         except SQLAlchemyError as e:
             blogger.error(f"[UPDATE SCHEDULED-RUN ERR] ScheduledRunId: {id}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
