@@ -10,7 +10,7 @@ class Blogger:
         self.blogger = logger.bind(name='bojoLogger')
         self.blogger.add(
             LOG_FILE, 
-            format="{time:MMMM D, YYYY > HH:mm:ss} | {level} } {message}",
+            format="{time:MMMM D, YYYY > HH:mm:ss} | {level} | {message}",
             rotation="1 MB"
         )
 

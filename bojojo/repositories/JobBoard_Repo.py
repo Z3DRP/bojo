@@ -3,11 +3,11 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from bojojo.base_repo.repository import Repository
 from bojojo.models.Job_Board import JobBoard
-from bojojo.repositories import repository
 
 
-class JobBoardRepository(repository):
+class JobBoardRepository(Repository):
 
 
     session = inject.attr(Session)
@@ -36,11 +36,11 @@ class JobBoardRepository(repository):
             raise e
         
     
-    def add(self, **kwargs) -> JobBoard:
+    def add(self, board:dict) -> JobBoard:
         try:
             nw_jobboard = self.session.execute(
                 insert(JobBoard)
-                .values(**kwargs)
+                .values(name=board["name"], url=board["url"], has_easy_apply=board["has_easy_apply"])
                 .returning(JobBoard)
             )
             self.session.commit()

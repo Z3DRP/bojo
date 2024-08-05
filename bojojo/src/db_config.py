@@ -6,10 +6,7 @@ import configparser
 from pathlib import Path
 from bojojo import DB_WRITE_ERROR, DB_CREATE_ERROR, SUCCESS
 from bojojo.repositories import db_init as db
-
-DEFAULT_DB_FILE_PATH = Path.home().joinpath(
-    "." + Path.home().stem + "bojo_db.sqlite"
-)
+from bojojo import DEFAULT_DB_FILE_PATH
 
 def get_database_path(config_file: Path) -> Path:
     """Return the current path to the bojo database"""

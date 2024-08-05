@@ -3,10 +3,10 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.repositories import repository
+from bojojo.base_repo.repository import Repository
 from bojojo.models.Completed_Run import CompletedRun
 
-class CompletedRunRepository(repository):
+class CompletedRunRepository(Repository):
 
 
     session = inject.attr(Session)

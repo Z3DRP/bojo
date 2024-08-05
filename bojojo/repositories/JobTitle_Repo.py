@@ -3,11 +3,11 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from bojojo.base_repo.repository import Repository
 from bojojo.models.Job_Title import JobTitle
-from bojojo.repositories import repository
 
 
-class JobTitleRepository(repository):
+class JobTitleRepository(Repository):
 
 
     session = inject.attr(Session)

@@ -11,7 +11,8 @@ import datetime
 
 from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.models.Scheduled_Run import ScheduledRun
-from bojojo.services.crontab_service import CronTabService, SchedulerService
+from bojojo.services.crontab_service import CronTabService
+from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.types import run_date
 from bojojo.types.days import get_weekday
 from bojojo.types.months import get_month_str
@@ -23,7 +24,7 @@ from bojojo.utils.dict_mapper import object_to_dict
 class BojoController:
 
 
-    dbHandler = inject.attr(db_handler)
+    dbHandler = inject.attr(db_handler.DbHandler)
     def __init__(self):
         pass
     

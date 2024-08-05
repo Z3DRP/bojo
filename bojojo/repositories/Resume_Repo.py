@@ -4,17 +4,16 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from bojojo.base_repo.repository import Repository
 from bojojo.models import Resume
-from bojojo.repositories import repository
 from bojojo.repositories import db_init
 
-class ResumeRepository(repository):
+class ResumeRepository(Repository):
 
 
     session = inject.attr(Session)
     def __init__(self):
-        self.session = inject.instance(Session)
-
+        pass
 
     def get(self, rid: int) -> Resume:
         try:

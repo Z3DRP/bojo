@@ -3,15 +3,15 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from bojojo.base_repo.repository import Repository
 from bojojo.models.Scheduled_Run import ScheduledRun
-from bojojo.repositories import repository
 
 
-class ScheduledRunRepository(repository):
+class ScheduledRunRepository(Repository):
 
 
     session = inject.attr(Session)
-    def __init__(self, session: Session):
+    def __init__(self):
         pass
 
     

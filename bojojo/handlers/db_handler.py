@@ -1,21 +1,22 @@
 from pathlib import Path
 from typing import List
-from adapters import DbResponse
 import inject
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, JSON_ERROR, SUCCESS, AddError, DeleteError, GetError, UpdateError
-from bojojo.adapters import CurrentItem, DbResponse
+from bojojo.adapters.db_response import DbResponse
 from bojojo.models.Completed_Run import CompletedRun
+from bojojo.repositories.JobBoard_Repo import JobBoardRepository
 from bojojo.services import ApplicationService, CompletedRunService, JobBoardService, JobTitleService, ResumeService, ScheduledRunService
-
+from sqlalchemy.orm import Session
 class DbHandler:
 
-    appService = inject.atrr(ApplicationService)
+    appService = inject.attr(ApplicationService)
     completedRunService = inject.attr(CompletedRunService)
     jobBoardService = inject.attr(JobBoardService)
     jobTitleService = inject.attr(JobTitleService)
     resumeService = inject.attr(ResumeService)
     scheduledRunService = inject.attr(ScheduledRunService)
-    
+    jobBoardRepo = inject.attr(JobBoardRepository)
+
     def __init__(self, db_path: Path) -> None:
         self.__db_path = db_path
 
@@ -191,13 +192,14 @@ class DbHandler:
 
     def write_job_board(self, board_data:dict) -> DbResponse:
         try:
-            jobBoard = self.jobBoardService.add_job_board(board_data)
+            board = self.jobBoardRepo.add(board_data)
             try:
-                return DbResponse(self.get_response(jobBoard), SUCCESS)
+                return DbResponse(self.get_response(board), SUCCESS)
             except:
                 return self.get_json_err()
-        except AddError:
-            return self.get_db_err(DB_WRITE_ERROR)
+        except AddError as e:
+            print(e.message)
+            return self.get_db_err(DB_WRITE_ERROR, e.message)
     
 
     def modify_job_board(self, id:int, board_data:dict) -> DbResponse:
@@ -273,8 +275,8 @@ class DbHandler:
                 return DbResponse(self.get_response(jtitle), SUCCESS)
             except:
                 return self.get_json_err()
-        except AddError:
-            return self.get_db_err(DB_WRITE_ERROR)
+        except AddError as e:
+            return self.get_db_err(DB_WRITE_ERROR, e.message)
     
     
     def modify_job_title(self, id:int, job_data:dict) -> DbResponse:
@@ -493,15 +495,15 @@ class DbHandler:
         return responseList
 
 
-    def get_response(app) -> dict:
+    def get_response(self, app) -> dict:
         return [app.__dict__]
     
     
-    def get_json_err() -> DbResponse:
+    def get_json_err(self) -> DbResponse:
         return DbResponse([], JSON_ERROR)
     
 
-    def get_db_err(errType:int) -> DbResponse:
-        return DbResponse([], errType)
+    def get_db_err(self, errType:int, excpMsg) -> DbResponse:
+        return DbResponse([], errType, excpMsg)
 
     

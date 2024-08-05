@@ -9,4 +9,4 @@ class JobBoard(Base):
     id = Column(Integer, name="id", primary_key=True)
     name = Column(String, name="name", nullable=False)
     url = Column(String, name="url", nullable=False)
-    has_easy_apply = Column(Integer, nullable=False, default=0)
+    has_easy_apply = Column(Integer, name="has_easy_apply", nullable=False, default=0)

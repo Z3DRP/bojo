@@ -1,6 +1,6 @@
 
 from pytest import Session
-from bojojo.handlers import db_handler
+from bojojo import db_path
 from bojojo.handlers.db_handler import DbHandler
 from bojojo.providers.db_session_provider import session_provider
 from bojojo.repositories.Application_Repo import ApplicationRepository
@@ -16,23 +16,26 @@ from bojojo.services.jobTitle_service import JobTitleService
 from bojojo.services.resume_service import ResumeService
 from bojojo.services.scheduledRun_service import ScheduledRunService
 from bojojo.utils.config_reader import get_db_path
+from bojojo.utils.bologger import Blogger
 
 
 def base_config(binder):
-    binder.bind(Session, session_provider())
+    sess = session_provider()
+    binder.bind(Session, sess)
     binder.bind(ResumeRepository, ResumeRepository())
     binder.bind(ApplicationRepository, ApplicationRepository())
     binder.bind(CompletedRunRepository, CompletedRunRepository())
-    binder.bind(JobBoardRepository, JobBoardRepository())
+    # binder.bind(JobBoardRepository, JobBoardRepository())
     binder.bind(JobTitleRepository, JobTitleRepository())
     binder.bind(ScheduledRunRepository, ScheduledRunRepository())
-    binder.bind(ResumeService, ResumeService)
-    binder.bind(ApplicationService, ApplicationService)
-    binder.bind(CompletedRunService, CompletedRunService)
-    binder.bind(JobBoardService, JobBoardService)
-    binder.bind(JobTitleService, JobTitleService)
-    binder.bind(ScheduledRunService, ScheduledRunService)
-    binder.bind(db_handler, db_handler(get_db_path()))
+    binder.bind(ResumeService, ResumeService())
+    binder.bind(ApplicationService, ApplicationService())
+    binder.bind(CompletedRunService, CompletedRunService())
+    # binder.bind(JobBoardService, JobBoardService())
+    binder.bind(JobTitleService, JobTitleService())
+    binder.bind(ScheduledRunService, ScheduledRunService())
+    binder.bind(DbHandler, DbHandler(db_path()))
+    binder.bind(Blogger, Blogger())
 
 
 def test_config(binder):

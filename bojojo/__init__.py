@@ -26,7 +26,7 @@ import typer
     NO_RECORD_ERROR,
     CRON_NOT_FOUND,
     CRON_WRITE_ERR
-) = range(15)
+) = range(16)
 
 ERRORS = {
     DIR_ERROR: "config directory error",
@@ -48,6 +48,9 @@ ERRORS = {
 
 CONFIG_DIR_PATH = Path(typer.get_app_dir(__app_name__))
 CONFIG_FILE_PATH = CONFIG_DIR_PATH / "config.ini"
+DEFAULT_DB_FILE_PATH = Path.home().joinpath(
+    "." + Path.home().stem + "_bojo_db.sqlite"
+)
 
 class BojoException(Exception):
     """Base clas for all errors"""
@@ -73,7 +76,10 @@ class DeleteError(BojoException):
 
 class BooleanError(BojoException):
     """Exception for boolean fields not equal to 1 or 0"""
-    super(BOOLEAN_ERROR, ERRORS.get(BOOLEAN_ERROR))
+    def __init__(self):
+        self.err_code = BOOLEAN_ERROR
+        self.msg = ERRORS.get(BOOLEAN_ERROR)
+
 
 class NoRecordError:
     def __init__(self, recType, identifier):
@@ -91,3 +97,7 @@ class DbError:
     def __init__(self, errcode, exceptionMsg):
         self.error_code
         self.exception_msg = exceptionMsg
+
+
+def db_path():
+    return str(DEFAULT_DB_FILE_PATH)

@@ -4,13 +4,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from bojojo.models.Job_Title import JobTitle
 from bojojo.repositories.JobTitle_Repo import JobTitleRepository
-from bojojo.utils.bologger import blogger as blogger
+from bojojo.utils.bologger import Blogger
 
 
 class JobTitleService:
 
     
     repository = inject.attr(JobTitleRepository)
+    blogger = inject.attr(Blogger)
     def __init__(self) -> None:
         pass
     
@@ -19,7 +20,7 @@ class JobTitleService:
         try:
             return self.repository.get(id)
         except SQLAlchemyError as e:
-            blogger.error(f"[READ JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            self.blogger.error(f"[READ JOB-TITLE ERR] JobTitleId: {id}:: {e}")
             raise GetError(DB_WRITE_ERROR, e._message)
 
     
@@ -27,7 +28,7 @@ class JobTitleService:
         try:
             return self.repository.getByName(title)
         except SQLAlchemyError as e:
-            blogger.error(f"[READ JOB-TITLE ERR] JobTitleName: {title}:: {e}")
+            self.blogger.error(f"[READ JOB-TITLE ERR] JobTitleName: {title}:: {e}")
             raise GetError(DB_WRITE_ERROR, e._message)
 
 
@@ -35,7 +36,7 @@ class JobTitleService:
         try:
             return self.repository.getAll()
         except SQLAlchemyError as e:
-            blogger.error(f"[READ JOB-TITLE ERR]:: {e}")
+            self.blogger.error(f"[READ JOB-TITLE ERR]:: {e}")
             raise GetError(DB_WRITE_ERROR, e._message)
         
     
@@ -43,7 +44,7 @@ class JobTitleService:
         try:
             return self.repository.add(**job_data)
         except SQLAlchemyError as e:
-            blogger.error(f"[INSERT JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            self.blogger.error(f"[INSERT JOB-TITLE ERR] JobTitleId: {id}:: {e}")
             raise AddError(DB_WRITE_ERROR, e._message)
     
 
@@ -54,7 +55,7 @@ class JobTitleService:
                 raise GetError(f"Job Title with id: {id} does not exist")
             return self.repository.update(id, **job_data)
         except SQLAlchemyError as e:
-            blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            self.blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
@@ -65,7 +66,7 @@ class JobTitleService:
                 raise GetError(f"Job Title with name: {name} does not exist")
             return self.repository.update_by_name(name)
         except SQLAlchemyError as e:
-            blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
+            self.blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
@@ -73,7 +74,7 @@ class JobTitleService:
         try:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
-            blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            self.blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
@@ -81,7 +82,7 @@ class JobTitleService:
         try:
             return self.repository.delete(name)
         except SQLAlchemyError as e:
-            blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
+            self.blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
@@ -89,6 +90,6 @@ class JobTitleService:
         try:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:
-            blogger.error(f"[DELETE JOB-TITLE ALL ERR] :: {e}")
+            self.blogger.error(f"[DELETE JOB-TITLE ALL ERR] :: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
         

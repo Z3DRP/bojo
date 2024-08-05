@@ -9,7 +9,7 @@ from bojojo.src import cli
 
 def main():
     #config dependencies
-    inject.configure(base_config())
+    inject.configure(base_config)
     cli.app(prog_name=__app_name__)
 
 if __name__ == "__main__":

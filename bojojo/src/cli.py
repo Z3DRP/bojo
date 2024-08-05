@@ -2,11 +2,11 @@
 This module provides the Bojo CLI
 # bojo/cli.py
 """
-import datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated, List, Optional
 import typer
-from bojojo import CONFIG_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__
+from bojojo import CONFIG_FILE_PATH, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
 from bojojo.controllers.bojo_controller import BojoController
 from bojojo.src import config, db_config
 from bojojo.repositories import db_init
@@ -24,23 +24,17 @@ app = typer.Typer()
 
 #TODO remove abilities to add alternate db path
 @app.command()
-def init(
-    db_path: str = typer.Option(
-        str(db_config.DEFAULT_DB_FILE_PATH),
-        "--db_path",
-        "--dbp",
-        prompt="Enter location for Bojo database (press enter to keep default loc):",
-    ),
-) -> None:
+def init() -> None:
     """Initialize Bojo database and create tables"""
-    app_init_err = config.init_app(db_path)
+    db_path_url = db_path()
+    app_init_err = config.init_app(db_path_url)
     if app_init_err:
         typer.secho(
             f'Creating config file failed with "{ERRORS[app_init_err]}',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
-    db_init_err = db_init.initialize_db(Path(db_path))
+    db_init_err = db_init.initialize_db(Path(db_path_url))
     if db_init_err:
         typer.secho(
             f'Creating database failed with "{ERRORS[db_init_err]}"',
@@ -48,7 +42,7 @@ def init(
         )
         raise typer.Exit(1)
     else:
-        typer.secho(f"Bojo database created successfully at {db_path}", fg=typer.colors.GREEN)
+        typer.secho(f"Bojo database created successfully at {db_path_url}", fg=typer.colors.GREEN)
 
 def _version_callback(value: bool) -> None:
     if value:
@@ -57,21 +51,14 @@ def _version_callback(value: bool) -> None:
     
 
 def get_controller() -> BojoController:
-    if CONFIG_FILE_PATH.exists():
-        db_path = db_config.get_database_path(CONFIG_FILE_PATH)
-    else:
-        typer.secho(
-            'Config file not found. Please, run "bojojo init"',
-            fg=typer.colors.RED,
-        )
-        raise typer.Exit(1)
-    if db_path.exists():
-        return BojoController(db_path)
+    if DEFAULT_DB_FILE_PATH.exists():
+        return BojoController()
     else:
         typer.secho(
             'Database not found. Please, run "bojojo init"',
             fg=typer.colors.RED
         )
+        raise typer.Exit(1)
 
 
 def print_table(table) -> None:
@@ -79,15 +66,16 @@ def print_table(table) -> None:
     console.print(table)
 
 
-@app.command
+#... is default for required
+@app.command()
 def add_job_board(
-    name: Annotated[List[str], typer.Argument(help="Enter name of a job board to apply for jobs")],
-    url: Annotated[str, typer.Argument(help="Enter the url for the job board")],
-    has_easy_apply: Annotated[Optional[bool], typer.Option("--easy", "-e", help="Indicates the job board has a easy apply feature")]
+    name: Annotated[List[str], typer.Argument(..., help="Enter name of a job board to apply for jobs")],
+    url: Annotated[str, typer.Argument(..., help="Enter the url for the job board")],
+    easy_apply: Annotated[bool, typer.Option("--easy", "-e", help="Indicates the job board has a easy apply feature")] = False
 ) -> None:
     """Add a new job board that can be used to apply for jobs"""
     bcontroller = get_controller()
-    has_easy = 1 if has_easy_apply else 0
+    has_easy = 1 if easy_apply else 0
     jboard, excCode = bcontroller.addJobBoard(name, url, has_easy)
     if excCode != SUCCESS:
         typer.secho(
@@ -104,12 +92,12 @@ def add_job_board(
         print_table(jbtable)
 
 
-@app.command
+@app.command()
 def update_job_board(
-    name: Annotated[List[str], typer.Option(help="Name of job board to update")],
-    id: Annotated[int, typer.Option(help="Id of job board to update")],
-    url: Annotated[str, typer.Option(help="Url for job board")],
-    has_easy_apply: Annotated[Optional[bool], typer.Option("--easy", "-e", help="Indicates if the job board has a easy apply feature")]
+    name: Annotated[List[str], typer.Option(["--name", "-n"], help="Name of job board to update")],
+    id: Annotated[int, typer.Option(["--id", "-i"], help="Id of job board to update")],
+    url: Annotated[str, typer.Option(["--url", "-u"], help="Url for job board")],
+    has_easy_apply: Annotated[Optional[bool], typer.Option(["--easy", "-e"], help="Indicates if the job board has a easy apply feature")]
 ) -> None:
     """Update a existing job board that is being used for job search"""
     bcontroller = get_controller()
@@ -150,11 +138,11 @@ def update_job_board(
         print_table(jtable)
 
 
-@app.command
+@app.command()
 def add_resume(
-        name: Annotated[List[str], typer.Argument("--name", "-n", help="Enter a name to help identify saved resumes")],
-        job_id: Annotated[int, typer.Argument("--job-id", "-jid", help="Job id will link a resume to a specific job")],
-        file_path: Annotated[str, typer.Argument("--file-path", "-fp", help="The file path where the resume can be found")]
+        name: Annotated[List[str], typer.Argument(..., help="Enter a name to help identify saved resumes")],
+        job_id: Annotated[int, typer.Argument(..., help="Job id will link a resume to a specific job")],
+        file_path: Annotated[str, typer.Argument(..., help="The file path where the resume can be found")]
 ) -> None:
     """Add a resume to be used for a specific job"""
     bcontroller = get_controller()
@@ -175,11 +163,11 @@ def add_resume(
     
 
 #TODO update resume to update based off name not id
-@app.command
+@app.command()
 def update_resume(
-    name: Annotated[List[str], typer.Option("--name", '-n', help="Update resume name")],
-    job_id: Annotated[int, typer.Option("--job-id", "-jid", help="Update job id to use resume with a different job")],
-    file_path: Annotated[str, typer.Option("--file-path", '-fp', help="Update resume to point to a different file location")]
+    name: Annotated[List[str], typer.Option(["--name", '-n'], help="Update resume name")],
+    job_id: Annotated[int, typer.Option(["--job-id", "-jid"], help="Update job id to use resume with a different job")],
+    file_path: Annotated[str, typer.Option(["--file-path", '-fp'], help="Update resume to point to a different file location")]
 ) -> None:
     """Update a saved resume"""
     bcontroller = get_controller()
@@ -199,10 +187,10 @@ def update_resume(
         print_table(rtable)
 
 
-@app.command
+@app.command()
 def remove_resume(
-    name: Annotated[List[str], typer.Option("--name", "-n", help="Name of resume to delete")],
-    all: Annotated[bool, typer.Option("--all", "-a", help="Delete all saved resumes")]
+    name: Annotated[List[str], typer.Option(["--name", "-n"], help="Name of resume to delete")],
+    all: Annotated[bool, typer.Option(["--all", "-a"], help="Delete all saved resumes")]
 ) -> None:
     """Delete a resume or all resumes"""
     bcontroller = get_controller()
@@ -233,11 +221,11 @@ def remove_resume(
 
 #TODO note date times can be used on dt values from typer cli arg types
 #TODO might have to update experience years in service cls
-@app.command
+@app.command()
 def add_job_title(
-    name: Annotated[List[str], typer.Argument("--name", '-n', help="Enter the name of a job title to apply for")],
-    experience_years: Annotated[float, typer.Argument("--xp-years", '-y', help="The years of experience for job title, value will be used in job search")],
-    experience_level: Annotated[str, typer.Argument('--xp-level', '-l', help="Experience level for job title, exepted values 'junior, mid, and senior'")]
+    name: Annotated[List[str], typer.Argument(..., help="Enter the name of a job title to apply for")],
+    experience_years: Annotated[float, typer.Argument(..., help="The years of experience for job title, value will be used in job search")],
+    experience_level: Annotated[str, typer.Argument(..., help="Experience level for job title, exepted values 'junior, mid, and senior'")]
 ) -> None:
     """Add a job title to apply for"""
     bcontroller = get_controller()
@@ -257,12 +245,12 @@ def add_job_title(
         print_table(ttable)
         
 
-@app.command
+@app.command()
 def update_job_title(
-    job_id: Annotated[int, typer.Option("--jid", "-id", help="Specifies the id of the job title to change")],
-    name: Annotated[List[str], typer.Option("--name", "-n", help="Change the name of a saved job title")],
-    experience_years: Annotated[float, typer.Option("--xp-years", "-y", help="Update the years of experience for a job title")],
-    experience_level: Annotated[str, typer.Option("--xp-level", "-l", help="Update the level of experience for a job title, expected values 'junior, mid, senior'")]
+    job_id: Annotated[int, typer.Option(["--jid", "-id"], help="Specifies the id of the job title to change")],
+    name: Annotated[List[str], typer.Option(["--name", "-n"], help="Change the name of a saved job title")],
+    experience_years: Annotated[float, typer.Option(["--xp-years", "-y"], help="Update the years of experience for a job title")],
+    experience_level: Annotated[str, typer.Option(["--xp-level", "-l"], help="Update the level of experience for a job title, expected values 'junior, mid, senior'")]
 ) -> None:
     """Update a job title to apply for"""
     bcontroller = get_controller()
@@ -293,11 +281,11 @@ def update_job_title(
 
 
 #TODO need to add a delete by name method and update name of current delete method
-@app.command
+@app.command()
 def remove_job_title(
-    name: Annotated[List[str], typer.Option("--name", "-n", help="Specifies the name of a job title to delete")],
-    job_id: Annotated[int, typer.Option("--job-title-id", "-jti", help="Specifies the id of a job title to delete")],
-    all: Annotated[bool, typer.Option("--all", "-a", help="Delete all saved job titles")]
+    name: Annotated[List[str], typer.Option(["--name", "-n"], help="Specifies the name of a job title to delete")],
+    job_id: Annotated[int, typer.Option(["--job-title-id", "-jti"], help="Specifies the id of a job title to delete")],
+    all: Annotated[bool, typer.Option(["--all", "-a"], help="Delete all saved job titles")]
 ) -> None:
     """Delete a job title using the name or id"""
     bcontroller = get_controller()
@@ -336,16 +324,23 @@ def remove_job_title(
         print_table(jTable)
 
 
-@app.command
+#TODO
+@app.command()
+def getScheduledSearches() -> None:
+    bcontroller = get_controller()
+    runs = bcontroller.readScheduledRuns()
+
+
+@app.command()
 #needs name,jobTitleId,jobBoardId,runType,easyApplyOnly
 def addScheduledSearch(
-    name: Annotated[List[str], typer.Argument("--name", "-n", help="Specify a name to identify a scheduled search")],
-    jobTitleId: Annotated[int, typer.Option("--title-id", "-jtid", help="Specify the job title to apply for")],
-    jobName: Annotated[List[str], typer.Option("--title-name", "--jtn", help="Specify the job title name to apply for")],
-    jobBoardId: Annotated[int, typer.Option("--board-id", "-jbid", help="Specify the job board id to use for search")],
-    jobBoardName: Annotated[List[str], typer.Option("--board-name", "-jbn", help="Specify the job board name to use for search")],
-    useEasyApplyOnly: Annotated[bool, typer.Option("--easy-only", "-e", help="Specifies if job search should only use the easy apply feature on the job board")] = False,
-    runType: Annotated[ScheduleType, typer.Option("--run-type", "-rt", case_sensitive=False, help="Sets the interval for schedule job search to run, defaults to Once")] = ScheduleType.ONCE
+    name: Annotated[List[str], typer.Argument(..., help="Specify a name to identify a scheduled search")],
+    jobTitleId: Annotated[int, typer.Option(["--title-id", "-jtid"], help="Specify the job title to apply for")],
+    jobName: Annotated[List[str], typer.Option(["--title-name", "--jtn"], help="Specify the job title name to apply for")],
+    jobBoardId: Annotated[int, typer.Option(["--board-id", "-jbid"], help="Specify the job board id to use for search")],
+    jobBoardName: Annotated[List[str], typer.Option(["--board-name", "-jbn"], help="Specify the job board name to use for search")],
+    useEasyApplyOnly: Annotated[bool, typer.Option(["--easy-only", "-e"], help="Specifies if job search should only use the easy apply feature on the job board")] = False,
+    runType: Annotated[ScheduleType, typer.Option(["--run-type", "-rt"], case_sensitive=False, help="Sets the interval for schedule job search to run, defaults to Once")] = ScheduleType.ONCE
 ) -> None:
     """Create a scheduled job search runs automatically on specified schedule using crontab, can be set to run once, daily, weekly, monthlly"""
     bcontroller = get_controller()
@@ -397,25 +392,25 @@ def addScheduledSearch(
         print_table(stable)
 
 
-@app.command
+@app.command()
 #needs name,runDay,runDayOfWeek,runHr,runMin,durMin,numbSubmissions
 # TODO if initial start is different than the day of week then use day of week instead of datetime day
 def enableScheduledSearch(
-    name: Annotated[List[str], typer.Argument("--name", "-n", help="Name of a previously created scheduled search")],
+    name: Annotated[List[str], typer.Argument(..., help="Name of a previously created scheduled search")],
     runDateTime: Annotated[
         datetime, 
         typer.Argument(
-            "--run-dt", "-rdt", 
+            ...,
             help="The date and time of the initial run", 
             formats=["%d/%m/%Y%H:%M", "%d/%m/%Y %H:%M", "%d-%m-%Y %H:%M"]
         )],
-    runDayOfWeek: Annotated[WeekDays, typer.Option("--week-day", "-wd", help="Specifies the day of the week scheduled search should occur on")]=None,
-    runMonth: Annotated[Months, typer.Options("--month", "-m", help="Sets the month schedule search should run")]=None,
-    durrationMinutes: Annotated[int, typer.Option("--dur-mins", "-m", help="Sets the the length of time in minutes the search runs")]=30,
-    numberOfSubmissions: Annotated[int, typer.Option("--submissions", "-s", help="Indicates the number of submissions the search should complete before exiting")]=None,
-    everyHours: Annotated[int, typer.Option("--every-hours", "-eh", help="Sets the scheduled search to run every x hours")]=None,
-    everyMins: Annotated[int, typer.Option("--every-mins", "-em", help="Sets the scheduled search to run every x minutes")]=None,
-    repeat: Annotated[bool, typer.Option("--repeat", "-r", help="Indicates if the scheduled search should repeat or not, defaults to TRUE")]=True
+    runDayOfWeek: Annotated[WeekDays, typer.Option(["--week-day", "-wd"], help="Specifies the day of the week scheduled search should occur on")]=None,
+    runMonth: Annotated[Months, typer.Option(["--month", "-m"], help="Sets the month schedule search should run")]=None,
+    durrationMinutes: Annotated[int, typer.Option(["--dur-mins", "-m"], help="Sets the the length of time in minutes the search runs")]=30,
+    numberOfSubmissions: Annotated[int, typer.Option(["--submissions", "-s"], help="Indicates the number of submissions the search should complete before exiting")]=None,
+    everyHours: Annotated[int, typer.Option(["--every-hours", "-eh"], help="Sets the scheduled search to run every x hours")]=None,
+    everyMins: Annotated[int, typer.Option(["--every-mins", "-em"], help="Sets the scheduled search to run every x minutes")]=None,
+    repeat: Annotated[bool, typer.Option(["--repeat", "-r"], help="Indicates if the scheduled search should repeat or not, defaults to TRUE")]=True
 
 ) -> None:
     """Enables previous scheduled searches to automatically run at a set date and time, certain days of weeks, certain days of the month, every x amount of hours, or every x amount of minutes"""
@@ -461,21 +456,20 @@ def enableScheduledSearch(
         
 
 # for these next 3 commands pass in a date time and then a day of week or day of month have opt for every hour/mins
-@app.command
+@app.command()
 def enableDailyScheduledSearch(
-    name: Annotated[List[str], typer.Argument("--name", "-n", help="The name of a previously saved scheduled search")],
+    name: Annotated[List[str], typer.Argument(..., help="The name of a previously saved scheduled search")],
     time: Annotated[
         datetime, 
-        typer.Arguement(
-            "--time",
-            "-t", 
+        typer.Argument(
+            ...,
             formats=["%H:%M", "%H %M"],
             help='Time the scheduled search should occur'
     )],
-    everyHour: Annotated[int, typer.Option("--every-hour", "-eh", help="Sets the scheduled search to run every x hours")],
-    everyMin: Annotated[int, typer.Option("--every-min", "-em", help="Sets the scheduled search to run every x minutes")],
-    durrationMin: Annotated[int, typer.Argument("--durration", "-d", help="Sets the durration of the search in minutes, defaults to 30")]=30,
-    numberOfSubs: Annotated[int, typer.Option("--number-submissions", "-ns", help="Sets the number of submissions for search to complete before exiting")]=None
+    everyHour: Annotated[int, typer.Option(["--every-hour", "-eh"], help="Sets the scheduled search to run every x hours")],
+    everyMin: Annotated[int, typer.Option(["--every-min", "-em"], help="Sets the scheduled search to run every x minutes")],
+    durrationMin: Annotated[int, typer.Option(["--durration", "-d"], help="Sets the durration of the search in minutes, defaults to 30")]=30,
+    numberOfSubs: Annotated[int, typer.Option(["--number-submissions", "-ns"], help="Sets the number of submissions for search to complete before exiting")]=None
 ) -> None:
     """Enable a scheduled search to run daily at a specific time"""
     bcontroller = get_controller()
@@ -508,22 +502,21 @@ def enableDailyScheduledSearch(
     print_table(stable)
 
 
-@app.command
+@app.command()
 def enableWeeklyScheduledSearch(
-    name: Annotated[List[str], typer.Argument("--name", "-n", help="The name of a previously saved scheduled search")],
+    name: Annotated[List[str], typer.Argument(..., help="The name of a previously saved scheduled search")],
     time: Annotated[
         datetime,
         typer.Argument(
-            "--time",
-            "-t",
+            ...,
             formats=["%H:%M", "%H %M"],
             help="Time the daily scheduled search should occur"
     )],
-    weekday: Annotated[WeekDays, typer.Argument("--day", "-d", help="The day of the week the scheduled search should run")],
-    everyHour: Annotated[int, typer.Option("--every-hour", "-eh", help="Sets the search to run every x hours")],
-    everyMin: Annotated[int, typer.Option("--every-min", "-em", help="Sets the search to run every x minutes")],
-    durrationMin: Annotated[int, typer.Option("--durration", "-d", help="Sets the durration of the search in minutes, defatuls to 30")]=30,
-    numberOfSubs: Annotated[int, typer.Option("--number-submissions", "-ns", help="Sets the number of submissions for search to complete before exiting")]=None
+    weekday: Annotated[WeekDays, typer.Argument(..., help="The day of the week the scheduled search should run")],
+    everyHour: Annotated[int, typer.Option(["--every-hour", "-eh"], help="Sets the search to run every x hours")],
+    everyMin: Annotated[int, typer.Option(["--every-min", "-em"], help="Sets the search to run every x minutes")],
+    durrationMin: Annotated[int, typer.Option(["--durration", "-d"], help="Sets the durration of the search in minutes, defatuls to 30")]=30,
+    numberOfSubs: Annotated[int, typer.Option(["--number-submissions", "-ns"], help="Sets the number of submissions for search to complete before exiting")]=None
 ) -> None:
     """Enable a schedule search to run weekly on a specific day and time"""
     bcontroller = get_controller()
@@ -556,7 +549,7 @@ def enableWeeklyScheduledSearch(
     print_table(stable)    
 
 
-@app.command
+@app.command()
 def enableMontlyScheduledSearch():
     """Enable a schedule search to run montly on a specific day and time"""
     typer.secho(
@@ -564,7 +557,6 @@ def enableMontlyScheduledSearch():
         fg=typer.colors.YELLOW
     )
     pass
-
 
 
 @app.callback()
