@@ -20,18 +20,17 @@ from bojojo.utils.bologger import Blogger
 
 
 def base_config(binder):
-    sess = session_provider()
-    binder.bind(Session, sess)
+    binder.bind_to_provider(Session, session_provider)
     binder.bind(ResumeRepository, ResumeRepository())
     binder.bind(ApplicationRepository, ApplicationRepository())
     binder.bind(CompletedRunRepository, CompletedRunRepository())
-    # binder.bind(JobBoardRepository, JobBoardRepository())
+    binder.bind(JobBoardRepository, JobBoardRepository())
     binder.bind(JobTitleRepository, JobTitleRepository())
     binder.bind(ScheduledRunRepository, ScheduledRunRepository())
     binder.bind(ResumeService, ResumeService())
     binder.bind(ApplicationService, ApplicationService())
     binder.bind(CompletedRunService, CompletedRunService())
-    # binder.bind(JobBoardService, JobBoardService())
+    binder.bind(JobBoardService, JobBoardService())
     binder.bind(JobTitleService, JobTitleService())
     binder.bind(ScheduledRunService, ScheduledRunService())
     binder.bind(DbHandler, DbHandler(db_path()))

@@ -192,7 +192,8 @@ class DbHandler:
 
     def write_job_board(self, board_data:dict) -> DbResponse:
         try:
-            board = self.jobBoardRepo.add(board_data)
+            # board = self.jobBoardRepo.add(board_data)
+            board = self.jobBoardService.add_job_board(board_data)
             try:
                 return DbResponse(self.get_response(board), SUCCESS)
             except:

@@ -40,7 +40,7 @@ class JobBoardRepository(Repository):
         try:
             nw_jobboard = self.session.execute(
                 insert(JobBoard)
-                .values(name=board["name"], url=board["url"], has_easy_apply=board["has_easy_apply"])
+                .values(**board)
                 .returning(JobBoard)
             )
             self.session.commit()

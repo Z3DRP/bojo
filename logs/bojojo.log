@@ -18,3 +18,7 @@ August 5, 2024 > 18:08:54 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name'
 August 5, 2024 > 18:13:02 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'linkedin.com/jobs/', 'has_easy_apply': 1}
 2024-08-05 18:20:30.631 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'linkedin.com/jobs/', 'has_easy_apply': 1}
 August 5, 2024 > 18:20:30 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'linkedin.com/jobs/', 'has_easy_apply': 1}
+2024-08-06 10:46:18.066 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'www.linkedin.com/jobs', 'has_easy_apply': 1}
+August 6, 2024 > 10:46:18 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'www.linkedin.com/jobs', 'has_easy_apply': 1}
+2024-08-06 10:49:59.762 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'www.linkedin.com/jobs', 'has_easy_apply': 1}
+August 6, 2024 > 10:49:59 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'www.linkedin.com/jobs', 'has_easy_apply': 1}

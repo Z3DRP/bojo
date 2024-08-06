@@ -43,7 +43,7 @@ class JobBoardService:
     def add_job_board(self, board_data:dict) -> JobBoard:
         try:
             print(self.repository.session)
-            return self.repository.add(**board_data)
+            return self.repository.add(board_data)
         except SQLAlchemyError as e:
             self.blogger.error(f"[INSERT JOB-BOARD ERR] JobBoardName: {board_data}")
             raise AddError(DB_WRITE_ERROR, e._message)
