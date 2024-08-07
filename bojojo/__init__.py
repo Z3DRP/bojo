@@ -52,6 +52,12 @@ DEFAULT_DB_FILE_PATH = Path.home().joinpath(
     "." + Path.home().stem + "_bojo_db.sqlite"
 )
 
+def db_path():
+    return str(DEFAULT_DB_FILE_PATH)
+
+
+DB_URL = f"sqlite:///{db_path()}"
+
 class BojoException(Exception):
     """Base clas for all errors"""
     def __init__(self, errCode, msg):
@@ -98,6 +104,3 @@ class DbError:
         self.error_code
         self.exception_msg = exceptionMsg
 
-
-def db_path():
-    return str(DEFAULT_DB_FILE_PATH)

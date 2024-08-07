@@ -5,8 +5,10 @@ This module provides the Bojo CLI
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated, List, Optional
+from sqlalchemy import create_engine
 import typer
-from bojojo import CONFIG_FILE_PATH, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
+from bojojo import CONFIG_FILE_PATH, DB_URL, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
+from bojojo.base_model.base_model import init_db_models
 from bojojo.controllers.bojo_controller import BojoController
 from bojojo.src import config, db_config
 from bojojo.repositories import db_init
@@ -42,7 +44,17 @@ def init() -> None:
         )
         raise typer.Exit(1)
     else:
+        try:
+            init_db_models(engine)
+            engine = create_engine(DB_URL)
+        except Exception as e:
+            typer.secho(
+                f'Failed to initialize ORM model from SQL tables:: {e}',
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
         typer.secho(f"Bojo database created successfully at {db_path_url}", fg=typer.colors.GREEN)
+
 
 def _version_callback(value: bool) -> None:
     if value:

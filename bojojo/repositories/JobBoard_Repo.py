@@ -50,12 +50,12 @@ class JobBoardRepository(Repository):
             raise e
         
     
-    def update(self, id: int, **kwargs) -> JobBoard:
+    def update(self, id: int, board:dict) -> JobBoard:
         try:
             results = self.session.execute(
                 update(JobBoard)
                 .where(JobBoard.id==id)
-                .values(**kwargs)
+                .values(**board)
                 .returning(JobBoard)
             )
             self.session.commit()

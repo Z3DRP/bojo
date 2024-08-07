@@ -28,11 +28,11 @@ class CompletedRunRepository(Repository):
             raise e
         
     
-    def add(self, **kwargs) -> CompletedRun:
+    def add(self, crun:dict) -> CompletedRun:
         try:
             new_completedRun = self.session.execute(
                 insert(CompletedRun)
-                .values(**kwargs)
+                .values(**crun)
                 .returning(CompletedRun)
             )
             return new_completedRun
@@ -41,12 +41,12 @@ class CompletedRunRepository(Repository):
             raise e
         
     
-    def update(self, id:int, **kwargs) -> CompletedRun:
+    def update(self, id:int, crun:dict) -> CompletedRun:
         try:
             results = self.session.execute(
                 update(CompletedRun)
                 .where(CompletedRun.id==id)
-                .values(**kwargs)
+                .values(**crun)
                 .returning(CompletedRun)
             )
             self.session.commit()

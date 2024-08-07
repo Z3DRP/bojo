@@ -38,9 +38,9 @@ class ResumeRepository(Repository):
             raise e
 
     
-    def add(self, **kwargs) -> Resume:
+    def add(self, resume:dict) -> Resume:
         try:
-            nw_resume = self.session.execute(insert(Resume).values(**kwargs).returning(Resume))
+            nw_resume = self.session.execute(insert(Resume).values(**resume).returning(Resume))
             self.session.commit()
             return nw_resume
         except SQLAlchemyError as e:
@@ -48,12 +48,12 @@ class ResumeRepository(Repository):
             raise e
 
     
-    def update(self, name:str, **kwargs) -> Resume:
+    def update(self, name:str, resume:dict) -> Resume:
         try:
             results = self.session.execute(
                 update(Resume)
                 .where(Resume.name==name)
-                .values(**kwargs)
+                .values(**resume)
                 .returning(Resume)
             )
             self.session.commit()

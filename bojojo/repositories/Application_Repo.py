@@ -29,10 +29,10 @@ class ApplicationRepository(Repository):
             raise e
         
     
-    def add(self, **kwargs) -> Application:
+    def add(self, application:dict) -> Application:
         try:
             new_application = self.session.execute(
-                insert(Application).values(**kwargs)
+                insert(Application).values(**application)
                 .returning(Application)
             )
             self.session.commit()
@@ -42,12 +42,12 @@ class ApplicationRepository(Repository):
             raise e
         
     
-    def update(self, id:int, **kwargs) -> Application:
+    def update(self, id:int, application:dict) -> Application:
         try:
             results = self.session.execute(
                 update(Application)
                 .where(Application.id==id)
-                .values(**kwargs)
+                .values(**application)
                 .returning(Application)
             )
             self.session.commit()

@@ -36,11 +36,11 @@ class ScheduledRunRepository(Repository):
             raise e
         
     
-    def add(self, **kwargs) -> ScheduledRun:
+    def add(self, srun:dict) -> ScheduledRun:
         try:
             nw_run = self.session.execute(
                 insert(ScheduledRun)
-                .values(**kwargs)
+                .values(**srun)
                 .returning(ScheduledRun)
             )
             self.session.commit()
@@ -50,12 +50,12 @@ class ScheduledRunRepository(Repository):
             raise e
         
     
-    def update(self, name:str, **kwargs) -> ScheduledRun:
+    def update(self, name:str, srun:dict) -> ScheduledRun:
         try:
             results = self.session.execute(
                 update(ScheduledRun)
                 .where(ScheduledRun.name==name)
-                .values(**kwargs)
+                .values(**srun)
                 .returning(ScheduledRun)
             )
             self.session.commit()

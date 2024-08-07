@@ -36,11 +36,11 @@ class JobTitleRepository(Repository):
             raise e
         
     
-    def add(self, **kwargs) -> JobTitle:
+    def add(self, jobtitle:dict) -> JobTitle:
         try:
             nw_jobTitle = self.session.execute(
                 insert(JobTitle)
-                .values(**kwargs)
+                .values(**jobtitle)
                 .returning(JobTitle)
             )
             self.session.commit()
@@ -50,12 +50,12 @@ class JobTitleRepository(Repository):
             raise e
         
 
-    def update(self, id:int, **kwargs) -> JobTitle:
+    def update(self, id:int, jobtitle:dict) -> JobTitle:
         try:
             results = self.session.execute(
                 update(JobTitle)
                 .where(JobTitle.id==id)
-                .values(**kwargs)
+                .values(**jobtitle)
                 .returning(JobTitle)
             )
             self.session.commit()
@@ -65,12 +65,12 @@ class JobTitleRepository(Repository):
             raise e
         
     
-    def update_by_name(self, name:str, **kwargs) -> JobTitle:
+    def update_by_name(self, name:str, jobtitle:dict) -> JobTitle:
         try:
             results = self.session.execute(
                 update(JobTitle)
                 .where(JobTitle.name==name)
-                .values(**kwargs)
+                .values(**jobtitle)
                 .returning(JobTitle)
             )
             self.session.commit()
