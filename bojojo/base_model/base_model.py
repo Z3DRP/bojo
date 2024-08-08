@@ -1,7 +1,7 @@
 
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import declarative_base
 
-Base = DeclarativeBase()
+Base = declarative_base()
 
 
 def init_db_models(engine):

@@ -10,9 +10,9 @@ from bojojo.models.Job_Board import JobBoard
 class JobBoardRepository(Repository):
 
 
-    session = inject.attr(Session)
-    def __init__(self):
-        pass
+    # session = inject.attr(Session)
+    def __init__(self, sesh:Session):
+        self.session = sesh
 
     
     def get(self, id: int) -> JobBoard:
@@ -42,7 +42,7 @@ class JobBoardRepository(Repository):
                 insert(JobBoard)
                 .values(**board)
                 .returning(JobBoard)
-            )
+            ).fetchone()
             self.session.commit()
             return nw_jobboard
         except SQLAlchemyError as e:

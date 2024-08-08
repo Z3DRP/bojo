@@ -29,7 +29,7 @@ def initialize_db(path):
 def create_indexes(path:str) -> None:
     connection = create_connection(path)
     indexes = [
-        "CREATE INDEX IF NOT EXISTS appname_idx ON Applications (name)",
+        "CREATE INDEX IF NOT EXISTS appsuccess_idx ON Applications (submitted_successfully)",
         "CREATE INDEX IF NOT EXISTS app_jobtitle_idx ON Applications (job_title_id)",
         "CREATE INDEX IF NOT EXISTS app_jobboard_idx ON Applications (job_board_id)",
         "CREATE INDEX IF NOT EXISTS app_company_idx ON Applications (company)",
@@ -68,8 +68,8 @@ def create_tables(path:str) -> None:
         CREATE_RESUMES = """
         CREATE TABLE IF NOT EXISTS Resumes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            job_title_id INTEGER,
+            name TEXT NOT NULL,
+            job_title_id INTEGER NOT NULL,
             file_path TEXT NOT NULL,
             FOREIGN KEY (job_title_id)
                 REFERENCES Job_Titles (id)
@@ -88,13 +88,13 @@ def create_tables(path:str) -> None:
         CREATE_SCHEDULED_RUNS = """
         CREATE TABLE IF NOT EXISTS Scheduled_Runs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
+            name TEXT NOT NULL,
             creation_date TEXT NOT NULL,
             job_title_id INTEGER NOT NULL,
             job_board_id INTEGER NOT NULL,
             run_dayOf_week TEXT,
             run_day INTEGER,
-            run_time TEXT,
+            run_time TEXT NOT NULL,
             run_month TEXT,
             run_type TEXT CHECK (run_type IN ('once', 'reboot', 'daily', 'hourly', 'weekly', 'monthly', 'midnight')),
             recurring INTEGER DEFAULT 0 CHECK (recurring IN (0, 1)),
@@ -102,7 +102,7 @@ def create_tables(path:str) -> None:
             durration_minutes REAL,
             every_hour INTEGER,
             every_minute INTEGER,
-            number_of_submissions INTEGER,
+            number_of_submissions INTEGER NOT NULL,
             FOREIGN KEY (job_title_id)
                 REFERENCES Job_Titles (id),
             FOREIGN KEY (job_board_id)
@@ -134,7 +134,7 @@ def create_tables(path:str) -> None:
             pay REAL,
             apply_date TEXT NOT NULL,
             submitted_successfully INTEGER NOT NULL DEFAULT 0 CHECK (submitted_successfully IN (0, 1)),
-            run_id INTEGER,
+            run_id INTEGER NOT NULL,
             FOREIGN KEY (run_id)
                 REFERENCES Completed_Runs (id)
             FOREIGN KEY (job_title_id)

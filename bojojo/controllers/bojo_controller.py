@@ -2,15 +2,19 @@ from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
 
 import inject
-from bojojo import BOOLEAN_ERROR, CRON_WRITE_ERR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
+from sqlalchemy import create_engine
+from bojojo import BOOLEAN_ERROR, CRON_WRITE_ERR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_URL, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
 from bojojo.adapters.current_item import CurrentItem
 from bojojo.adapters.current_item_list import CurrentItemList
+from bojojo.adapters.tst import tsts
+from bojojo.base_model.base_model import init_db_models
 from bojojo.factories.schedule_factory import ScheduleFactory
 from bojojo.handlers import db_handler
 import datetime
 
 from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.models.Scheduled_Run import ScheduledRun
+from bojojo.providers.db_session_provider import session_provider
 from bojojo.services.crontab_service import CronTabService
 from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.types import run_date
@@ -26,7 +30,7 @@ class BojoController:
 
     dbHandler = inject.attr(db_handler.DbHandler)
     def __init__(self):
-        pass
+        self.sesh = session_provider()
     
 
     def createItem(self, reslt:Any) -> CurrentItem:
@@ -53,8 +57,14 @@ class BojoController:
             "url": url,
             "has_easy_apply": hasEasyApply
         }
-        result = self.dbHandler.write_job_board(jboard)
-        return self.createItem(result)
+        result = self.dbHandler.write_job_board(self.sesh, jboard)
+        print(result)
+        print(type(result))
+        for r in result:
+            print (r.name)
+            print(r)
+
+        return tsts(result, SUCCESS)
     
 
     def getJobBoard(self, id:int) -> CurrentItem:

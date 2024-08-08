@@ -7,6 +7,8 @@ from bojojo.models.Completed_Run import CompletedRun
 from bojojo.repositories.JobBoard_Repo import JobBoardRepository
 from bojojo.services import ApplicationService, CompletedRunService, JobBoardService, JobTitleService, ResumeService, ScheduledRunService
 from sqlalchemy.orm import Session
+
+from bojojo.utils.dict_mapper import object_to_dict, proxy_to_dict
 class DbHandler:
 
     appService = inject.attr(ApplicationService)
@@ -162,8 +164,8 @@ class DbHandler:
             jobBoard = self.jobBoardService.get_job_board(id)
             try:
                 return DbResponse(self.get_response(jobBoard), SUCCESS)
-            except:
-                return self.get_json_err()
+            except Exception as e:
+                return self.get_json_err(e._message)
         except GetError:
             return self.get_db_err(DB_READ_ERROR)
         
@@ -190,13 +192,16 @@ class DbHandler:
             return self.get_db_err(DB_READ_ERROR)
     
 
-    def write_job_board(self, board_data:dict) -> DbResponse:
+    def write_job_board(self, sesh:Session, board_data:dict) -> DbResponse:
         try:
-            board = self.jobBoardService.add_job_board(board_data)
+            board = self.jobBoardService.add_job_board(sesh, board_data)
             try:
-                return DbResponse(self.get_response(board), SUCCESS)
-            except:
-                return self.get_json_err()
+                for rslt in board:
+                    print(board)
+                return board
+                # return DbResponse([proxy_to_dict(board)], SUCCESS)
+            except RuntimeError as e:
+                return self.get_json_err(str(e))
         except AddError as e:
             print(e.message)
             return self.get_db_err(DB_WRITE_ERROR, e.message)
@@ -495,12 +500,12 @@ class DbHandler:
         return responseList
 
 
-    def get_response(self, app) -> dict:
-        return [app.__dict__]
+    def get_response(self, obj) -> dict:
+        return [obj.__dict__]
     
     
-    def get_json_err(self) -> DbResponse:
-        return DbResponse([], JSON_ERROR)
+    def get_json_err(self, exmsg) -> DbResponse:
+        return DbResponse([], JSON_ERROR, exmsg)
     
 
     def get_db_err(self, errType:int, excpMsg) -> DbResponse:

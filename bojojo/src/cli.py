@@ -45,8 +45,8 @@ def init() -> None:
         raise typer.Exit(1)
     else:
         try:
-            init_db_models(engine)
             engine = create_engine(DB_URL)
+            init_db_models(engine)
         except Exception as e:
             typer.secho(
                 f'Failed to initialize ORM model from SQL tables:: {e}',
@@ -88,7 +88,7 @@ def add_job_board(
     """Add a new job board that can be used to apply for jobs"""
     bcontroller = get_controller()
     has_easy = 1 if easy_apply else 0
-    jboard, excCode = bcontroller.addJobBoard(name, url, has_easy)
+    jboard, excCode= bcontroller.addJobBoard(name, url, has_easy)
     if excCode != SUCCESS:
         typer.secho(
             f'Adding job board failed with "{ERRORS[excCode]}"',
@@ -97,11 +97,14 @@ def add_job_board(
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"job-board: {jboard['name']} was successfully added",
+            f"job-board: {jboard[0].name} was successfully added",
             fg=typer.colors.GREEN
         )
-        jbtable = get_singlerow_table(**jboard)
-        print_table(jbtable)
+        # jbtable = get_singlerow_table(**jboard)
+        # print_table(jbtable)
+        print(jboard)
+        print(type(jboard))
+        print(jboard[0].url)
 
 
 @app.command()
