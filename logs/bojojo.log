@@ -26,3 +26,79 @@ August 6, 2024 > 10:49:59 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name'
 August 8, 2024 > 11:14:44 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'linkedin.com/jobs/', 'has_easy_apply': 1}
 2024-08-08 11:33:32.577 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'linkedin.com/jobs/', 'has_easy_apply': 1}
 August 8, 2024 > 11:33:32 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'linkedIN', 'url': 'linkedin.com/jobs/', 'has_easy_apply': 1}
+2024-08-08 14:10:11.843 | ERROR    | bojojo.utils.bologger:error:31 - [READ JOB-BOARD ERR] :: Could not locate a bind configured on mapper Mapper[JobBoard(Job_Boards)], SQL expression or this Session.
+August 8, 2024 > 14:10:11 | ERROR | [READ JOB-BOARD ERR] :: Could not locate a bind configured on mapper Mapper[JobBoard(Job_Boards)], SQL expression or this Session.
+2024-08-08 14:13:45.186 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+August 8, 2024 > 14:13:45 | ERROR | [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+2024-08-08 14:15:48.233 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+August 8, 2024 > 14:15:48 | ERROR | [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+2024-08-08 14:16:15.994 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+August 8, 2024 > 14:16:15 | ERROR | [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+2024-08-08 14:16:49.817 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+August 8, 2024 > 14:16:49 | ERROR | [INSERT RESUME ERR] ResumeJobTitleId: 1, Path: fpath:: Could not locate a bind configured on mapper Mapper[Resume(Resumes)], SQL expression or this Session.
+2024-08-09 23:38:57.622 | ERROR    | bojojo.utils.bologger:error:31 - [READ JOB-BOARD ERR] :: Could not locate a bind configured on mapper Mapper[JobBoard(Job_Boards)], SQL expression or this Session.
+August 9, 2024 > 23:38:57 | ERROR | [READ JOB-BOARD ERR] :: Could not locate a bind configured on mapper Mapper[JobBoard(Job_Boards)], SQL expression or this Session.
+2024-08-10 00:03:39.197 | ERROR    | bojojo.utils.bologger:error:31 - [READ JOB-BOARD ERR] :: Could not locate a bind configured on mapper Mapper[JobBoard(Job_Boards)], SQL expression or this Session.
+August 10, 2024 > 00:03:39 | ERROR | [READ JOB-BOARD ERR] :: Could not locate a bind configured on mapper Mapper[JobBoard(Job_Boards)], SQL expression or this Session.
+2024-08-10 00:14:02.187 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'software engineer', 'url': <ExperienceType.JUNIOR: 'junior'>, 'has_easy_apply': 2.0}
+August 10, 2024 > 00:14:02 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'software engineer', 'url': <ExperienceType.JUNIOR: 'junior'>, 'has_easy_apply': 2.0}
+2024-08-10 00:16:53.179 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'software engineer', 'url': <ExperienceType.JUNIOR: 'junior'>, 'has_easy_apply': 2.0}
+August 10, 2024 > 00:16:53 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'software engineer', 'url': <ExperienceType.JUNIOR: 'junior'>, 'has_easy_apply': 2.0}
+2024-08-10 00:19:01.023 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+August 10, 2024 > 00:19:01 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+2024-08-10 00:19:33.910 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+August 10, 2024 > 00:19:33 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+2024-08-10 00:20:45.790 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+August 10, 2024 > 00:20:45 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+2024-08-10 00:23:24.590 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+August 10, 2024 > 00:23:24 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+2024-08-10 00:24:52.313 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+August 10, 2024 > 00:24:52 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+2024-08-10 00:27:45.811 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+August 10, 2024 > 00:27:45 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: Could not locate a bind configured on mapper Mapper[JobTitle(Job_Titles)], SQL expression or this Session.
+2024-08-10 00:40:20.895 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'dad', 'url': 'das/adas', 'has_easy_apply': True}
+August 10, 2024 > 00:40:20 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'dad', 'url': 'das/adas', 'has_easy_apply': True}
+2024-08-10 00:41:16.413 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'dad', 'url': 'das/adas', 'has_easy_apply': True}
+August 10, 2024 > 00:41:16 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'dad', 'url': 'das/adas', 'has_easy_apply': True}
+2024-08-10 00:44:09.599 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'dad', 'url': 'das/adas', 'has_easy_apply': True}
+August 10, 2024 > 00:44:09 | ERROR | [INSERT JOB-BOARD ERR] JobBoardName: {'name': 'dad', 'url': 'das/adas', 'has_easy_apply': True}
+2024-08-10 00:44:44.058 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+August 10, 2024 > 00:44:44 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-08-10 00:46:08.544 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': 'junior', 'experience_years': 2.0}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 10, 2024 > 00:46:08 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': 'junior', 'experience_years': 2.0}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-10 00:48:53.699 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': 'JUNIOR', 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+August 10, 2024 > 00:48:53 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': 'JUNIOR', 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-08-10 00:54:11.808 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+August 10, 2024 > 00:54:11 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-08-10 00:56:58.714 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+August 10, 2024 > 00:56:58 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.IntegrityError) CHECK constraint failed: experience_level IN ('junior', 'mid', 'senior')
+[SQL: INSERT INTO "Job_Titles" (name, experience_level, experience_years) VALUES (?, ?, ?) RETURNING id, name, experience_level, experience_years]
+[parameters: ('software engineer', 'JUNIOR', 2.0)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-08-10 02:20:01.065 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 10, 2024 > 02:20:01 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

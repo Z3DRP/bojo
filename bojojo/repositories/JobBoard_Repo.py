@@ -10,9 +10,10 @@ from bojojo.models.Job_Board import JobBoard
 class JobBoardRepository(Repository):
 
 
-    # session = inject.attr(Session)
-    def __init__(self, sesh:Session):
-        self.session = sesh
+    session = inject.attr(Session)
+    def __init__(self):
+        # self.session = sesh
+        pass
 
     
     def get(self, id: int) -> JobBoard:

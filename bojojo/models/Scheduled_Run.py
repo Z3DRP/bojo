@@ -9,7 +9,7 @@ Base = declarative_base()
 
 class ScheduledRun(Base):
     __tablename__ = "Scheduled_Runs"
-    id = Column(Integer, name="id", primary_key=True)
+    id = Column(Integer, name="id", primary_key=True, autoincrement=True)
     name = Column(String, name="name", nullable=False)
     creation_date = Column(String, name="creation_date", nullable=False)
     job_title_id = Column(Integer, ForeignKey("Job_Titles.id"), name="job_title_id", nullable=False, index=True)

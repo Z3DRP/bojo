@@ -6,7 +6,7 @@ Base = declarative_base()
 
 class JobBoard(Base):
     __tablename__ = "Job_Boards"
-    id = Column(Integer, name="id", primary_key=True)
+    id = Column(Integer, name="id", primary_key=True, autoincrement=True)
     name = Column(String, name="name", nullable=False, index=True)
     url = Column(String, name="url", nullable=False)
     has_easy_apply = Column(Integer, name="has_easy_apply", nullable=False, default=0, index=True)

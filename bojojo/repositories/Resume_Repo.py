@@ -17,7 +17,7 @@ class ResumeRepository(Repository):
 
     def get(self, rid: int) -> Resume:
         try:
-            result = self.session.execute(select(Resume).where(Resume.id==rid)).scalars().first()
+            result = self.session.execute(select(Resume).where(Resume.id==rid)).first()
             return result
         except SQLAlchemyError as e:
             raise e
@@ -25,14 +25,14 @@ class ResumeRepository(Repository):
     
     def getByName(self, name:str) -> Resume:
         try:
-            return self.session.execute(select(Resume).where(Resume.name==name)).scalars().first()
+            return self.session.execute(select(Resume).where(Resume.name==name)).first()
         except SQLAlchemyError as e:
             raise e
         
         
     def getAll(self) -> List[Resume]:
         try:
-            results = self.session.execute(select(Resume)).scalars().all()
+            results = self.session.execute(select(Resume)).fetchall()
             return results
         except SQLAlchemyError as e:
             raise e

@@ -6,7 +6,7 @@ Base = declarative_base()
 
 class CompletedRun(Base):
     __tablename__ = "Completed_Runs"
-    id = Column(Integer, name="id", primary_key=True, nullable=False)
+    id = Column(Integer, name="id", primary_key=True, nullable=False, autoincrement=True)
     execution_date = Column(String, name="execution_date", nullable=False, index=True)
     start = Column(String, name="start", nullable=False)
     finish = Column(String, name="finish", nullable=False)

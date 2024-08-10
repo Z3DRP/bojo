@@ -1,6 +1,7 @@
 
 from typing import List
 import inject
+from bojojo.base_service import Service
 from bojojo.models import Application
 from bojojo.repositories.Application_Repo import ApplicationRepository
 from sqlalchemy.exc import SQLAlchemyError
@@ -8,7 +9,7 @@ from bojojo.utils.bologger import Blogger
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 
 
-class ApplicationService:
+class ApplicationService(Service):
     
     repository = inject.attr(ApplicationRepository)
     blogger = inject.attr(Blogger)

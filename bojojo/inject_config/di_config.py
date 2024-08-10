@@ -17,23 +17,25 @@ from bojojo.services.resume_service import ResumeService
 from bojojo.services.scheduledRun_service import ScheduledRunService
 from bojojo.utils.config_reader import get_db_path
 from bojojo.utils.bologger import Blogger
+from bojojo.utils.db_session import DbSession
 
 
 def base_config(binder):
     binder.bind_to_provider(Session, session_provider)
+    # binder.bind(DbSession, DbSession())
     binder.bind(ResumeRepository, ResumeRepository())
     binder.bind(ApplicationRepository, ApplicationRepository())
     binder.bind(CompletedRunRepository, CompletedRunRepository())
-    # binder.bind(JobBoardRepository, JobBoardRepository())
-    binder.bind(JobTitleRepository, JobTitleRepository())
+    binder.bind(JobBoardRepository, JobBoardRepository())
+    # binder.bind(JobTitleRepository, JobTitleRepository())
     binder.bind(ScheduledRunRepository, ScheduledRunRepository())
     binder.bind(ResumeService, ResumeService())
     binder.bind(ApplicationService, ApplicationService())
     binder.bind(CompletedRunService, CompletedRunService())
-    # binder.bind(JobBoardService, JobBoardService())
-    binder.bind(JobTitleService, JobTitleService())
+    binder.bind(JobBoardService, JobBoardService())
+    # binder.bind(JobTitleService, JobTitleService())
     binder.bind(ScheduledRunService, ScheduledRunService())
-    binder.bind(DbHandler, DbHandler(db_path()))
+    # binder.bind(DbHandler, DbHandler(db_path()))
     binder.bind(Blogger, Blogger())
 
 

@@ -1,26 +1,45 @@
 from pathlib import Path
 from typing import List
 import inject
-from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, JSON_ERROR, SUCCESS, AddError, DeleteError, GetError, UpdateError
+from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, JSON_ERROR, SUCCESS, UNKNOWN_ERROR, AddError, DeleteError, GetError, UpdateError
 from bojojo.adapters.db_response import DbResponse
+from bojojo.adapters.service_result import ServiceResult
+from bojojo.adapters.tst import tsts
+from bojojo.base_service import Service
 from bojojo.models.Completed_Run import CompletedRun
 from bojojo.repositories.JobBoard_Repo import JobBoardRepository
 from bojojo.services import ApplicationService, CompletedRunService, JobBoardService, JobTitleService, ResumeService, ScheduledRunService
 from sqlalchemy.orm import Session
 
 from bojojo.utils.dict_mapper import object_to_dict, proxy_to_dict
+from bojojo.utils.service_injector import create_service
 class DbHandler:
 
     appService = inject.attr(ApplicationService)
     completedRunService = inject.attr(CompletedRunService)
     jobBoardService = inject.attr(JobBoardService)
-    jobTitleService = inject.attr(JobTitleService)
+    # jobTitleService = inject.attr(JobTitleService)
     resumeService = inject.attr(ResumeService)
     scheduledRunService = inject.attr(ScheduledRunService)
     jobBoardRepo = inject.attr(JobBoardRepository)
 
-    def __init__(self, db_path: Path) -> None:
+    def __init__(
+            self, 
+            db_path: Path,
+            appServ: Service,
+            compServ: Service,
+            jobBoardServ: Service,
+            jobTitleServ: Service,
+            resumeServ: Service,
+            schedServ: Service
+        ) -> None:
         self.__db_path = db_path
+        self.appService = appServ
+        self.completedRunService = compServ
+        self.jobBoardService = jobBoardServ
+        self.jobTitleService = jobTitleServ
+        self.resumeService = resumeServ
+        self.scheduledRunService = schedServ
 
     
     def get_path(self):
@@ -185,16 +204,16 @@ class DbHandler:
         try:
             jobBoards = self.jobBoardService.get_all_jobBoards()
             try:
-                return DbResponse(self.get_list_response(jobBoards), SUCCESS)
-            except:
-                return self.get_json_err()
+                return ServiceResult(jobBoards, SUCCESS)
+            except RuntimeError as e:
+                return ServiceResult(str(e), UNKNOWN_ERROR)
         except GetError:
             return self.get_db_err(DB_READ_ERROR)
     
 
     def write_job_board(self, sesh:Session, board_data:dict) -> DbResponse:
         try:
-            board = self.jobBoardService.add_job_board(sesh, board_data)
+            board = self.jobBoardService.add_job_board(board_data)
             try:
                 for rslt in board:
                     print(board)
@@ -255,7 +274,7 @@ class DbHandler:
         try:
             jtitle = self.jobTitleService.get_job_title_by_name(title)
             try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
+                return jtitle
             except:
                 return self.get_json_err()
         except GetError:
@@ -266,20 +285,20 @@ class DbHandler:
         try:
             jtitles = self.jobTitleService.get_all_jobTitles()
             try:
-                return DbResponse(self.get_list_response(jtitles), SUCCESS)
-            except:
-                return self.get_json_err()
+                return ServiceResult(jtitles, SUCCESS)
+            except RuntimeError as e:
+                return ServiceResult(str(e), UNKNOWN_ERROR)
         except GetError:
             return self.get_db_err(DB_READ_ERROR)
     
 
     def write_job_title(self, job_data:dict) -> DbResponse:
         try:
-            jtitle = self.jobTitleService.add(job_data)
+            jtitle = self.jobTitleService.add_job_title(job_data)
             try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
+                return ServiceResult(jtitle, SUCCESS)
+            except RuntimeError as e:
+                return DbResponse({"error": str(e)}, UNKNOWN_ERROR)
         except AddError as e:
             return self.get_db_err(DB_WRITE_ERROR, e.message)
     
@@ -343,9 +362,9 @@ class DbHandler:
         try:
             resume = self.resumeService.get_resume(id)
             try:
-                return DbResponse(self.get_response(resume), SUCCESS)
-            except:
-                return self.get_json_err()
+                return ServiceResult(resume, SUCCESS)
+            except RuntimeError as e:
+                return ServiceResult(str(e), UNKNOWN_ERROR)
         except GetError:
             return self.get_db_err(DB_READ_ERROR)
     
@@ -354,9 +373,9 @@ class DbHandler:
         try:
             resumes = self.resumeService.get_all_resumes()
             try:
-                return DbResponse(self.get_list_response(resumes), SUCCESS)
-            except:
-                return self.get_json_err()
+                return ServiceResult(resumes, SUCCESS)
+            except RuntimeError as e:
+                return ServiceResult(str(e), UNKNOWN_ERROR)
         except GetError:
             return self.get_db_err(DB_READ_ERROR)
     
@@ -365,11 +384,11 @@ class DbHandler:
         try:
             resume = self.resumeService.add_resume(resume_data)
             try:
-                return DbResponse(self.get_response(resume), SUCCESS)
+                return resume
             except:
-                return self.get_json_err()
-        except AddError:
-            return self.get_db_err(DB_WRITE_ERROR)
+                return self.get_json_err(str(e))
+        except AddError as e:
+            return self.get_db_err(DB_WRITE_ERROR, e.message)
     
     
     def modify_resume(self, name:str, resume_data:dict) -> DbResponse:

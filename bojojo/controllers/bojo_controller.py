@@ -3,15 +3,15 @@ from typing import Any, Dict, List, NamedTuple
 
 import inject
 from sqlalchemy import create_engine
-from bojojo import BOOLEAN_ERROR, CRON_WRITE_ERR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_URL, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError
+from bojojo import BOOLEAN_ERROR, CRON_WRITE_ERR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_URL, DB_WRITE_ERROR, FILE_PATH_ERROR, SUCCESS, BooleanError, NoRecordError, db_path
 from bojojo.adapters.current_item import CurrentItem
 from bojojo.adapters.current_item_list import CurrentItemList
 from bojojo.adapters.tst import tsts
 from bojojo.base_model.base_model import init_db_models
 from bojojo.factories.schedule_factory import ScheduleFactory
-from bojojo.handlers import db_handler
 import datetime
 
+from bojojo.handlers.db_handler import DbHandler
 from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.models.Scheduled_Run import ScheduledRun
 from bojojo.providers.db_session_provider import session_provider
@@ -19,6 +19,7 @@ from bojojo.services.crontab_service import CronTabService
 from bojojo.models.Cron_Schedule import CronSchedule
 from bojojo.types import run_date
 from bojojo.types.days import get_weekday
+from bojojo.types.experience_types import ExperienceType
 from bojojo.types.months import get_month_str
 from bojojo.types.run_date import RunDate
 from bojojo.types.schedule_types import ScheduleType
@@ -28,9 +29,9 @@ from bojojo.utils.dict_mapper import object_to_dict
 class BojoController:
 
 
-    dbHandler = inject.attr(db_handler.DbHandler)
-    def __init__(self):
-        self.sesh = session_provider()
+    # dbHandler = inject.attr(db_handler.DbHandler)
+    def __init__(self, dbhandler:DbHandler):
+        self.dbHandler = dbhandler
     
 
     def createItem(self, reslt:Any) -> CurrentItem:
@@ -49,7 +50,7 @@ class BojoController:
         return " ".join(name)
     
     
-    def addJobBoard(self, name: List[str], url:str, hasEasyApply:int=0) -> CurrentItem:
+    def addJobBoard(self, name: List[str], url:str, hasEasyApply:bool) -> CurrentItem:
         """Add a new job board to database to be used for job application submission"""
         nameTxt = self.joinNameStr(name)
         jboard = {
@@ -60,11 +61,12 @@ class BojoController:
         result = self.dbHandler.write_job_board(self.sesh, jboard)
         print(result)
         print(type(result))
-        for r in result:
-            print (r.name)
-            print(r)
 
-        return tsts(result, SUCCESS)
+        try:
+            return result
+        except:
+            print(result)
+            print(type(result))
     
 
     def getJobBoard(self, id:int) -> CurrentItem:
@@ -76,7 +78,7 @@ class BojoController:
     def getAllJobBoards(self) -> CurrentItemList:
         """Return all saved job boards"""
         result = self.dbHandler.read_all_jobBoards()
-        return self.createItemList(result)
+        return result
     
     
     def getJobBoardByName(self, name:List[str]) -> CurrentItem:
@@ -109,16 +111,17 @@ class BojoController:
         return self.createItem(result)
 
 
-    def addJobTitle(self, name:List[str], experienceLvl:str, experienceYrs:int) -> CurrentItem:
+    def addJobTitle(self, name:List[str], experienceLvl:ExperienceType, experienceYrs:int) -> CurrentItem:
         """Add job title to apply for"""
         nameTxt = self.joinNameStr(name)
+        print(f"exp level {experienceLvl.value}")
         title = {
             "name": nameTxt,
             "experience_level": experienceLvl,
             "experience_years": experienceYrs
         }
         result = self.dbHandler.write_job_title(title)
-        return self.createItem(result)
+        return result
     
 
     def getJobTitle(self, id:int) -> CurrentItem:
@@ -130,7 +133,7 @@ class BojoController:
     def getAllJobTitles(self) -> CurrentItemList:
         """Get all job titles"""
         results = self.dbHandler.get_all_jobTitles()
-        return self.createItemList(results)
+        return results
     
     
     def getJobTitleByName(self, name:List[str]) -> CurrentItem:
@@ -190,7 +193,7 @@ class BojoController:
     def getAllResumes(self) -> CurrentItem:
         """Get all saved resumes"""
         results = self.dbHandler.get_all_resumes()
-        return self.createItemList(results)
+        return results
     
 
     def addResume(self, name:List[str], jobTitleId:int, filePath:str) -> CurrentItem:
@@ -202,10 +205,16 @@ class BojoController:
             "job_title_id": jobTitleId,
             "file_path": filePath
         }
-        if not file_path.exists():
-            return self.createErrorItem(resume, FILE_PATH_ERROR)
+        # if not file_path.exists():
+        #     return self.createErrorItem(resume, FILE_PATH_ERROR)
         result = self.dbHandler.write_resume(resume)
-        return self.createItem(result)
+        print(result)
+        print(type(result))
+        for r in result:
+            print (r.name)
+            print(r)
+
+        return result
     
 
     def modifyResume(self, name:List[str], jobTitleId:int, filePath: str) -> CurrentItem:

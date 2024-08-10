@@ -2,18 +2,21 @@ from typing import List
 import inject
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
+from bojojo.base_service import Service
 from bojojo.models.Job_Title import JobTitle
 from bojojo.repositories.JobTitle_Repo import JobTitleRepository
 from bojojo.utils.bologger import Blogger
+from bojojo.utils.repo_injector import create_repo
 
 
-class JobTitleService:
+class JobTitleService(Service):
 
     
-    repository = inject.attr(JobTitleRepository)
+    # repository = inject.attr(JobTitleRepository)
     blogger = inject.attr(Blogger)
     def __init__(self) -> None:
-        pass
+        self.repository = create_repo(repo_type=JobTitleRepository)
+        #pass
     
 
     def get_job_title(self, id:int) -> JobTitle:
@@ -42,9 +45,9 @@ class JobTitleService:
     
     def add_job_title(self, job_data:dict) -> JobTitle:
         try:
-            return self.repository.add(**job_data)
+            return self.repository.add(job_data)
         except SQLAlchemyError as e:
-            self.blogger.error(f"[INSERT JOB-TITLE ERR] JobTitleId: {id}:: {e}")
+            self.blogger.error(f"[INSERT JOB-TITLE ERR] JobTitleId: {job_data}:: {e}")
             raise AddError(DB_WRITE_ERROR, e._message)
     
 

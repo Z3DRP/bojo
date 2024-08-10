@@ -2,16 +2,17 @@ from typing import List
 import inject
 from pytest import Session
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, DeleteError, GetError, UpdateError
+from bojojo.base_service import Service
 from bojojo.models.Job_Board import JobBoard
 from bojojo.repositories.JobBoard_Repo import JobBoardRepository
 from sqlalchemy.exc import SQLAlchemyError
 
 from bojojo.utils.bologger import Blogger
 
-class JobBoardService:
+class JobBoardService(Service):
     
 
-    # repository = inject.attr(JobBoardRepository)
+    repository = inject.attr(JobBoardRepository)
     blogger = inject.attr(Blogger)
     def __init__(self) -> None:
         pass
@@ -41,9 +42,9 @@ class JobBoardService:
             raise AddError(DB_WRITE_ERROR, e._message)
         
     
-    def add_job_board(self, sesh:Session, board_data:dict) -> JobBoard:
+    def add_job_board(self, board_data:dict) -> JobBoard:
         try:
-            self.repository = JobBoardRepository(sesh)
+            # self.repository = JobBoardRepository(sesh)
             return self.repository.add(board_data)
         except SQLAlchemyError as e:
             print('exception in service')

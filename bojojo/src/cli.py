@@ -4,7 +4,8 @@ This module provides the Bojo CLI
 """
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated, List, Optional
+from typing import List, Optional
+from typing_extensions import Annotated
 from sqlalchemy import create_engine
 import typer
 from bojojo import CONFIG_FILE_PATH, DB_URL, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
@@ -16,10 +17,12 @@ from bojojo.inject_config import base_config
 from rich.console import Console
 
 from bojojo.types.days import WeekDays, get_weekday_int
+from bojojo.types.experience_types import ExperienceType
 from bojojo.types.months import Months, get_month_str
 from bojojo.types.run_date import RunDate
 from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.cli_tables import get_multirow_table, get_singlerow_table
+from bojojo.utils.dbhandler_injector import inject_handler
 
 
 app = typer.Typer()
@@ -64,7 +67,7 @@ def _version_callback(value: bool) -> None:
 
 def get_controller() -> BojoController:
     if DEFAULT_DB_FILE_PATH.exists():
-        return BojoController()
+        return BojoController(inject_handler())
     else:
         typer.secho(
             'Database not found. Please, run "bojojo init"',
@@ -78,6 +81,55 @@ def print_table(table) -> None:
     console.print(table)
 
 
+@app.command()
+def get_job_boards(
+    name: Annotated[List[str], typer.Option("--name", "-n", help="Name of job board to retrieve")] = None,
+    jid: Annotated[int, typer.Option("--id", "-i", help="Id of job board to get")] = None,
+    all: Annotated[bool, typer.Option(default=..., is_flag=True, help="Flag to retrieve all saved job boards")] = False
+) -> None:
+    bcontroller = get_controller()
+    jboard = None
+    exCode = None
+    jtable = None
+    if all:
+        jboard, exCode = bcontroller.getAllJobBoards()
+        if exCode != SUCCESS:
+            typer.secho(
+                f'Reading job board(s) failed with "{ERRORS[exCode]}"',
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
+        else:
+            typer.secho(
+                "---Saved Job Boards---",
+                fg=typer.colors.RED
+            )
+            jtable = get_multirow_table(jboard)
+    else:
+        if name and jid or not name and not jid:
+            typer.secho(
+                f'Reading job boards failed, please enter only a name, id, or use the --all flag',
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
+        if name and not jid:
+            jboard, exCode = bcontroller.getJobBoardByName(name)
+        elif jid and not name:
+            jboard, exCode = bcontroller.getJobBoard(jid)
+        typer.secho(
+            f'---Saved Job Boards---',
+            fg=typer.colors.GREEN
+        )
+
+        if jboard is not None:
+            jtable = get_singlerow_table(jboard[0].to_dict())
+    if jtable is not None:
+        print_table(jtable)
+        
+
+#TODO note unchange the changes made to ADD JOB BOARD METHOD depenency injection is working with the changes made to provider recently and adding the 
+# create all to models.... might have to add the create all method in the commands maybe not though
+
 #... is default for required
 @app.command()
 def add_job_board(
@@ -87,24 +139,23 @@ def add_job_board(
 ) -> None:
     """Add a new job board that can be used to apply for jobs"""
     bcontroller = get_controller()
-    has_easy = 1 if easy_apply else 0
-    jboard, excCode= bcontroller.addJobBoard(name, url, has_easy)
-    if excCode != SUCCESS:
+    jboard = bcontroller.addJobBoard(name, url, easy_apply)
+    if jboard.excCode != SUCCESS:
         typer.secho(
-            f'Adding job board failed with "{ERRORS[excCode]}"',
+            f'Adding job board failed with "{ERRORS[jboard.excCode]}"',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"job-board: {jboard[0].name} was successfully added",
+            f"job-board: {jboard.item[0].name} was successfully added",
             fg=typer.colors.GREEN
         )
         # jbtable = get_singlerow_table(**jboard)
         # print_table(jbtable)
         print(jboard)
         print(type(jboard))
-        print(jboard[0].url)
+        print(jboard.item[0].url)
 
 
 @app.command()
@@ -173,8 +224,11 @@ def add_resume(
             f"Resume: {resume['name']} was successfully added",
             fg=typer.colors.GREEN
         )
-        rtable = get_singlerow_table(**resume)
-        print_table(rtable)
+        # rtable = get_singlerow_table(**resume)
+        # print_table(rtable)
+        print(resume)
+        print(type(resume))
+        print(resume[0].name)
     
 
 #TODO update resume to update based off name not id
@@ -240,24 +294,28 @@ def remove_resume(
 def add_job_title(
     name: Annotated[List[str], typer.Argument(..., help="Enter the name of a job title to apply for")],
     experience_years: Annotated[float, typer.Argument(..., help="The years of experience for job title, value will be used in job search")],
-    experience_level: Annotated[str, typer.Argument(..., help="Experience level for job title, exepted values 'junior, mid, and senior'")]
+    experience_level: Annotated[ExperienceType, typer.Argument(..., help="Experience level for job title, exepted values 'junior, mid, and senior'", case_sensitive=False)]
 ) -> None:
     """Add a job title to apply for"""
     bcontroller = get_controller()
-    jobtitle, exCode = bcontroller.addJobBoard(name, experience_level, experience_years)
-    if exCode != SUCCESS:
+    jobtitle = bcontroller.addJobTitle(name, experience_level, experience_years)
+    if jobtitle.excCode != SUCCESS:
         typer.secho(
-            f'Adding job title failed with "{ERRORS[exCode]}',
+            f'Adding job title failed with "{ERRORS[jobtitle.excCode]}',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"Job title: {jobtitle['name']} was successfully added",
+            f"Job title: {jobtitle.entity} was successfully added",
             fg=typer.colors.GREEN
         )
-        ttable = get_singlerow_table(**jobtitle)
-        print_table(ttable)
+        # ttable = get_singlerow_table(**jobtitle)
+        # print_table(ttable)
+        print(jobtitle)
+        print(jobtitle.entity.name)
+        print(jobtitle.entity.id)
+        print(jobtitle.entity.experience_years)
         
 
 @app.command()

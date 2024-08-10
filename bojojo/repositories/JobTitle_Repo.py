@@ -5,45 +5,49 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.base_repo.repository import Repository
 from bojojo.models.Job_Title import JobTitle
+from bojojo.utils.db_session import DbSession
 
 
 class JobTitleRepository(Repository):
 
 
-    session = inject.attr(Session)
-    def __init__(self):
-        pass   
-
+    # session = inject.attr(DbSession)
+    def __init__(self, session):
+        self.session = session
+        pass
     
     def get(self, id:int) -> JobTitle:
         try:
-            return self.session.execute(select(JobTitle).where(JobTitle.id==id)).scalars().first()
+            return self.session.execute(select(JobTitle).where(JobTitle.id==id)).first()
         except SQLAlchemyError as e:
             raise e
         
     
     def getByName(self, title:str) -> JobTitle:
         try:
-            return self.session.execute(select(JobTitle).where(JobTitle.name==title)).scalars().first()
+            return self.session.execute(select(JobTitle).where(JobTitle.name==title)).first()
         except SQLAlchemyError as e:
             raise e
         
     
     def getAll(self) -> List[JobTitle]:
         try:
-            return self.session.execute(select(JobTitle)).scalars().all()
+            return self.session.execute(select(JobTitle)).fetchall()
         except SQLAlchemyError as e:
             raise e
         
     
     def add(self, jobtitle:dict) -> JobTitle:
         try:
-            nw_jobTitle = self.session.execute(
-                insert(JobTitle)
-                .values(**jobtitle)
-                .returning(JobTitle)
-            )
+            nw_jobTitle = JobTitle(**jobtitle)
+            self.session.add(nw_jobTitle)
             self.session.commit()
+            # ins = insert(JobTitle).values(**jobtitle)
+            # nw_jobTitle = self.session.execute(
+            #     insert(JobTitle)
+            #     .values(**jobtitle)
+            # )
+            # self.session.commit()
             return nw_jobTitle
         except SQLAlchemyError as e:
             self.session.rollback()

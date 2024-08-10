@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 
 class Repository(ABC):
 
+    def __init__(self, session):
+        self.session = session
+
     @abstractmethod
     def add(self, entity):
         pass

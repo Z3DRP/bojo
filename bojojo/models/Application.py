@@ -5,7 +5,7 @@ from bojojo.base_model import Base
 
 class Application(Base):
     __tablename__ = "Applications"
-    id = Column(Integer, name="id", primary_key=True, nullable=False)
+    id = Column(Integer, name="id", primary_key=True, nullable=False, autoincrement=True)
     company = Column(String, name="company", nullable=False, index=True)
     job_title_id = Column(Integer, ForeignKey("Job_Titles.id"), name="job_title_id", nullable=False, index=True)
     job_board_id = Column(Integer, ForeignKey("Job_Boards.id"), name="job_board_id", nullable=False, index=True)
