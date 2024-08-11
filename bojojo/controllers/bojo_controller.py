@@ -132,13 +132,13 @@ class BojoController:
 
     def getAllJobTitles(self) -> CurrentItemList:
         """Get all job titles"""
-        results = self.dbHandler.get_all_jobTitles()
+        results = self.dbHandler.read_all_jobTitles()
         return results
     
     
     def getJobTitleByName(self, name:List[str]) -> CurrentItem:
         """Get a specific job title by name"""
-        result = self.dbHandler.get_job_title_byName(self.joinNameStr(name))
+        result = self.dbHandler.read_job_title_byName(self.joinNameStr(name))
         return self.createItem(result)
     
 

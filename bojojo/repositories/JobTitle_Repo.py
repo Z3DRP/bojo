@@ -32,7 +32,9 @@ class JobTitleRepository(Repository):
     
     def getAll(self) -> List[JobTitle]:
         try:
-            return self.session.execute(select(JobTitle)).fetchall()
+            # was returning row objs
+            # return self.session.execute(select(JobTitle)).fetchall()
+            return self.session.execute(select(JobTitle)).scalars().all()
         except SQLAlchemyError as e:
             raise e
         

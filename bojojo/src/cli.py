@@ -23,6 +23,7 @@ from bojojo.types.run_date import RunDate
 from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.cli_tables import get_multirow_table, get_singlerow_table
 from bojojo.utils.dbhandler_injector import inject_handler
+from bojojo.utils.dict_mapper import object_to_dict, stringify_dict
 
 
 app = typer.Typer()
@@ -288,6 +289,49 @@ def remove_resume(
         print_table(rtable)
 
 
+@app.command()
+def get_job_title(
+    name: Annotated[List[str], typer.Option(default=..., help="Name of job title to retrieve")] = None,
+    id: Annotated[int, typer.Option(default=..., help="Id of job title to get")] = None,
+    all: Annotated[bool, typer.Option(default=..., help="Used to get all job titles")] = False
+) -> None:
+    """Get and display saved job titles"""
+    bcontroller = get_controller()
+    jobTitle = None
+    exCode = None
+    if all:
+        jobTitle, exCode = bcontroller.getAllJobTitles()
+    else:
+        if name and id:
+            typer.secho(
+                f"Error, please only specify a job title name or job title id",
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
+        elif name:
+            jobTitle, exCode = bcontroller.getJobTitleByName(name)
+        else:
+            jobTitle, exCode = bcontroller.getJobTitle(id)
+    if exCode != SUCCESS:
+        typer.secho(
+            f"Reading job titles failed with {ERRORS[exCode]}",
+            fg=typer.colors.RED
+        )  
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            "--Job Title Results--",
+            fg=typer.colors.GREEN,
+            bold=True
+        )
+        print(jobTitle)
+        print('-------res')
+        # rslts = convert_entity_list(jobTitle)
+        
+        table = get_multirow_table(jobTitle) if all else get_singlerow_table(**stringify_dict(jobTitle))
+        print_table(table)
+
+
 #TODO note date times can be used on dt values from typer cli arg types
 #TODO might have to update experience years in service cls
 @app.command()
@@ -307,15 +351,13 @@ def add_job_title(
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"Job title: {jobtitle.entity} was successfully added",
+            f"Job title: {jobtitle.entity.name} was successfully added",
             fg=typer.colors.GREEN
         )
-        # ttable = get_singlerow_table(**jobtitle)
-        # print_table(ttable)
-        print(jobtitle)
-        print(jobtitle.entity.name)
-        print(jobtitle.entity.id)
-        print(jobtitle.entity.experience_years)
+        ttable = get_singlerow_table(
+            **stringify_dict(jobtitle.entity)
+        )
+        print_table(ttable)
         
 
 @app.command()
@@ -644,3 +686,10 @@ def main(
     )
 ) -> None:
     return
+
+
+def convert_entity_list(entity_list):
+    nw_list = []
+    for entity in entity_list:
+        nw_list.append(stringify_dict(entity))
+    return nw_list

@@ -1,6 +1,6 @@
 from rich.table import Table
 
-from bojojo.utils.dict_mapper import object_to_dict
+from bojojo.utils.dict_mapper import object_to_dict, stringify_dict
 
 def get_singlerow_table(**kwargs):
     headers = []
@@ -13,16 +13,22 @@ def get_singlerow_table(**kwargs):
     return table
 
 
-def get_multirow_table(*args):
+def get_multirow_table(arglist):
     headers = []
     values = []
-    for item in args:
-        values.append(object_to_dict(item))
-    for key in values[0].keys():
-        headers.append(key)
+    for indx, entity in enumerate(arglist):
+        strentity = stringify_dict(entity)
+        if indx == 0:
+           ks = strentity.keys()
+           for k in ks:
+               headers.append(k)
+        values.append(list(strentity.values()))
     table = Table(*headers)
-    for item in values:
-        currentRow = item.values()
-        table.add_row(*currentRow)
+    for val in values:
+        table.add_row(*val)
     return table
+
+
+            
+
     
