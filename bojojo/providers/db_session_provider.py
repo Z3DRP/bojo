@@ -9,7 +9,7 @@ from bojojo.utils.config_reader import get_db_path
 
 
 def get_engine():
-    engine = create_engine(DB_URL, echo=True)
+    engine = create_engine(DB_URL, echo=True, pool_pre_ping=True)
     init_db_models(engine)
     return engine
 

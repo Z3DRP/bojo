@@ -1,6 +1,6 @@
 from typing import List
 import inject
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import ChunkedIteratorResult, delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.base_repo.repository import Repository
@@ -48,12 +48,12 @@ class JobTitleRepository(Repository):
     
     def add(self, jobtitle:dict) -> JobTitle:
         try:
-            # nw_jobTitle = JobTitle(**jobtitle)
-            # self.session.add(nw_jobTitle)
-            # self.session.commit()
-            ins = insert(JobTitle).values(**jobtitle).returning(JobTitle)
-            nw_jobTitle = self.session.execute(ins)
+            nw_jobTitle = JobTitle(**jobtitle)
+            self.session.add(nw_jobTitle)
             self.session.commit()
+            # ins = insert(JobTitle).values(**jobtitle).returning(JobTitle)
+            # nw_jobTitle = self.session.execute(ins)
+            # self.session.commit()
             return nw_jobTitle
         except SQLAlchemyError as e:
             self.session.rollback()
@@ -66,12 +66,12 @@ class JobTitleRepository(Repository):
                 update(JobTitle)
                 .where(JobTitle.id==id)
                 .values(**jobtitle)
-                .returning(JobTitle)
             )
-            rslt = self.session.execute(updtStmnt)
-            self.session.flush()
+            self.session.execute(updtStmnt)
             self.session.commit()
-            return rslt
+            updtrow = select(JobTitle).where(JobTitle.id==id)
+            nw_row = self.session.execute(updtrow).scalars().first()
+            return nw_row
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -83,11 +83,11 @@ class JobTitleRepository(Repository):
                 update(JobTitle)
                 .where(JobTitle.name.in_([name]))
                 .values(**jobtitle)
-                .returning(JobTitle)
             )
-            rslt = self.session.execute(updtStmt)
-            self.session.flush()
+            self.session.execute(updtStmt)
             self.session.commit()
+            updtrow = select(JobTitle).where(JobTitle.name==name)
+            rslt = self.session.execute(updtrow).scalars().first()
             return rslt
         except SQLAlchemyError as e:
             self.session.rollback()
@@ -96,29 +96,31 @@ class JobTitleRepository(Repository):
     
     def delete(self, id:int) -> JobTitle:
         try:
-            result = self.session.execute(delete(JobTitle).where(JobTitle.id==id).returning(JobTitle))
-            self.session.flush()
+            dltstmt = delete(JobTitle).where(JobTitle.id==id)
+            # return type from session for deletes is diff
+            rslt:ChunkedIteratorResult = self.session.execute(dltstmt)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
             raise e
         
     
-    def delete_by_name(self, name:str) -> JobTitle:
+    def delete_by_name(self, name:str) -> int:
         try:
-            dltStmt = delete(JobTitle).where(JobTitle.name.in_([name])).returning(JobTitle)
-            rslt = self.session.execute(dltStmt)
-            self.session.flush()
+            dltStmt = delete(JobTitle).where(JobTitle.name==name)
+            rslt:ChunkedIteratorResult = self.session.execute(dltStmt)
             self.session.commit()
-            return rslt
+            # rslt_count = sum(chunk.rowcount for chunk in rslt.partitions())
+            return rslt.rowcount
         except SQLAlchemyError as e:
             raise e
                     
 
     def deleteAll(self) -> JobTitle:
         try:
-            result = self.session.execute(delete(JobTitle).returning(JobTitle))
+            dltstmt = delete(JobTitle)
+            rslt:ChunkedIteratorResult = self.session.execute(dltstmt)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
             raise e

@@ -4,5 +4,5 @@ from enum import Enum
 
 class ExperienceType(Enum):
     JUNIOR = "junior"
-    MID = "mid"
+    MIDCAREER = "midcareer"
     SENIOR = "senior"

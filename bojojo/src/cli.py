@@ -362,18 +362,18 @@ def add_job_title(
 
 @app.command()
 def update_job_title(
-    job_id: Annotated[int, typer.Option(["--jid", "-id"], help="Specifies the id of the job title to change")],
-    name: Annotated[List[str], typer.Option(["--name", "-n"], help="Change the name of a saved job title")],
-    experience_years: Annotated[float, typer.Option(["--xp-years", "-y"], help="Update the years of experience for a job title")],
-    experience_level: Annotated[str, typer.Option(["--xp-level", "-l"], help="Update the level of experience for a job title, expected values 'junior, mid, senior'")]
+    job_id: Annotated[int, typer.Option(default=..., help="Specifies the id of the job title to change")] = None,
+    name: Annotated[List[str], typer.Option(default=..., help="Change the name of a saved job title")] = None,
+    experience_years: Annotated[float, typer.Option(default=..., help="Update the years of experience for a job title")] = None,
+    experience_level: Annotated[ExperienceType, typer.Option(default=..., help="Update the level of experience for a job title, expected values 'junior, mid, senior'", case_sensitive=False)] = None
 ) -> None:
     """Update a job title to apply for"""
     bcontroller = get_controller()
     updatedJob = None
     exCode = None
-    if name and not job_id:
-        updatedJob, exCode = bcontroller.modifyJobTitle(job_id, experienceYrs=experience_years, experienceLvl=experience_level)
-    elif job_id and not name:
+    if job_id:
+        updatedJob, exCode = bcontroller.modifyJobTitle(job_id, name=name, experienceYrs=experience_years, experienceLvl=experience_level)
+    elif name and not job_id:
         updatedJob, exCode = bcontroller.modifyJobTitleByName(name, experienceLvl=experience_level, experienceYrs=experience_years)
     else:
         typer.secho(
@@ -391,21 +391,24 @@ def update_job_title(
             f"Job title: {''.join(name)} was updated successfully",
             fg=typer.colors.GREEN
         )
-        ttable = get_singlerow_table(**updatedJob)
+        print(type(updatedJob))
+
+        ttable = get_singlerow_table(**stringify_dict(updatedJob))
         print_table(ttable)
 
 
 #TODO need to add a delete by name method and update name of current delete method
 @app.command()
 def remove_job_title(
-    name: Annotated[List[str], typer.Option(["--name", "-n"], help="Specifies the name of a job title to delete")],
-    job_id: Annotated[int, typer.Option(["--job-title-id", "-jti"], help="Specifies the id of a job title to delete")],
-    all: Annotated[bool, typer.Option(["--all", "-a"], help="Delete all saved job titles")]
+    name: Annotated[List[str], typer.Option(..., help="Specifies the name of a job title to delete")] = None,
+    job_id: Annotated[int, typer.Option(..., help="Specifies the id of a job title to delete")] = None,
+    all: Annotated[bool, typer.Option(..., help="Delete all saved job titles")] = None
 ) -> None:
     """Delete a job title using the name or id"""
     bcontroller = get_controller()
     deletedJobs = None
     exCode = None
+    deleteByVal = None
     if all:
         deletedJobs, exCode = bcontroller.removeAllJobTitles()
     else:
@@ -427,16 +430,11 @@ def remove_job_title(
         )
         raise typer.Exit(1)
     else:
+        # dltcount = sum(chunk.rowcount for chunk in deletedJobs.partitions())
         typer.secho(
-            f"Job title: {''.join(name)} was deleted successfully",
+            f"Job title: {''.join(name)} was deleted successfully, Rows Effected {deletedJobs}",
             fg=typer.colors.GREEN
         )
-        jTable = None
-        if all:
-            jTable = get_multirow_table(*deletedJobs)
-        else:
-            jTable = get_singlerow_table(**deletedJobs)
-        print_table(jTable)
 
 
 #TODO

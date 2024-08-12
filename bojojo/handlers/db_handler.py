@@ -253,7 +253,7 @@ class DbHandler:
             return self.get_db_err(DB_DELETE_ERROR)
     
 
-    def read_job_title(self, id:int) -> DbResponse:
+    def read_job_title(self, id:int) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.get_job_title(id)
             return ServiceResult(jtitle, SUCCESS)
@@ -261,7 +261,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_READ_ERROR)
         
     
-    def read_job_title_byName(self, title:str) -> DbResponse:
+    def read_job_title_byName(self, title:str) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.get_job_title_by_name(title)
             return ServiceResult(jtitle, SUCCESS)
@@ -269,7 +269,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def read_all_jobTitles(self) -> DbResponse:
+    def read_all_jobTitles(self) -> ServiceResult:
         try:
             jtitles = self.jobTitleService.get_all_jobTitles()
             return ServiceResult(jtitles, SUCCESS)
@@ -277,7 +277,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def write_job_title(self, job_data:dict) -> DbResponse:
+    def write_job_title(self, job_data:dict) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.add_job_title(job_data)
             return ServiceResult(jtitle, SUCCESS)
@@ -285,7 +285,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_WRITE_ERROR)
     
     
-    def modify_job_title(self, id:int, job_data:dict) -> DbResponse:
+    def modify_job_title(self, id:int, job_data:dict) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.update_job_title(id, job_data)
             return ServiceResult(jtitle, SUCCESS)
@@ -293,7 +293,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
-    def modify_jobTitle_byName(self, name:str, job_data:dict) -> DbResponse:
+    def modify_jobTitle_byName(self, name:str, job_data:dict) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.update_jobTitle_byName(name, job_data)
             return ServiceResult(jtitle, SUCCESS)
@@ -301,7 +301,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
-    def remove_job_title(self, id:int) -> DbResponse:
+    def remove_job_title(self, id:int) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.delete_job_title(id)
             return ServiceResult(jtitle, SUCCESS)
@@ -309,7 +309,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def remove_jobTitle_byName(self, name:str) -> DbResponse:
+    def remove_jobTitle_byName(self, name:str) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.delete_jobTitle_byName(name)
             return ServiceResult(jtitle, SUCCESS)
@@ -317,7 +317,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def remove_all_jobTitles(self) -> DbResponse:
+    def remove_all_jobTitles(self) -> ServiceResult:
         try:
             jtitle = self.jobTitleService.delete_all_jobTitles()
             return ServiceResult(jtitle, SUCCESS)

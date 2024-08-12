@@ -102,3 +102,27 @@ August 10, 2024 > 00:56:58 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name':
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
 August 10, 2024 > 02:20:01 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software engineer', 'experience_level': <ExperienceType.JUNIOR: 'junior'>, 'experience_years': 2.0}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-12 15:30:37.682 | ERROR    | bojojo.utils.bologger:error:31 - [UPDATE JOB-TITLE ERR] JobTitleId: 2:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 12, 2024 > 15:30:37 | ERROR | [UPDATE JOB-TITLE ERR] JobTitleId: 2:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-12 15:31:17.789 | ERROR    | bojojo.utils.bologger:error:31 - [UPDATE JOB-TITLE ERR] JobTitleId: 2:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 12, 2024 > 15:31:17 | ERROR | [UPDATE JOB-TITLE ERR] JobTitleId: 2:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-12 15:36:05.816 | ERROR    | bojojo.utils.bologger:error:31 - [UPDATE JOB-TITLE ERR] JobTitleId: 2:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 12, 2024 > 15:36:05 | ERROR | [UPDATE JOB-TITLE ERR] JobTitleId: 2:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-12 16:03:22.755 | ERROR    | bojojo.utils.bologger:error:31 - [UPDATE JOB-TITLE ERR] JobTitleName: mongodb developer:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 12, 2024 > 16:03:22 | ERROR | [UPDATE JOB-TITLE ERR] JobTitleName: mongodb developer:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-12 16:19:41.090 | ERROR    | bojojo.utils.bologger:error:31 - [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software developer', 'experience_level': <ExperienceType.MIDCAREER: 'midcareer'>, 'experience_years': 2.5}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+August 12, 2024 > 16:19:41 | ERROR | [INSERT JOB-TITLE ERR] JobTitleId: {'name': 'software developer', 'experience_level': <ExperienceType.MIDCAREER: 'midcareer'>, 'experience_years': 2.5}:: (sqlite3.OperationalError) cannot commit transaction - SQL statements in progress
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2024-08-12 17:01:56.202 | ERROR    | bojojo.utils.bologger:error:31 - [DELETE JOB-TITLE ERR] JobTitleName: database developer:: This result object does not return rows. It has been closed automatically.
+August 12, 2024 > 17:01:56 | ERROR | [DELETE JOB-TITLE ERR] JobTitleName: database developer:: This result object does not return rows. It has been closed automatically.
+2024-08-12 17:02:28.685 | ERROR    | bojojo.utils.bologger:error:31 - [DELETE JOB-TITLE ERR] JobTitleName: database developer:: This result object does not return rows. It has been closed automatically.
+August 12, 2024 > 17:02:28 | ERROR | [DELETE JOB-TITLE ERR] JobTitleName: database developer:: This result object does not return rows. It has been closed automatically.

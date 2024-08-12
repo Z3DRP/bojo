@@ -51,12 +51,12 @@ class JobTitleService(Service):
             raise AddError(DB_WRITE_ERROR, e._message)
     
 
-    def update_jobTitle_byId(self, id:int, job_data:dict) -> JobTitle:
+    def update_job_title(self, id:int, job_data:dict) -> JobTitle:
         try:
             jobTitle = self.get_job_title(id)
             if not jobTitle:
                 raise GetError(f"Job Title with id: {id} does not exist")
-            return self.repository.update(id, **job_data)
+            return self.repository.update(id, job_data)
         except SQLAlchemyError as e:
             self.blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleId: {id}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
@@ -67,7 +67,7 @@ class JobTitleService(Service):
             jobTitle = self.get_job_title_by_name(name)
             if not jobTitle:
                 raise GetError(f"Job Title with name: {name} does not exist")
-            return self.repository.update_by_name(name)
+            return self.repository.update_by_name(name, job_data)
         except SQLAlchemyError as e:
             self.blogger.error(f"[UPDATE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
@@ -83,7 +83,7 @@ class JobTitleService(Service):
     
     def delete_jobTitle_byName(self, name:str) -> JobTitle:
         try:
-            return self.repository.delete(name)
+            return self.repository.delete_by_name(name)
         except SQLAlchemyError as e:
             self.blogger.error(f"[DELETE JOB-TITLE ERR] JobTitleName: {name}:: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
