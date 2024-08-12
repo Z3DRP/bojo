@@ -328,7 +328,7 @@ def get_job_title(
         print('-------res')
         # rslts = convert_entity_list(jobTitle)
         
-        table = get_multirow_table(jobTitle) if all else get_singlerow_table(**stringify_dict(jobTitle))
+        table = get_multirow_table(jobTitle) if all or name else get_singlerow_table(**stringify_dict(jobTitle))
         print_table(table)
 
 

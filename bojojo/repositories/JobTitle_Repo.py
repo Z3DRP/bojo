@@ -28,7 +28,7 @@ class JobTitleRepository(Repository):
     
     def getByName(self, title:str) -> JobTitle:
         try:
-            rslt = self.session.execute(select(JobTitle).where(JobTitle.name==title)).scalars().first()
+            rslt = self.session.execute(select(JobTitle).where(JobTitle.name==title)).scalars().all()
             self.session.close()
             return rslt
         except SQLAlchemyError as e:
