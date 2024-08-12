@@ -34,14 +34,6 @@ class BojoController:
         self.dbHandler = dbhandler
     
 
-    def createItem(self, reslt:Any) -> CurrentItem:
-        return CurrentItem(reslt.entityList, reslt.excCode)
-    
-
-    def createItemList(self, reslt:Any) -> CurrentItemList:
-        return CurrentItemList(reslt.entityList, reslt.excCode)
-    
-
     def createErrorItem(self, errObj: Dict[str, Any], errCode:int) -> CurrentItem:
         return CurrentItem(item=errObj, excCode=errCode)
     
@@ -71,8 +63,7 @@ class BojoController:
 
     def getJobBoard(self, id:int) -> CurrentItem:
         """Return a specific job board by id"""
-        result = self.dbHandler.read_job_board(id)
-        return self.createItem(result)
+        return self.dbHandler.read_job_board(id)
 
 
     def getAllJobBoards(self) -> CurrentItemList:
@@ -83,8 +74,7 @@ class BojoController:
     
     def getJobBoardByName(self, name:List[str]) -> CurrentItem:
         """Return a specific job board by name"""
-        result = self.dbHandler.read_job_board_byName(self.joinNameStr(name))
-        return self.createItem(result)
+        return self.dbHandler.read_job_board_byName(self.joinNameStr(name))
     
 
     def modifyJobBoard(self, id:int, name: List[str], url:str, hasEasyApply:int=0) -> CurrentItem:
@@ -95,20 +85,17 @@ class BojoController:
             "url": url,
             "has_easy_apply": hasEasyApply
         }
-        result = self.dbHandler.modify_job_board(id, jboard)
-        return self.createItem(result)
+        return self.dbHandler.modify_job_board(id, jboard)
     
 
     def removeJobBoard(self, id:int) -> CurrentItem:
         """Delete existing job board"""
-        result = self.dbHandler.remove_job_board(id)
-        return self.createItem(result)
+        return self.dbHandler.remove_job_board(id)
     
 
     def removeAllJobBoards(self) -> CurrentItem:
         """Delete all existing job boards"""
-        result = self.dbHandler.remove_all_jobBoards()
-        return self.createItem(result)
+        return self.dbHandler.remove_all_jobBoards()
 
 
     def addJobTitle(self, name:List[str], experienceLvl:ExperienceType, experienceYrs:int) -> CurrentItem:
@@ -120,26 +107,22 @@ class BojoController:
             "experience_level": experienceLvl,
             "experience_years": experienceYrs
         }
-        result = self.dbHandler.write_job_title(title)
-        return result
+        return self.dbHandler.write_job_title(title)
     
 
     def getJobTitle(self, id:int) -> CurrentItem:
         """Get a specific job title by id"""
-        result = self.dbHandler.read_job_title(id)
-        return self.createItem(result)
+        return self.dbHandler.read_job_title(id)
     
 
     def getAllJobTitles(self) -> CurrentItemList:
         """Get all job titles"""
-        results = self.dbHandler.read_all_jobTitles()
-        return results
+        return self.dbHandler.read_all_jobTitles()
     
     
     def getJobTitleByName(self, name:List[str]) -> CurrentItem:
         """Get a specific job title by name"""
-        result = self.dbHandler.read_job_title_byName(self.joinNameStr(name))
-        return self.createItem(result)
+        return self.dbHandler.read_job_title_byName(self.joinNameStr(name))
     
 
     def modifyJobTitle(self, id:int, name:List[str], experienceLvl:str, experienceYrs:int) -> CurrentItem:
@@ -150,8 +133,7 @@ class BojoController:
             "experience_level": experienceLvl,
             "experience_years": experienceYrs
         }
-        result = self.dbHandler.modify_job_title(id, title)
-        return self.createItem(result)
+        return self.dbHandler.modify_job_title(id, title)
     
 
     def modifyJobTitleByName(self, name:List[str], experienceLvl:str, experienceYrs:int) -> CurrentItem:
@@ -162,38 +144,32 @@ class BojoController:
             "experience_level": experienceLvl,
             "experience_years": experienceYrs
         }
-        result = self.dbHandler.modify_jobTitle_byName(title)
-        return self.createItem(result)
+        return self.dbHandler.modify_jobTitle_byName(title)
 
 
     def removeJobTitle(self, id:int) -> CurrentItem:
         """Delete a job title"""
-        result = self.dbHandler.remove_job_title(id)
-        return self.createItem(result)
+        return self.dbHandler.remove_job_title(id)
     
 
     def removeAllJobTitles(self) -> CurrentItem:
         """Delete all job titles"""
-        result = self.dbHandler.remove_all_jobTitles()
-        return self.createItem(result)
+        return self.dbHandler.remove_all_jobTitles()
     
 
     def getResume(self, id:int) -> CurrentItem:
         """Get a specific resume by id"""
-        result = self.dbHandler.read_resume(id)
-        return self.createItem(result)
+        return self.dbHandler.read_resume(id)
     
 
     def getResume(self, name:List[str]) -> CurrentItem:
         """Get a specific resume by name"""
-        result = self.dbHandler.read_resume_byName(self.joinNameStr(name))
-        return self.createItem(result)
+        return self.dbHandler.read_resume_byName(self.joinNameStr(name))
     
 
     def getAllResumes(self) -> CurrentItem:
         """Get all saved resumes"""
-        results = self.dbHandler.get_all_resumes()
-        return results
+        return self.dbHandler.get_all_resumes()
     
 
     def addResume(self, name:List[str], jobTitleId:int, filePath:str) -> CurrentItem:
@@ -228,38 +204,32 @@ class BojoController:
         }
         if not file_path.exists():
             return self.createErrorItem(resume, FILE_PATH_ERROR)
-        result = self.dbHandler.modify_resume(name, resume)
-        return self.createItem(result)
+        return self.dbHandler.modify_resume(name, resume)
     
 
     def removeResume(self, name:str) -> CurrentItem:
         """Delete existing resume"""
-        result = self.dbHandler.remove_resume(name)
-        return self.createItem(result)
+        return self.dbHandler.remove_resume(name)
     
 
     def removeAllResumes(self) -> CurrentItem:
         """Delete all existing resumes"""
-        result = self.dbHandler.remove_all_resumes()
-        return self.createItem(result)
+        return self.dbHandler.remove_all_resumes()
     
 
     def getScheduledRun(self, id:int) -> CurrentItem:
         """Get a specific scheduled run by id"""
-        result = self.dbHandler.read_scheduled_run(id)
-        return self.createItem(result)
+        return self.dbHandler.read_scheduled_run(id)
     
 
     def getAllScheduledRuns(self) -> CurrentItemList:
         """Get all scheduled runs"""
-        results = self.dbHandler.read_all_scheduledRuns()
-        return self.createItemList(results)
+        return self.dbHandler.read_all_scheduledRuns()
     
 
     def getScheduledRun(self, name:List[str]) -> CurrentItem:
         """Get a specific scheduled run by name"""
-        result = self.dbHandler.read_scheduled_run_byName(self.joinNameStr(name))
-        return self.createItem(result)
+        return self.dbHandler.read_scheduled_run_byName(self.joinNameStr(name))
     
 
     def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, onlyEasyApply:int, runType:ScheduleType=None) -> CurrentItem:
@@ -280,8 +250,7 @@ class BojoController:
             "easy_apply_only": onlyEasyApply
         }
 
-        dbresult = self.dbHandler.add_scheduled_run(scheduledRun)
-        return self.createItem(dbresult)
+        return self.dbHandler.add_scheduled_run(scheduledRun)
     
 
     # TODO create schedule run method to add a scheduleRun that runs every so many hrs and mins
@@ -306,7 +275,7 @@ class BojoController:
         dbresult = self.handler.update_scheduled_run(sname, object_to_dict(run))
 
         if not dbresult.excCode == SUCCESS:
-            return self.createItem(dbresult)
+            return dbresult
         sched = self.get_schedule_dict(
             run.name,
             run.run_day,
@@ -333,7 +302,7 @@ class BojoController:
         except Exception as e:
             return self.createErrorItem({"EXC": e._message}, CRON_WRITE_ERR)
         #Keep db result
-        return self.createItem(dbresult)
+        return dbresult
     
 
     def enableDailyScheduledRun(self, name:List[str], run_date:RunDate, durrMin:int, numbSubmissions:int) -> CurrentItem:
@@ -374,7 +343,7 @@ class BojoController:
             cron_scheduler.configureJobSchedule()
         except Exception as e:
             return self.createErrorItem({"EXC": e._message}, CRON_WRITE_ERR)
-        return self.createItem(rslt)
+        return rslt
     
 
     def enableWeeklyScheduledRun(self, name:List[str], run_date:RunDate, durrMin:int, numbSubmissions:int) -> CurrentItem:
@@ -415,7 +384,7 @@ class BojoController:
             cron_scheduler.configureJobSchedule()
         except Exception as e:
             return self.createErrorItem({"EXC": e._message}, CRON_WRITE_ERR)
-        return self.createItem(rslt)
+        return rslt
 
     
     def removeScheduledRun_byName(self, name:List[str]) -> CurrentItem:
@@ -424,8 +393,7 @@ class BojoController:
         runRslt = self.dbHandler.remove_scheduledRun_byName(sname)
         if not runRslt:
             return self.createErrorItem(runRslt.entityList, runRslt.excCode)
-        requestRslt = CronTabService.removeScheduledJob()
-        return CurrentItem(None, requestRslt)
+        return CronTabService.removeScheduledJob()
     
 
     def removeAllScheduledRuns(self):
@@ -435,17 +403,15 @@ class BojoController:
         cronRslt = CronTabService.removeAllScheduledJobs()
         if not cronRslt == SUCCESS:
             return [{}, cronRslt]
-        return self.createItem(runDbRslt)
+        return runDbRslt
     
 
     def getCompletedRun(self, id:int) -> CurrentItem:
-        crun = self.dbHandler.read_completed_run(id)
-        return self.createItem(crun)
+        return self.dbHandler.read_completed_run(id)
     
 
     def getAllCompletedRuns(self) -> CurrentItemList:
-        cruns = self.dbHandler.read_all_completedRuns()
-        return self.createItemList(cruns)
+        return self.dbHandler.read_all_completedRuns()
 
 
     def addCompletedRun(self, excDate:str, start:str, finish:str, apps_finished:int, failed_sumbissions:int, run_id:int) -> CurrentItem:
@@ -457,38 +423,31 @@ class BojoController:
             "failed_submissions": failed_sumbissions,
             "run_id": run_id
         }
-        dbResult = self.dbHandler.write_completed_run(crun)
-        return self.createItem(dbResult)
+        return self.dbHandler.write_completed_run(crun)
     
     
     def removeCompletedRun(self, id:int) -> CurrentItem:
-        dbRslt = self.dbHandler.remove_completed_run(id)
-        return self.createItem(dbRslt)
+        return self.dbHandler.remove_completed_run(id)
 
 
     def removeAllCompletedRuns(self) -> CurrentItemList:
-        dbRslt = self.dbHandler.remove_all_completedRuns()
-        return self.createItemList(dbRslt)
+        return self.dbHandler.remove_all_completedRuns()
     
 
     def getApplication(self, name:str) -> CurrentItem:
-        dbRslt = self.dbHandler.read_application(name)
-        return self.createItem(dbRslt)
+        return self.dbHandler.read_application(name)
     
 
     def getAllApplications(self) -> CurrentItemList:
-        dbRslt = self.dbHandler.read_all_applications()
-        return self.createItemList(dbRslt)
+        return self.dbHandler.read_all_applications()
     
 
     def deleteApplication(self, id:int) -> CurrentItem:
-        dbRslt = self.dbHandler.delete_application(id)
-        return self.createItem(dbRslt)
+        return self.dbHandler.delete_application(id)
     
     
     def deleteAllApplications(self) -> CurrentItemList:
-        dbRslt = self.dbHandler.delete_all_applications()
-        return self.createItemList(dbRslt)
+        return self.dbHandler.delete_all_applications()
     
 
     def get_cron_service(schedule:CronSchedule, run:ScheduledRun, dbpath:str):

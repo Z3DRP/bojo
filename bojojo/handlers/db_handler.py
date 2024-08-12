@@ -181,23 +181,17 @@ class DbHandler:
     def read_job_board(self, id:int) -> DbResponse:
         try:
             jobBoard = self.jobBoardService.get_job_board(id)
-            try:
-                return DbResponse(self.get_response(jobBoard), SUCCESS)
-            except Exception as e:
-                return self.get_json_err(e._message)
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(jobBoard, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
         
     
     def read_jobBoard_by_name(self, jname:str) -> DbResponse:
         try:
             jobBoard = self.jobBoardService.get_jobBoard_by_name(jname)
-            try:
-                return DbResponse(self.get_response(jobBoard), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(jobBoard, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_WRITE_ERROR)
         
     
     def read_all_jobBoards(self) -> DbResponse:
@@ -230,9 +224,9 @@ class DbHandler:
         try:
             board = self.jobBoardService.update_job_board(id, board_data)
             try:
-                return DbResponse(self.get_response(board), SUCCESS)
-            except:
-                return self.get_json_err()
+                return Service(board, SUCCESS)
+            except Exception as e:
+                return ServiceResult(str(e), UNKNOWN_ERROR)
         except UpdateError:
             return self.get_db_err(DB_UPDATE_ERROR)
     
@@ -262,100 +256,73 @@ class DbHandler:
     def read_job_title(self, id:int) -> DbResponse:
         try:
             jtitle = self.jobTitleService.get_job_title(id)
-            try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
         
     
     def read_job_title_byName(self, title:str) -> DbResponse:
         try:
             jtitle = self.jobTitleService.get_job_title_by_name(title)
-            try:
-                return jtitle
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
     def read_all_jobTitles(self) -> DbResponse:
         try:
             jtitles = self.jobTitleService.get_all_jobTitles()
-            try:
-                return ServiceResult(jtitles, SUCCESS)
-            except RuntimeError as e:
-                return ServiceResult(str(e), UNKNOWN_ERROR)
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(jtitles, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
     def write_job_title(self, job_data:dict) -> DbResponse:
         try:
             jtitle = self.jobTitleService.add_job_title(job_data)
-            try:
-                return ServiceResult(jtitle, SUCCESS)
-            except RuntimeError as e:
-                return DbResponse({"error": str(e)}, UNKNOWN_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
         except AddError as e:
-            return self.get_db_err(DB_WRITE_ERROR, e.message)
+            return ServiceResult(str(e), DB_WRITE_ERROR)
     
     
     def modify_job_title(self, id:int, job_data:dict) -> DbResponse:
         try:
             jtitle = self.jobTitleService.update_job_title(id, job_data)
-            try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
     def modify_jobTitle_byName(self, name:str, job_data:dict) -> DbResponse:
         try:
             jtitle = self.jobTitleService.update_jobTitle_byName(name, job_data)
-            try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
     def remove_job_title(self, id:int) -> DbResponse:
         try:
             jtitle = self.jobTitleService.delete_job_title(id)
-            try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
     def remove_jobTitle_byName(self, name:str) -> DbResponse:
         try:
             jtitle = self.jobTitleService.delete_jobTitle_byName(name)
-            try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
     def remove_all_jobTitles(self) -> DbResponse:
         try:
             jtitle = self.jobTitleService.delete_all_jobTitles()
-            try:
-                return DbResponse(self.get_response(jtitle), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(jtitle, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
 
         
     def read_resume(self, id:int) -> DbResponse:

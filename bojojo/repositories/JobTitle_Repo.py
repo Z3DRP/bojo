@@ -14,42 +14,46 @@ class JobTitleRepository(Repository):
     # session = inject.attr(DbSession)
     def __init__(self, session):
         self.session = session
-        pass
-    
+
+
     def get(self, id:int) -> JobTitle:
         try:
-            return self.session.execute(select(JobTitle).where(JobTitle.id==id)).first()
+            rslt = self.session.execute(select(JobTitle).where(JobTitle.id==id)).scalars().first()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def getByName(self, title:str) -> JobTitle:
         try:
-            return self.session.execute(select(JobTitle).where(JobTitle.name==title)).first()
+            rslt = self.session.execute(select(JobTitle).where(JobTitle.name==title)).scalars().first()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def getAll(self) -> List[JobTitle]:
         try:
-            # was returning row objs
-            # return self.session.execute(select(JobTitle)).fetchall()
-            return self.session.execute(select(JobTitle)).scalars().all()
+            rslt = self.session.execute(select(JobTitle)).scalars().all()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def add(self, jobtitle:dict) -> JobTitle:
         try:
-            nw_jobTitle = JobTitle(**jobtitle)
-            self.session.add(nw_jobTitle)
-            self.session.commit()
-            # ins = insert(JobTitle).values(**jobtitle)
-            # nw_jobTitle = self.session.execute(
-            #     insert(JobTitle)
-            #     .values(**jobtitle)
-            # )
+            # nw_jobTitle = JobTitle(**jobtitle)
+            # self.session.add(nw_jobTitle)
             # self.session.commit()
+            ins = insert(JobTitle).values(**jobtitle).returning(JobTitle)
+            nw_jobTitle = self.session.execute(ins)
+            self.session.commit()
             return nw_jobTitle
         except SQLAlchemyError as e:
             self.session.rollback()
@@ -58,14 +62,16 @@ class JobTitleRepository(Repository):
 
     def update(self, id:int, jobtitle:dict) -> JobTitle:
         try:
-            results = self.session.execute(
+            updtStmnt = (
                 update(JobTitle)
                 .where(JobTitle.id==id)
                 .values(**jobtitle)
                 .returning(JobTitle)
             )
+            rslt = self.session.execute(updtStmnt)
+            self.session.flush()
             self.session.commit()
-            return results
+            return rslt
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -73,14 +79,16 @@ class JobTitleRepository(Repository):
     
     def update_by_name(self, name:str, jobtitle:dict) -> JobTitle:
         try:
-            results = self.session.execute(
+            updtStmt = (
                 update(JobTitle)
-                .where(JobTitle.name==name)
+                .where(JobTitle.name.in_([name]))
                 .values(**jobtitle)
                 .returning(JobTitle)
             )
+            rslt = self.session.execute(updtStmt)
+            self.session.flush()
             self.session.commit()
-            return results
+            return rslt
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -89,6 +97,7 @@ class JobTitleRepository(Repository):
     def delete(self, id:int) -> JobTitle:
         try:
             result = self.session.execute(delete(JobTitle).where(JobTitle.id==id).returning(JobTitle))
+            self.session.flush()
             self.session.commit()
             return result
         except SQLAlchemyError as e:
@@ -97,12 +106,14 @@ class JobTitleRepository(Repository):
     
     def delete_by_name(self, name:str) -> JobTitle:
         try:
-            result = self.session.execute(delete(JobTitle).where(JobTitle.Name==name).returning(JobTitle))
+            dltStmt = delete(JobTitle).where(JobTitle.name.in_([name])).returning(JobTitle)
+            rslt = self.session.execute(dltStmt)
+            self.session.flush()
             self.session.commit()
-            return result
+            return rslt
         except SQLAlchemyError as e:
             raise e
-            
+                    
 
     def deleteAll(self) -> JobTitle:
         try:
