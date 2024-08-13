@@ -8,14 +8,15 @@ from bojojo.repositories.JobBoard_Repo import JobBoardRepository
 from sqlalchemy.exc import SQLAlchemyError
 
 from bojojo.utils.bologger import Blogger
+from bojojo.utils.repo_injector import create_repo
 
 class JobBoardService(Service):
     
 
-    repository = inject.attr(JobBoardRepository)
+    # repository = inject.attr(JobBoardRepository)
     blogger = inject.attr(Blogger)
     def __init__(self) -> None:
-        pass
+        self.repository = create_repo(repo_type=JobBoardRepository)
 
     
     def get_job_board(self, id:int) -> JobBoard:
@@ -44,10 +45,8 @@ class JobBoardService(Service):
     
     def add_job_board(self, board_data:dict) -> JobBoard:
         try:
-            # self.repository = JobBoardRepository(sesh)
             return self.repository.add(board_data)
         except SQLAlchemyError as e:
-            print('exception in service')
             self.blogger.error(f"[INSERT JOB-BOARD ERR] JobBoardName: {board_data}")
             raise AddError(DB_WRITE_ERROR, e._message)
     
@@ -63,7 +62,18 @@ class JobBoardService(Service):
             raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
-    def delete_job_board(self, id:int) -> JobBoard:
+    def update_jobboard_byName(self, name:str, board:dict) -> JobBoard:
+        try:
+            jboard = self.get_jobBoard_by_name(name)
+            if not jboard:
+                raise GetError(f"Job Board with name: {name} does not exist")
+            return self.repository.update_by_name(name, board)
+        except SQLAlchemyError as e:
+            self.blogger.error(f"[UPDATE JOB-BOARD ERR] JobBoardName: {name}:: {e}")
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
+        
+    
+    def delete_job_board(self, id:int) -> int:
         try:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
@@ -71,10 +81,18 @@ class JobBoardService(Service):
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
-    def delete_all_jobBoards(self) -> JobBoard:
+    def delete_all_jobBoards(self) -> int:
         try:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:
             self.blogger.error(f"[DELETE JOB-BOARD ALL ERR] :: {e}")
+            raise DeleteError(DB_DELETE_ERROR, e._message)
+        
+    
+    def delete_jobBoard_byName(self, name:str) -> int:
+        try:
+            return self.repository.delete_by_name(name)
+        except SQLAlchemyError as e:
+            self.blogger.error(f"[DELETE JOB-BOARD ERR] :: {e}")
             raise DeleteError(DB_DELETE_ERROR, e._message)
         

@@ -1,5 +1,4 @@
 from typing import Any, List
-import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,34 +8,47 @@ from bojojo.models import Application
 
 class ApplicationRepository(Repository):
 
-    session = inject.attr(Session)
-    def __init__(self):
-        pass
+    # session = inject.attr(Session)
+    def __init__(self, session:Session):
+        self.session = session
 
-    def get(self, name: str) -> Application:
+
+    def get(self, id: int) -> Application:
         try:
-            result = self.session.execute(select(Application).where(Application.name==name)).scalars().first()
-            return result
+            rslt = self.session.execute(select(Application).where(Application.id==id)).scalars().first()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
+    def get_by_name(self, name:str) -> Application:
+        try:
+            rslt = self.session.execute(select(Application).where(Application.name==name)).scalars().first()
+            self.session.close()
+            return rslt
+        except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
 
     
     def getAll(self) -> List[Application]:
         try:
-            results = self.session.execute(select(Application)).scalars().all()
-            return results
+            rslt = self.session.execute(select(Application)).scalars().all()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def add(self, application:dict) -> Application:
         try:
-            new_application = self.session.execute(
-                insert(Application).values(**application)
-                .returning(Application)
-            )
+            nw_app = Application(**application)
+            self.session.add(nw_app)
             self.session.commit()
-            return new_application
+            return nw_app
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -44,34 +56,38 @@ class ApplicationRepository(Repository):
     
     def update(self, id:int, application:dict) -> Application:
         try:
-            results = self.session.execute(
+            updtstmt = (
                 update(Application)
                 .where(Application.id==id)
-                .values(**application)
-                .returning(Application)
+                .value(**application)
             )
+            self.session.execute(updtstmt)
             self.session.commit()
-            return results
+            updtrow = select(Application)
+            nw_row = self.session.execute(updtrow).scalars().first()
+            return nw_row
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
 
 
-    def delete(self, id: int ) -> Application:
+    def delete(self, id: int ) -> int:
         try:
-            result = self.session.execute(delete(Application).where(Application.id==id).returning(Application))
+            dltstmt = delete(Application).where(Application.id==id)
+            rslt = self.session.execute(dltstmt)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
         
     
-    def deleteAll(self) -> Application:
+    def deleteAll(self) -> int:
         try:
-            result = self.session.execute(delete(Application))
+            dltstmt = delete(Application)
+            rslt = self.session.execute(dltstmt)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e

@@ -10,66 +10,91 @@ from bojojo.models.Scheduled_Run import ScheduledRun
 class ScheduledRunRepository(Repository):
 
 
-    session = inject.attr(Session)
-    def __init__(self):
-        pass
+    # session = inject.attr(Session)
+    def __init__(self, session:Session):
+        self.session = session
 
     
     def get(self, id: int) -> ScheduledRun:
         try:
-            return self.session.execute(select(ScheduledRun).where(ScheduledRun.id==id)).scalars().first()
+            rslt = self.session.execute(select(ScheduledRun).where(ScheduledRun.id==id)).scalars().first()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def getAll(self) -> List[ScheduledRun]:
         try:
-            return self.session.execute(select(ScheduledRun)).scalars().all()
+            rslt = self.session.execute(select(ScheduledRun)).scalars().all()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
-        
+                
     
     def getByName(self, name:str) -> ScheduledRun:
         try:
-            return self.session.execute(select(ScheduledRun).where(ScheduledRun.name==name).returning(ScheduledRun)).scalars().first()
+            rslt = self.session.execute(select(ScheduledRun)).scalars().all()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def add(self, srun:dict) -> ScheduledRun:
         try:
-            nw_run = self.session.execute(
-                insert(ScheduledRun)
-                .values(**srun)
-                .returning(ScheduledRun)
-            )
+            nw_srn = ScheduledRun(**srun)
+            self.session.add(nw_srn)
             self.session.commit()
-            return nw_run
+            return nw_srn
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
         
     
-    def update(self, name:str, srun:dict) -> ScheduledRun:
+    def update(self, id:int, srun:dict) -> ScheduledRun:
         try:
-            results = self.session.execute(
+            updtstmt = (
+                update(ScheduledRun)
+                .where(ScheduledRun.id==id)
+                .values(**srun)
+            )
+            self.session.execute(updtstmt)
+            self.session.commit()
+            updtrow = select(ScheduledRun).where(ScheduledRun.id==id)
+            nw_sr = self.session.execute(updtrow).scalars().first()
+            return nw_sr
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
+    def update_by_name(self, name:str, srun:dict) -> ScheduledRun:
+        try:
+            updstm = (
                 update(ScheduledRun)
                 .where(ScheduledRun.name==name)
                 .values(**srun)
-                .returning(ScheduledRun)
             )
+            self.session.execute(updstm)
             self.session.commit()
-            return results
+            updrw = select(ScheduledRun).where(ScheduledRun.name==name)
+            nw_sr = self.session.execute(updrw).scalars().first()
+            return nw_sr
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
         
     
-    def delete(self, id:int) -> ScheduledRun:
+    def delete(self, id:int) -> int:
         try:
-            result = self.session.execute(delete(ScheduledRun).where(ScheduledRun.id==id).returning(ScheduledRun))
-            self.session.commit()
-            return result
+            dltstm = delete(ScheduledRun).where(ScheduledRun.id==id)
+            rslt = self.session.execute(dltstm)
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -77,9 +102,9 @@ class ScheduledRunRepository(Repository):
     
     def delete_byName(self, name:str) -> ScheduledRun:
         try:
-            result = self.session.execute(delete(ScheduledRun).where(ScheduledRun.name==name).returning(ScheduledRun))
-            self.session.commit()
-            return result
+            dltstm = delete(ScheduledRun).where(ScheduledRun.name==name)
+            rslt = self.session.execute(dltstm)
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -87,8 +112,9 @@ class ScheduledRunRepository(Repository):
     
     def deleteAll(self) -> ScheduledRun:
         try:
-            result = self.session.execute(delete(ScheduledRun).returning(ScheduledRun))
-            self.session.commit()
-            return result
+            dltstm = delete(ScheduledRun)
+            rslt = self.session.execute(dltstm)
+            return rslt.rowcount
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e

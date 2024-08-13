@@ -15,13 +15,13 @@ from bojojo.utils.dict_mapper import object_to_dict, proxy_to_dict
 from bojojo.utils.service_injector import create_service
 class DbHandler:
 
-    appService = inject.attr(ApplicationService)
-    completedRunService = inject.attr(CompletedRunService)
-    jobBoardService = inject.attr(JobBoardService)
-    # jobTitleService = inject.attr(JobTitleService)
-    resumeService = inject.attr(ResumeService)
-    scheduledRunService = inject.attr(ScheduledRunService)
-    jobBoardRepo = inject.attr(JobBoardRepository)
+    # appService = inject.attr(ApplicationService)
+    # completedRunService = inject.attr(CompletedRunService)
+    # jobBoardService = inject.attr(JobBoardService)
+    # # jobTitleService = inject.attr(JobTitleService)
+    # resumeService = inject.attr(ResumeService)
+    # scheduledRunService = inject.attr(ScheduledRunService)
+    # jobBoardRepo = inject.attr(JobBoardRepository)
 
     def __init__(
             self, 
@@ -46,139 +46,111 @@ class DbHandler:
         return self.__db_path
 
     
-    def read_all_applications(self) -> DbResponse:
+    def read_all_applications(self) -> ServiceResult:
         try:
             apps = self.appService.get_all_applications()
-            try:
-                return DbResponse(self.get_list_response(apps), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(apps, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
         
 
-    def read_application(self, name: str) -> DbResponse:
+    def read_application(self, id: int) -> ServiceResult:
         try:
-            app = self.appService.get_application(name)
-            try:
-                return DbResponse(self.get_response(app), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            app = self.appService.get_application(id)
+            return ServiceResult(app, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def write_applications(self, app_data:dict) -> DbResponse:
+    def read_applications_byname(self, name:str) -> ServiceResult:
+        try:
+            app = self.appService.get_application_byName(name)
+            return ServiceResult(app, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
+        
+
+    def write_applications(self, app_data:dict) -> ServiceResult:
         try:
             app = self.appService.add_application(app_data)
-            try:
-                return DbResponse(self.get_response(app), SUCCESS)
-            except:
-                return self.get_json_err()
-        except AddError:
-            return self.get_db_err(DB_WRITE_ERROR)
+            return ServiceResult(app, SUCCESS)
+        except AddError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
         
     
-    def modify_application(self, app_data:dict) -> DbResponse:
+    def modify_application(self, app_data:dict) -> ServiceResult:
         try:
             app = self.appService.update_application(app_data)
-            try:
-                return DbResponse(self.get_response(app), SUCCESS)
-            except:
-                return self.get_json_err()
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
+            return ServiceResult(app, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
-    def remove_application(self, id:int) -> DbResponse:
+    def remove_application(self, id:int) -> ServiceResult:
         try:
             app = self.appService.delete_application(id)
-            try:
-                return DbResponse(self.get_response(app), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(app, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def remove_all_applications(self) -> DbResponse:
+    def remove_all_applications(self) -> ServiceResult:
         try:
             app = self.appService.delete_all_applications()
-            try:
-                return DbResponse(self.get_response(app), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(app, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def read_completed_run(self, id:int) -> DbResponse:
+    def read_completed_run(self, id:int) -> ServiceResult:
         try:
             run = self.completedRunService.get_completed_run()
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def read_all_completedRuns(self) -> DbResponse:
+    def read_all_completedRuns(self) -> ServiceResult:
         try:
             runs = self.completedRunService.get_all_completedRuns()
-            try:
-                return DbResponse(self.get_list_response(runs), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(runs, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
         
     
-    def write_completed_run(self, run_data:dict) -> DbResponse:
+    def write_completed_run(self, run_data:dict) -> ServiceResult:
         try:
             run = self.completedRunService.add_completed_run(run_data)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except AddError:
-            return self.get_db_err(DB_WRITE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except AddError as e:
+            return ServiceResult(str(e), DB_WRITE_ERROR)
     
 
-    def modify_completed_run(self, id:int, run_data:dict) -> DbResponse:
+    def modify_completed_run(self, id:int, run_data:dict) -> ServiceResult:
         try:
             run = self.completedRunService.update_completed_run(id, run_data)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
-    def remove_completed_run(self, id:int) -> DbResponse:
+    def remove_completed_run(self, id:int) -> ServiceResult:
         try:
             run = self.completedRunService.delete_completed_run(id)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return DbResponse(DB_DELETE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def remove_all_completeRuns(self) -> DbResponse:
+    def remove_all_completeRuns(self) -> ServiceResult:
         try:
             run = self.completedRunService.delete_all_completedRuns()
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
     
 
-    def read_job_board(self, id:int) -> DbResponse:
+    def read_job_board(self, id:int) -> ServiceResult:
         try:
             jobBoard = self.jobBoardService.get_job_board(id)
             return ServiceResult(jobBoard, SUCCESS)
@@ -186,7 +158,7 @@ class DbHandler:
             return ServiceResult(str(e), DB_READ_ERROR)
         
     
-    def read_jobBoard_by_name(self, jname:str) -> DbResponse:
+    def read_jobBoard_by_name(self, jname:str) -> ServiceResult:
         try:
             jobBoard = self.jobBoardService.get_jobBoard_by_name(jname)
             return ServiceResult(jobBoard, SUCCESS)
@@ -194,63 +166,52 @@ class DbHandler:
             return ServiceResult(str(e), DB_WRITE_ERROR)
         
     
-    def read_all_jobBoards(self) -> DbResponse:
+    def read_all_jobBoards(self) -> ServiceResult:
         try:
             jobBoards = self.jobBoardService.get_all_jobBoards()
-            try:
-                return ServiceResult(jobBoards, SUCCESS)
-            except RuntimeError as e:
-                return ServiceResult(str(e), UNKNOWN_ERROR)
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(jobBoards, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def write_job_board(self, sesh:Session, board_data:dict) -> DbResponse:
+    def write_job_board(self, sesh:Session, board_data:dict) -> ServiceResult:
         try:
             board = self.jobBoardService.add_job_board(board_data)
-            try:
-                for rslt in board:
-                    print(board)
-                return board
-                # return DbResponse([proxy_to_dict(board)], SUCCESS)
-            except RuntimeError as e:
-                return self.get_json_err(str(e))
+            return ServiceResult(board, SUCCESS)
         except AddError as e:
-            print(e.message)
-            return self.get_db_err(DB_WRITE_ERROR, e.message)
+            return ServiceResult(str(e), DB_WRITE_ERROR)
     
 
-    def modify_job_board(self, id:int, board_data:dict) -> DbResponse:
+    def modify_job_board(self, id:int, board_data:dict) -> ServiceResult:
         try:
             board = self.jobBoardService.update_job_board(id, board_data)
-            try:
-                return Service(board, SUCCESS)
-            except Exception as e:
-                return ServiceResult(str(e), UNKNOWN_ERROR)
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
-    
-
-    def remove_job_board(self, id:int) -> DbResponse:
-        try:
-            board = self.jobBoardService.delete_job_board(id)
-            try:
-                return DbResponse(self.get_response(board), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(board, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
-    def remove_all_jobBoard(self) -> DbResponse:
+    def modify_jobboard_byName(self, name:str, board:dict) -> ServiceResult:
+        try:
+            board = self.jobBoardService.update_jobboard_byName(name, board)
+            return ServiceResult(board, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
+    
+
+    def remove_job_board(self, id:int) -> ServiceResult:
+        try:
+            board = self.jobBoardService.delete_job_board(id)
+            return ServiceResult(board, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
+        
+    
+    def remove_all_jobBoard(self) -> ServiceResult:
         try:
             board = self.jobBoardService.delete_all_jobBoards()
-            try:
-                return DbResponse(self.get_response(board), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(board, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
     
 
     def read_job_title(self, id:int) -> ServiceResult:
@@ -325,176 +286,115 @@ class DbHandler:
             return ServiceResult(str(e), DB_DELETE_ERROR)
 
         
-    def read_resume(self, id:int) -> DbResponse:
+    def read_resume(self, id:int) -> ServiceResult:
         try:
             resume = self.resumeService.get_resume(id)
-            try:
-                return ServiceResult(resume, SUCCESS)
-            except RuntimeError as e:
-                return ServiceResult(str(e), UNKNOWN_ERROR)
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(resume, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def read_all_resumes(self) -> DbResponse:
+    def read_all_resumes(self) -> ServiceResult:
         try:
             resumes = self.resumeService.get_all_resumes()
-            try:
-                return ServiceResult(resumes, SUCCESS)
-            except RuntimeError as e:
-                return ServiceResult(str(e), UNKNOWN_ERROR)
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(resumes, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def write_resume(self, resume_data:dict) -> DbResponse:
+    def write_resume(self, resume_data:dict) -> ServiceResult:
         try:
             resume = self.resumeService.add_resume(resume_data)
-            try:
-                return resume
-            except:
-                return self.get_json_err(str(e))
+            return ServiceResult(resume, SUCCESS)
         except AddError as e:
-            return self.get_db_err(DB_WRITE_ERROR, e.message)
+            return ServiceResult(str(e), DB_WRITE_ERROR)
     
     
-    def modify_resume(self, name:str, resume_data:dict) -> DbResponse:
+    def modify_resume(self, name:str, resume_data:dict) -> ServiceResult:
         try:
             resume = self.resumeService.update_resume(name, resume_data)
-            try:
-                return DbResponse(self.get_response(resume), SUCCESS)
-            except:
-                return self.get_json_err()
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
+            return ServiceResult(resume, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
         
     
-    def remove_resume(self, name:str) -> DbResponse:
+    def remove_resume(self, name:str) -> ServiceResult:
         try:
             resume = self.resumeService.delete_resume(name)
-            try:
-                return DbResponse(self.get_response(resume), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(resume, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def remove_all_resumes(self) -> DbResponse:
+    def remove_all_resumes(self) -> ServiceResult:
         try:
             resume = self.resumeService.delete_all_resumes()
-            try:
-                return DbResponse(self.get_response(resume), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(resume, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
             
 
-    def read_scheduled_run(self, id:int) -> DbResponse:
+    def read_scheduled_run(self, id:int) -> ServiceResult:
         try:
             run = self.scheduledRunService.get_scheduled_run(id)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def read_all_scheduledRuns(self) -> DbResponse:
+    def read_all_scheduledRuns(self) -> ServiceResult:
         try:
             runs = self.scheduledRunService.get_all_scheduledRuns()
-            try:
-                return DbResponse(self.get_list_response(runs), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(runs, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
-    def read_scheduled_run_byName(self, name:str) -> DbResponse:
+    def read_scheduled_run_byName(self, name:str) -> ServiceResult:
         try:
             run = self.scheduledRunService.get_scheduledRunByName(name)
-            try:
-                return DbResponse(self.get_list_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except GetError:
-            return self.get_db_err(DB_READ_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
         
 
-    def write_scheduled_run(self, run_data:dict) -> DbResponse:
+    def write_scheduled_run(self, run_data:dict) -> ServiceResult:
         try:
             run = self.scheduledRunService.add_scheduled_run(run_data)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except AddError:
-            return self.get_db_err(DB_WRITE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except AddError as e:
+            return ServiceResult(str(e), DB_WRITE_ERROR)
     
 
-    def modify_scheduled_run(self, id:int, run_data:dict) -> DbResponse:
+    def modify_scheduled_run(self, id:int, run_data:dict) -> ServiceResult:
         try:
             run = self.scheduledRunService.update_scheduled_run(id, run_data)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except UpdateError:
-            return self.get_db_err(DB_UPDATE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except UpdateError as e:
+            return ServiceResult(str(e), DB_UPDATE_ERROR)
     
 
-    def remove_scheduled_run(self, id:int) -> DbResponse:
+    def remove_scheduled_run(self, id:int) -> ServiceResult:
         try:
             run = self.scheduledRunService.delete_scheduled_run(id)
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
     
-    def remove_scheduledRun_byName(self, name:str) -> DbResponse:
+    def remove_scheduledRun_byName(self, name:str) -> ServiceResult:
         try:
-            run = self.scheduledRunService.delete_scheduledRun_byName()
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            run = self.scheduledRunService.delete_scheduledRun_byName(name)
+            return ServiceResult(run, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
             
     
-    def remove_all_scheduledRuns(self) -> DbResponse:
+    def remove_all_scheduledRuns(self) -> ServiceResult:
         try:
             run = self.scheduledRunService.delete_all_scheduledRuns()
-            try:
-                return DbResponse(self.get_response(run), SUCCESS)
-            except:
-                return self.get_json_err()
-        except DeleteError:
-            return self.get_db_err(DB_DELETE_ERROR)
+            return ServiceResult(run, SUCCESS)
+        except DeleteError as e:
+            return ServiceResult(str(e), DB_DELETE_ERROR)
         
-    
-    def get_list_response(self, item_list) -> List[dict]:
-        responseList = []
-        for item in item_list:
-            responseList.append(item.__dict__)
-        return responseList
-
-
-    def get_response(self, obj) -> dict:
-        return [obj.__dict__]
-    
-    
-    def get_json_err(self, exmsg) -> DbResponse:
-        return DbResponse([], JSON_ERROR, exmsg)
-    
-
-    def get_db_err(self, errType:int, excpMsg) -> DbResponse:
-        return DbResponse([], errType, excpMsg)
-
     

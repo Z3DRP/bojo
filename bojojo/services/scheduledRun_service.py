@@ -6,14 +6,15 @@ from bojojo.base_service import Service
 from bojojo.models.Scheduled_Run import ScheduledRun
 from bojojo.repositories.ScheduledRun_Repo import ScheduledRunRepository
 from bojojo.utils.bologger import Blogger
+from bojojo.utils.repo_injector import create_repo
 
 class ScheduledRunService(Service):
 
     
-    repository = inject.attr(ScheduledRunRepository)
+    # repository = inject.attr(ScheduledRunRepository)
     blogger = inject.attr(Blogger)
     def __init__(self) -> None:
-        pass
+        self.repository = create_repo(repo_type=ScheduledRunRepository)
 
     
     def get_scheduled_run(self, id:int) -> ScheduledRun:

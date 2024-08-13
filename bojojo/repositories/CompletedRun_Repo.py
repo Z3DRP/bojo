@@ -9,33 +9,37 @@ from bojojo.models.Completed_Run import CompletedRun
 class CompletedRunRepository(Repository):
 
 
-    session = inject.attr(Session)
-    def __init__(self):
-        pass
+    # session = inject.attr(Session)
+    def __init__(self, session:Session):
+        self.session = session
     
 
     def get(self, id: int) -> CompletedRun:
         try:
-            return self.session.execute(select(CompletedRun).where(CompletedRun.id==id)).scalars().first()
+            rslt = self.session.execute(select(CompletedRun).where(CompletedRun.id==id)).scalars().first()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def getAll(self) -> List[CompletedRun]:
         try:
-            return self.session.execute(select(CompletedRun)).scalars().all()
+            rslt = self.session.execute(select(CompletedRun)).scalars().all()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def add(self, crun:dict) -> CompletedRun:
         try:
-            new_completedRun = self.session.execute(
-                insert(CompletedRun)
-                .values(**crun)
-                .returning(CompletedRun)
-            )
-            return new_completedRun
+            nw_run = CompletedRun(**crun)
+            self.session.add(nw_run)
+            self.session.commit()
+            return nw_run
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -43,34 +47,38 @@ class CompletedRunRepository(Repository):
     
     def update(self, id:int, crun:dict) -> CompletedRun:
         try:
-            results = self.session.execute(
+            updtstmt = (
                 update(CompletedRun)
                 .where(CompletedRun.id==id)
                 .values(**crun)
-                .returning(CompletedRun)
             )
+            self.session.execute(updtstmt)
             self.session.commit()
-            return results
+            updtrow = select(CompletedRun).where(CompletedRun.id==id)
+            nw_crun = self.session.execute(updtrow).scalars().first()
+            return nw_crun
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
         
     
-    def delete(self, id: int) -> CompletedRun:
+    def delete(self, id: int) -> int:
         try:
-            result = self.session.execute(delete(CompletedRun).where(CompletedRun.id==id).returning(CompletedRun))
+            dltstmt = delete(CompletedRun).where(CompletedRun.id==id)
+            rslt = self.session.execute(dltstmt)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
         
     
-    def deleteAll(self) -> CompletedRun:
+    def deleteAll(self) -> int:
         try:
-            result = self.session.execute(delete(CompletedRun).returning(CompletedRun))
+            dltstmt = delete(CompletedRun)
+            rslt = self.session.execute(dltstmt)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e

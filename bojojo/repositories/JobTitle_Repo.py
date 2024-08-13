@@ -1,6 +1,6 @@
 from typing import List
-import inject
 from sqlalchemy import ChunkedIteratorResult, delete, insert, select, update
+from sqlalchemy import ChunkedIteratorResult, delete, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.base_repo.repository import Repository
@@ -12,7 +12,7 @@ class JobTitleRepository(Repository):
 
 
     # session = inject.attr(DbSession)
-    def __init__(self, session):
+    def __init__(self, session:Session):
         self.session = session
 
 
@@ -94,7 +94,7 @@ class JobTitleRepository(Repository):
             raise e
         
     
-    def delete(self, id:int) -> JobTitle:
+    def delete(self, id:int) -> int:
         try:
             dltstmt = delete(JobTitle).where(JobTitle.id==id)
             # return type from session for deletes is diff
@@ -102,6 +102,7 @@ class JobTitleRepository(Repository):
             self.session.commit()
             return rslt.rowcount
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
@@ -113,14 +114,16 @@ class JobTitleRepository(Repository):
             # rslt_count = sum(chunk.rowcount for chunk in rslt.partitions())
             return rslt.rowcount
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
                     
 
-    def deleteAll(self) -> JobTitle:
+    def deleteAll(self) -> int:
         try:
             dltstmt = delete(JobTitle)
             rslt:ChunkedIteratorResult = self.session.execute(dltstmt)
             self.session.commit()
             return rslt.rowcount
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e

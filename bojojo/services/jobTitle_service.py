@@ -73,7 +73,7 @@ class JobTitleService(Service):
             raise UpdateError(DB_UPDATE_ERROR, e._message)
         
     
-    def delete_job_title(self, id:int) -> JobTitle:
+    def delete_job_title(self, id:int) -> int:
         try:
             return self.repository.delete(id)
         except SQLAlchemyError as e:
@@ -81,7 +81,7 @@ class JobTitleService(Service):
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
-    def delete_jobTitle_byName(self, name:str) -> JobTitle:
+    def delete_jobTitle_byName(self, name:str) -> int:
         try:
             return self.repository.delete_by_name(name)
         except SQLAlchemyError as e:
@@ -89,7 +89,7 @@ class JobTitleService(Service):
             raise DeleteError(DB_DELETE_ERROR, e._message)
         
     
-    def delete_all_jobTitles(self) -> JobTitle:
+    def delete_all_jobTitles(self) -> int:
         try:
             return self.repository.deleteAll()
         except SQLAlchemyError as e:

@@ -11,63 +11,103 @@ from bojojo.repositories import db_init
 class ResumeRepository(Repository):
 
 
-    session = inject.attr(Session)
-    def __init__(self):
-        pass
+    # session = inject.attr(Session)
+    def __init__(self, session:Session):
+        self.session = session
+
 
     def get(self, rid: int) -> Resume:
         try:
-            result = self.session.execute(select(Resume).where(Resume.id==rid)).first()
+            result = self.session.execute(select(Resume).where(Resume.id==rid)).scalars().first()
+            self.session.close()
             return result
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
     
     def getByName(self, name:str) -> Resume:
         try:
-            return self.session.execute(select(Resume).where(Resume.name==name)).first()
+            rslt = self.session.execute(select(Resume).where(Resume.name==name)).scalars().first()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         
         
     def getAll(self) -> List[Resume]:
         try:
-            results = self.session.execute(select(Resume)).fetchall()
-            return results
+            rslt = self.session.execute(select(Resume)).scalars().all()
+            self.session.close()
+            return rslt
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
 
     
     def add(self, resume:dict) -> Resume:
         try:
-            nw_resume = self.session.execute(insert(Resume).values(**resume).returning(Resume))
+            nw_res = Resume(**resume)
+            self.session.add(nw_res)
             self.session.commit()
-            return nw_resume
+            return nw_res
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
 
     
-    def update(self, name:str, resume:dict) -> Resume:
+    def update(self, id:int, resume:dict) -> Resume:
         try:
-            results = self.session.execute(
+            updstmt = (
+                update(Resume)
+                .where(Resume.id==id)
+                .value(**resume)
+            )
+            self.session.execute(updstmt)
+            self.session.commit()
+            updrow = select(Resume).where(Resume.id==id)
+            nw_row = self.session.execute(updrow).scalars().first()
+            return nw_row
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
+    def update_by_name(self, name:str, resume:dict) -> Resume:
+        try:
+            updstmt = (
                 update(Resume)
                 .where(Resume.name==name)
                 .values(**resume)
-                .returning(Resume)
             )
+            self.session.execute(updstmt)
             self.session.commit()
-            return results
+            updrow = select(Resume).where(Resume.name==name)
+            rslt = self.session.execute(updrow).scalars().first()
+            return rslt
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
         
         
-    def delete(self, name:str) -> Resume:
+    def delete(self, id:int) -> int:
         try:
-            result = self.session.execute(delete(Resume).where(Resume.name==name).returning(Resume))
+            dltstm = delete(Resume).where(Resume.id==id)
+            rslt = self.session.execute(dltstm)
             self.session.commit()
-            return result
+            return rslt.rowcount
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
+    def delete_by_name(self, name:str) -> int:
+        try:
+            dltstm = delete(Resume).where(Resume.name==name)
+            rslt = self.session.execute(dltstm)
+            self.session.commit()
+            return rslt.rowcount
         except SQLAlchemyError as e:
             self.session.rollback()
             raise e
@@ -75,9 +115,11 @@ class ResumeRepository(Repository):
     
     def deleteAll(self) -> Resume:
         try:
-            result = self.sessin.execute(delete(Resume).returning(Resume))
+            dltstm = delete(Resume)
+            rslt = self.session.execute(dltstm)
             self.session.commit()
-            return result
+            return rslt.rowcount
         except SQLAlchemyError as e:
+            self.session.rollback()
             raise e
         

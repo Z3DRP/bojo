@@ -7,13 +7,15 @@ from bojojo.utils.bologger import Blogger
 from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from typing import List
 
+from bojojo.utils.repo_injector import create_repo
+
 class ResumeService(Service):
     
     
-    repository = inject.attr(ResumeRepository)
+    # repository = inject.attr(ResumeRepository)
     blogger = inject.attr(Blogger)
     def __init__(self) -> None:
-        pass
+        self.repository = create_repo(repo_type=ResumeRepository)
 
 
     def get_resume(self, resume_id: int) -> Resume:
@@ -48,14 +50,25 @@ class ResumeService(Service):
             raise AddError(DB_WRITE_ERROR, e._message)
         
     
-    def update_resume(self, resume_name:str, resume_data:dict) -> Resume:
+    def update_resume(self, id:int, resume_data:dict) -> Resume:
         try:
-            resume = self.get_resume(resume_name)
+            resume = self.repository.get(id)
             if not resume:
-                raise GetError(f"Resume with id {resume_name} does not exist")
-            return self.repository.update(**resume_data)
+                raise GetError(f"Resume with id {id} does not exist")
+            return self.repository.update(id, resume_data)
         except SQLAlchemyError as e:
-            self.blogger.error(f"[UPDATE RESUME ERR] ResumeId: {resume_name}:: {e}")
+            self.blogger.error(f"[UPDATE RESUME ERR] ResumeId: {id}:: {e}")
+            raise UpdateError(DB_UPDATE_ERROR, e._message)
+        
+    
+    def update_resume_byName(self, name:str, resume_data:dict) -> Resume:
+        try:
+            resume = self.repository.getByName(id)
+            if not resume:
+                raise GetError(f"Resume with name: {name} does not exist")
+            return self.repository.update_by_name(name, resume_data)
+        except SQLAlchemyError as e:
+            self.blogger.error(f"[UPDATE RESUME ERR] ResumeName: {name}:: {e}")
             raise UpdateError(DB_UPDATE_ERROR, e._message)
     
 
