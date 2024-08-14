@@ -271,12 +271,12 @@ def remove_resume(
 ) -> None:
     """Delete a resume or all resumes"""
     bcontroller = get_controller()
-    resumes = None
+    delResumeCount = None
     exCode = None
     if all:
-        resumes, exCode = bcontroller.removeAllResumes()
+        delResumeCount, exCode = bcontroller.removeAllResumes()
     else:
-        resumes, exCode = bcontroller.removeResume
+        delResumeCount, exCode = bcontroller.removeResume(name)
     if exCode != SUCCESS:
         typer.secho(
             f'Deleting resume(s) failed with "{ERRORS[exCode]}"',
@@ -285,15 +285,9 @@ def remove_resume(
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"Resume(s) deleted successfully",
+            f"Resume(s) deleted successfully, Rows Effected: {delResumeCount}",
             fg=typer.colors.GREEN
         )
-        rtable = None
-        if all:
-            rtable = get_multirow_table(*resumes)
-        else:
-            rtable = get_singlerow_table(**resumes)
-        print_table(rtable)
 
 
 @app.command()
@@ -330,11 +324,7 @@ def get_job_title(
             "--Job Title Results--",
             fg=typer.colors.GREEN,
             bold=True
-        )
-        print(jobTitle)
-        print('-------res')
-        # rslts = convert_entity_list(jobTitle)
-        
+        )   
         table = get_multirow_table(jobTitle) if all else get_singlerow_table(**stringify_dict(jobTitle))
         print_table(table)
 
@@ -447,10 +437,40 @@ def remove_job_title(
 
 #TODO
 @app.command()
-def getScheduledSearches() -> None:
+def getScheduledSearches(
+    type: Annotated[ScheduleType, typer.Option(..., help="Type of scheduled search to find")] = None,
+    id: Annotated[int, typer.Option(..., help="id of a scheduled search to find")] = None,
+    name: Annotated[List[str], typer.Option(..., help="name of scheduled search to find")] = None,
+    all: Annotated[bool, typer.Option(..., help="Flag to read all saved scheduled searches")] = False
+) -> None: 
+    """Get and display a saved scheduled job search by name or type"""
     bcontroller = get_controller()
-    runs = bcontroller.readScheduledRuns()
-
+    search = None
+    exCode = None
+    if all:
+        search, exCode = bcontroller.getAllScheduledRuns()
+    else:
+        if type:
+            search, exCode = bcontroller.getScheduledRunByType(type)
+        if id:
+            search, exCode = bcontroller.getScheduledRun(id)
+        # TODO code by name method
+        elif name:
+            search, exCode = bcontroller.getScheduledRunByName(name)
+    if exCode != SUCCESS:
+        typer.secho(
+            f'Reading scheduled searches failed with "{ERRORS[exCode]}"',
+            fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            "--Scheduled Searches--",
+            fg=typer.colors.GREEN,
+            bold=True
+        )
+        table = get_multirow_table(search) if all else get_singlerow_table(**stringify_dict(search))
+        print_table(table)
 
 @app.command()
 #needs name,jobTitleId,jobBoardId,runType,easyApplyOnly

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from bojojo.base_repo.repository import Repository
 from bojojo.models.Scheduled_Run import ScheduledRun
+from bojojo.types.schedule_types import ScheduleType
 
 
 class ScheduledRunRepository(Repository):
@@ -24,6 +25,25 @@ class ScheduledRunRepository(Repository):
             self.session.rollback()
             raise e
         
+    def getByType(self, type:ScheduleType) -> List[ScheduledRun]:
+        try:
+            rslt = self.session.execute(select(ScheduledRun).where(ScheduledRun.run_type==type)).scalars().first()
+            self.session.close()
+            return rslt
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+        
+    
+    def getByName(self, name:str) -> ScheduledRun:
+        try:
+            rslt = self.session.execute(select(ScheduledRun).where(ScheduledRun.name==name)).scalars().first()
+            self.session.close()
+            return rslt
+        except SQLAlchemyError as e:
+            self.session.rollback()
+            raise e
+
     
     def getAll(self) -> List[ScheduledRun]:
         try:

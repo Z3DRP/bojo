@@ -234,9 +234,14 @@ class BojoController:
         return self.dbHandler.read_all_scheduledRuns()
     
 
-    def getScheduledRun(self, name:List[str]) -> ServiceResult:
+    def getScheduledRunByName(self, name:List[str]) -> ServiceResult:
         """Get a specific scheduled run by name"""
         return self.dbHandler.read_scheduled_run_byName(self.joinNameStr(name))
+    
+
+    def getScheduledRunByType(self, type:ScheduleType) -> ServiceResult:
+        """Get scheduled run(s) by type"""
+        return self.dbHandler.read_scheduledRuns_byType(type)
     
 
     def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, onlyEasyApply:int, runType:ScheduleType=None) -> ServiceResult:

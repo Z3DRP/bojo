@@ -348,6 +348,14 @@ class DbHandler:
             return ServiceResult(runs, SUCCESS)
         except GetError as e:
             return ServiceResult(str(e), DB_READ_ERROR)
+        
+    
+    def read_scheduledRuns_byType(self, type) -> ServiceResult:
+        try:
+            run = self.scheduledRunService.get_scheduledRun_byType(type)
+            return ServiceResult(run, SUCCESS)
+        except GetError as e:
+            return ServiceResult(str(e), DB_READ_ERROR)
     
 
     def read_scheduled_run_byName(self, name:str) -> ServiceResult:

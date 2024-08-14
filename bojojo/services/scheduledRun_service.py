@@ -5,6 +5,7 @@ from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERR
 from bojojo.base_service import Service
 from bojojo.models.Scheduled_Run import ScheduledRun
 from bojojo.repositories.ScheduledRun_Repo import ScheduledRunRepository
+from bojojo.types.schedule_types import ScheduleType
 from bojojo.utils.bologger import Blogger
 from bojojo.utils.repo_injector import create_repo
 
@@ -28,6 +29,14 @@ class ScheduledRunService(Service):
     def get_all_scheduledRuns(self) -> List[ScheduledRun]:
         try:
             return self.repository.getAll()
+        except SQLAlchemyError as e:
+            self.blogger.error(f"[READ SCHEDULED-RUN ERR]:: {e}")
+            raise GetError(DB_READ_ERROR, e._message)
+        
+    
+    def get_scheduledRun_by_type(self, type:ScheduleType) -> List[ScheduledRun]:
+        try:
+            return self.repository.getByType(type)
         except SQLAlchemyError as e:
             self.blogger.error(f"[READ SCHEDULED-RUN ERR]:: {e}")
             raise GetError(DB_READ_ERROR, e._message)
