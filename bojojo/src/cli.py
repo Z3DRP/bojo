@@ -94,38 +94,30 @@ def get_job_boards(
     jtable = None
     if all:
         jboard, exCode = bcontroller.getAllJobBoards()
-        if exCode != SUCCESS:
-            typer.secho(
-                f'Reading job board(s) failed with "{ERRORS[exCode]}"',
-                fg=typer.colors.RED
-            )
-            raise typer.Exit(1)
-        else:
-            typer.secho(
-                "---Saved Job Boards---",
-                fg=typer.colors.RED
-            )
-            jtable = get_multirow_table(jboard)
     else:
         if name and jid or not name and not jid:
             typer.secho(
-                f'Reading job boards failed, please enter only a name, id, or use the --all flag',
+                f'Error, please enter only a job board name, id, or use the --all flag',
                 fg=typer.colors.RED
             )
             raise typer.Exit(1)
-        if name and not jid:
+        elif name:
             jboard, exCode = bcontroller.getJobBoardByName(name)
-        elif jid and not name:
+        elif jid:
             jboard, exCode = bcontroller.getJobBoard(jid)
+    if exCode != SUCCESS:
         typer.secho(
-            f'---Saved Job Boards---',
-            fg=typer.colors.GREEN
+            f"Reading job board(s) failed with {ERRORS[exCode]}",
+            fg=typer.colors.RED
         )
-
-        if jboard is not None:
-            jtable = get_singlerow_table(jboard[0].to_dict())
-    if jtable is not None:
-        print_table(jtable)
+    else:
+        typer.secho(
+            "---Job Board Results",
+            fg=typer.colors.GREEN,
+            bold=True
+        )
+        table = get_multirow_table(jboard) if all or name else get_singlerow_table(**stringify_dict(jboard))
+        print_table(table)
         
 
 #TODO note unchange the changes made to ADD JOB BOARD METHOD depenency injection is working with the changes made to provider recently and adding the 
@@ -140,8 +132,8 @@ def add_job_board(
 ) -> None:
     """Add a new job board that can be used to apply for jobs"""
     bcontroller = get_controller()
-    jboard = bcontroller.addJobBoard(name, url, easy_apply)
-    if jboard.excCode != SUCCESS:
+    jboard, exCode = bcontroller.addJobBoard(name, url, easy_apply)
+    if exCode != SUCCESS:
         typer.secho(
             f'Adding job board failed with "{ERRORS[jboard.excCode]}"',
             fg=typer.colors.RED
@@ -152,11 +144,8 @@ def add_job_board(
             f"job-board: {jboard.item[0].name} was successfully added",
             fg=typer.colors.GREEN
         )
-        # jbtable = get_singlerow_table(**jboard)
-        # print_table(jbtable)
-        print(jboard)
-        print(type(jboard))
-        print(jboard.item[0].url)
+        jbtable = get_singlerow_table(**jboard)
+        print_table(jbtable)
 
 
 @app.command()
@@ -168,41 +157,36 @@ def update_job_board(
 ) -> None:
     """Update a existing job board that is being used for job search"""
     bcontroller = get_controller()
-    has_easy = 1 if has_easy_apply else 0
     jobBoard = None
     exCode = None
-    jid = None
-    if name:
-        jb = bcontroller.getJobBoardByName(''.join(name))
-        if not jb.item:
-            typer.secho(
-                f'Update job board failed, no job board with name "{" ".join(name)}" exists, please enter a valid job board name or id',
-                fg=typer.colors.RED
-            )
-            raise typer.Exit(1)
-        jid = jb['id']
+    uptd_identifier = None
     if id:
-        jb = bcontroller.getJobBoard(id)
-        if not jb.item:
-            typer.secho(
-                f'Update job board failed, no job board with id "{id}" exists, please enter a valid job board id or name',
-                fg=typer.colors.RED
-            )
-            raise typer.Exit(1)
-    if not name and not id:
-        typer.secho(f"Command failed, please specify a job board name or id", fg=typer.colors.RED)
+        uptd_identifier = id
+        jb = bcontroller.modifyJobBoard(id, name, url, has_easy_apply)
+    elif name and not id:
+        uptd_identifier = name
+        jb = bcontroller.modifyJobBoardByName(name, url, has_easy_apply)
+    else:
+        typer.secho(
+            "Error, please only specify a job board name or job board id",
+            fg=typer.colors.RED
+        )
         raise typer.Exit(1)
-    
-    jobBoard, exCode = bcontroller.modifyJobBoard(id=jid if name else id, name=name, url=url, hasEasyApply=has_easy)
     if exCode != SUCCESS:
         typer.secho(
-            f"Update job board failed with {ERRORS[exCode]}",
+            f'Updating job board {uptd_identifier} failed with "{ERRORS[exCode]}"',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
     else:
-        jtable = get_singlerow_table(**jtable)
-        print_table(jtable)
+        typer.secho(
+            f'Job board: {uptd_identifier} was updated successfully',
+            fg=typer.colors.GREEN
+        )
+        table = get_singlerow_table(
+            **stringify_dict(jobBoard)
+        )
+        print_table(table)
 
 
 @app.command()
@@ -225,36 +209,59 @@ def add_resume(
             f"Resume: {resume['name']} was successfully added",
             fg=typer.colors.GREEN
         )
-        # rtable = get_singlerow_table(**resume)
-        # print_table(rtable)
-        print(resume)
-        print(type(resume))
-        print(resume[0].name)
+        rtable = get_singlerow_table(
+            **stringify_dict(resume)
+        )
+        print_table(rtable)
     
 
 #TODO update resume to update based off name not id
 @app.command()
 def update_resume(
     name: Annotated[List[str], typer.Option(["--name", '-n'], help="Update resume name")],
-    job_id: Annotated[int, typer.Option(["--job-id", "-jid"], help="Update job id to use resume with a different job")],
-    file_path: Annotated[str, typer.Option(["--file-path", '-fp'], help="Update resume to point to a different file location")]
+    job_id: Annotated[int, typer.Option(["--job-id", "-jid"], help="Update job id to use resume with a different job")] = None,
+    job_name: Annotated[List[str], typer.Option(..., help="Name of the job title for resume")] = None,
+    file_path: Annotated[str, typer.Option(["--file-path", '-fp'], help="Update resume to point to a different file location")] = None
 ) -> None:
     """Update a saved resume"""
     bcontroller = get_controller()
-    resume, excCode = bcontroller.modifyResume(name, job_id, file_path)
-    if excCode != SUCCESS:
+    uptdResume = None
+    exCode = None
+    if not Path(file_path).exists():
         typer.secho(
-            f'Updating resume failed with "{ERRORS[excCode]}"',
+            f'{file_path} is not a valid path please enter a path that exists',
             fg=typer.colors.RED
         )
         raise typer.Exit(1)
     else:
-        typer.secho(
-            f"Resume: {resume['name']} was successfully added",
-            fg=typer.colors.GREEN
-        )
-        rtable = get_singlerow_table(**resume)
-        print_table(rtable)
+        job = None
+        if job_id:
+            job, excode= bcontroller.getJobTitle(job_id)
+        elif not job_id and job_name:
+            job, excode = bcontroller.getJobTitleByName(job_name)
+        if not job:
+            typer.secho(
+                f'A job title with id: {job_id} does not exist please create job title or enter a valid job id or name',
+                fg=typer.colors.RED
+            )
+            raise typer.Exit(1)
+        else:
+            uptdResume, exCode = bcontroller.modifyResume(name, job.id, file_path)
+            if exCode != SUCCESS:
+                typer.secho(
+                    f'Updating resume failed with "{ERRORS[exCode]}"',
+                    fg=typer.colors.RED
+                )
+                raise typer.Exit(1)
+            else:
+                typer.secho(
+                    f'Resume: {name} was updated successfully',
+                    fg=typer.colors.GREEN
+                )
+                table = get_singlerow_table(
+                    **stringify_dict(uptdResume)
+                )
+                print_table(table)
 
 
 @app.command()
@@ -304,7 +311,7 @@ def get_job_title(
     else:
         if name and id:
             typer.secho(
-                f"Error, please only specify a job title name or job title id",
+                f"Error, please enter only a job title name, job title id, or use the --all flag",
                 fg=typer.colors.RED
             )
             raise typer.Exit(1)
@@ -314,7 +321,7 @@ def get_job_title(
             jobTitle, exCode = bcontroller.getJobTitle(id)
     if exCode != SUCCESS:
         typer.secho(
-            f"Reading job titles failed with {ERRORS[exCode]}",
+            f"Reading job title(s) failed with {ERRORS[exCode]}",
             fg=typer.colors.RED
         )  
         raise typer.Exit(1)
@@ -328,7 +335,7 @@ def get_job_title(
         print('-------res')
         # rslts = convert_entity_list(jobTitle)
         
-        table = get_multirow_table(jobTitle) if all or name else get_singlerow_table(**stringify_dict(jobTitle))
+        table = get_multirow_table(jobTitle) if all else get_singlerow_table(**stringify_dict(jobTitle))
         print_table(table)
 
 
@@ -342,8 +349,8 @@ def add_job_title(
 ) -> None:
     """Add a job title to apply for"""
     bcontroller = get_controller()
-    jobtitle = bcontroller.addJobTitle(name, experience_level, experience_years)
-    if jobtitle.excCode != SUCCESS:
+    jobtitle, exCode = bcontroller.addJobTitle(name, experience_level, experience_years)
+    if exCode != SUCCESS:
         typer.secho(
             f'Adding job title failed with "{ERRORS[jobtitle.excCode]}',
             fg=typer.colors.RED
@@ -351,11 +358,11 @@ def add_job_title(
         raise typer.Exit(1)
     else:
         typer.secho(
-            f"Job title: {jobtitle.entity.name} was successfully added",
+            f"Job title: {jobtitle.name} was successfully added",
             fg=typer.colors.GREEN
         )
         ttable = get_singlerow_table(
-            **stringify_dict(jobtitle.entity)
+            **stringify_dict(jobtitle)
         )
         print_table(ttable)
         
@@ -391,9 +398,10 @@ def update_job_title(
             f"Job title: {''.join(name)} was updated successfully",
             fg=typer.colors.GREEN
         )
-        print(type(updatedJob))
 
-        ttable = get_singlerow_table(**stringify_dict(updatedJob))
+        ttable = get_singlerow_table(
+            **stringify_dict(updatedJob)
+        )
         print_table(ttable)
 
 
