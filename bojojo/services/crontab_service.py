@@ -1,3 +1,4 @@
+import datetime
 from crontab import CronTab
 
 from bojojo import CRON_NOT_FOUND, SUCCESS, NoCronJobFound
@@ -96,5 +97,44 @@ class CronTabService:
     @classmethod
     def getScheduler(cls, sched:CronSchedule, argList):
         return cls().configureJob(sched, argList)
-            
-        
+    
+    
+    @classmethod
+    def getNext(cls, sched:CronSchedule) -> datetime:
+        service = cls()
+        cronjob = service.cron.find_comment(sched.name)
+        nextExc = None
+        for job in cronjob:
+            schedule = job.schedule(date_from=datetime.now())
+            nextExc = schedule.get_next()
+        return nextExc
+    
+
+    @classmethod
+    def getPrevious(cls, sched:CronSchedule) -> datetime:
+        service = cls()
+        cronjob = service.cron.find_comment(sched.name)
+        prevExc = None
+        for job in cronjob:
+            schedule = job.schedule(date_from=datetime.now())
+            prevExc = schedule.get_previous()
+        return prevExc
+
+
+    @classmethod
+    def isValid(cls, sched:CronSchedule) -> bool:
+        service = cls()
+        cronjob = service.cron.find_comment(sched.name)
+        isvalid = False
+        for job in cronjob:
+            isvalid = job.is_valid()
+        return isvalid
+
+    @classmethod
+    def isEnabled(cls, sched:CronSchedule) -> bool:
+        service = cls()
+        cronjob = service.cron.find_comment(sched.name)
+        isenabled = False
+        for job in cronjob:
+            isenabled = job.is_enabled()
+        return isenabled

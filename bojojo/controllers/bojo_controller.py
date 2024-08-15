@@ -244,7 +244,7 @@ class BojoController:
         return self.dbHandler.read_scheduledRuns_byType(type)
     
 
-    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, onlyEasyApply:int, runType:ScheduleType=None) -> ServiceResult:
+    def addScheduleRun(self, name:List[str], jobTitleId:int, jobBoardId:int, onlyEasyApply:bool) -> ServiceResult:
         """Save a Scheduled Run then enable it with enable command to automatically apply for a job title on specific job board"""
 
         sname = self.joinNameStr(name)
@@ -257,7 +257,6 @@ class BojoController:
             "name": sname,
             "job_title_id": jobTitleId,
             "job_board_id": jobBoardId,
-            "run_type": runType.value,
             "creation_date": datetime.datetime.now(),
             "easy_apply_only": onlyEasyApply
         }

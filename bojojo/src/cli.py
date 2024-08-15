@@ -2,7 +2,7 @@
 This module provides the Bojo CLI
 # bojo/cli.py
 """
-from datetime import datetime
+from datetime import datetime, time
 from pathlib import Path
 from typing import List, Optional
 from typing_extensions import Annotated
@@ -11,6 +11,7 @@ import typer
 from bojojo import CONFIG_FILE_PATH, DB_URL, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
 from bojojo.base_model.base_model import init_db_models
 from bojojo.controllers.bojo_controller import BojoController
+from bojojo.services.crontab_service import CronTabService
 from bojojo.src import config, db_config
 from bojojo.repositories import db_init
 from bojojo.inject_config import base_config
@@ -476,47 +477,33 @@ def getScheduledSearches(
 #needs name,jobTitleId,jobBoardId,runType,easyApplyOnly
 def addScheduledSearch(
     name: Annotated[List[str], typer.Argument(..., help="Specify a name to identify a scheduled search")],
-    jobTitleId: Annotated[int, typer.Option(["--title-id", "-jtid"], help="Specify the job title to apply for")],
-    jobName: Annotated[List[str], typer.Option(["--title-name", "--jtn"], help="Specify the job title name to apply for")],
-    jobBoardId: Annotated[int, typer.Option(["--board-id", "-jbid"], help="Specify the job board id to use for search")],
-    jobBoardName: Annotated[List[str], typer.Option(["--board-name", "-jbn"], help="Specify the job board name to use for search")],
-    useEasyApplyOnly: Annotated[bool, typer.Option(["--easy-only", "-e"], help="Specifies if job search should only use the easy apply feature on the job board")] = False,
-    runType: Annotated[ScheduleType, typer.Option(["--run-type", "-rt"], case_sensitive=False, help="Sets the interval for schedule job search to run, defaults to Once")] = ScheduleType.ONCE
+    jobName: Annotated[List[str], typer.Arguement(..., help="Specify the job title name to apply for")],
+    jobBoardName: Annotated[List[str], typer.Argument(..., help="Specify the job board name to use for search")],
+    useEasyApplyOnly: Annotated[bool, typer.Option(..., help="Specifies if job search should only use the easy apply feature on the job board")] = False
 ) -> None:
     """Create a scheduled job search runs automatically on specified schedule using crontab, can be set to run once, daily, weekly, monthlly"""
     bcontroller = get_controller()
     jtid = None
     jbid = None
-    if jobName and not jobTitleId:
-        jobTitle = bcontroller.getJobTitleByName("".join(jobName))
-        if not jobTitle.item:
-            typer.secho(f"Command failed, no job title found with name '{jobName}', please enter valid job title name or id", fg=typer.colors.RED)
+    exCode = None
+    relation_ids = {}
+    if jobName:
+        jobTitle, ecode = bcontroller.getJobTitleByName(name)
+        if not jobTitle:
+            typer.secho(f"Command failed, no job title found with name '{jobName}', please enter valid job title name", fg=typer.colors.RED)
         else:
-            jtid = jobTitle.item["id"]
-    elif not jobName and jobTitleId:
-        jobTitle = bcontroller.getJobtitle(jobTitleId)
-        if not jobTitle.item:
-            typer.secho(f"Command failed, no job title found with id '{jobTitleId}', please enter a valid job title name or id", fg=typer.colors.RED)
-    if jobBoardName and not jobBoardId:
-        jobBoard = bcontroller.getJobBoardByName("".join(jobBoardName))
-        if not jobBoard.item:
-            typer.secho(f"Command faild, no job board found with name '{jobBoardName}', please enter a valid job board name or id", fg=typer.colors.RED)
+            relation_ids['jobtitleid'] = jobTitle.id
+    if jobBoardName:
+        jobBoard, ecode = bcontroller.getJobBoardByName("".join(jobBoardName))
+        if not jobBoard:
+            typer.secho(f"Command faild, no job board found with name '{jobBoardName}', please enter a valid job board name", fg=typer.colors.RED)
         else:
-            jbid = jobBoard.item["id"]
-    elif not jobBoardName and jobBoardId:
-        jobBoard = bcontroller.getJobBoard(jobBoardId)
-        if not jobBoard.item:
-            typer.secho(f"Command failed, no job board found with id '{jobBoardId}, please enter a valid job board name or id", fg=typer.colors.RED)
-    if not jobTitleId and not jobName:
-        typer.secho("You must specifiy either a job title name or job title id", fg=typer.colors.RED)
-    if not jobBoardId and not jobBoardName:
-        typer.secho("You must specify either a job board name or job board id")
+            relation_ids['jobboardid'] = jobBoard.id
     scheduledRun, exCode = bcontroller.addScheduleRun(
         name,
-        jobTitleId=jtid if jobName else jobTitleId,
-        jobBoardId=jbid if jobBoardName else jobBoardId,
-        onlyEasyApply=1 if useEasyApplyOnly else 0,
-        runType=runType
+        jobTitleId=relation_ids['jobtitleid'],
+        jobBoardId=relation_ids['jobboardid'],
+        onlyEasyApply=useEasyApplyOnly
     )
     if exCode != SUCCESS:
         typer.secho(
@@ -529,7 +516,9 @@ def addScheduledSearch(
             f"Scheduled Run created successfully",
             fg=typer.colors.GREEN
         )
-        stable = get_singlerow_table(**scheduledRun)
+        stable = get_singlerow_table(
+            **stringify_dict(scheduledRun)
+        )
         print_table(stable)
 
 
@@ -540,18 +529,16 @@ def enableScheduledSearch(
     name: Annotated[List[str], typer.Argument(..., help="Name of a previously created scheduled search")],
     runDateTime: Annotated[
         datetime, 
-        typer.Argument(
+        typer.Option(
             ...,
             help="The date and time of the initial run", 
-            formats=["%d/%m/%Y%H:%M", "%d/%m/%Y %H:%M", "%d-%m-%Y %H:%M"]
-        )],
-    runDayOfWeek: Annotated[WeekDays, typer.Option(["--week-day", "-wd"], help="Specifies the day of the week scheduled search should occur on")]=None,
-    runMonth: Annotated[Months, typer.Option(["--month", "-m"], help="Sets the month schedule search should run")]=None,
-    durrationMinutes: Annotated[int, typer.Option(["--dur-mins", "-m"], help="Sets the the length of time in minutes the search runs")]=30,
-    numberOfSubmissions: Annotated[int, typer.Option(["--submissions", "-s"], help="Indicates the number of submissions the search should complete before exiting")]=None,
-    everyHours: Annotated[int, typer.Option(["--every-hours", "-eh"], help="Sets the scheduled search to run every x hours")]=None,
-    everyMins: Annotated[int, typer.Option(["--every-mins", "-em"], help="Sets the scheduled search to run every x minutes")]=None,
-    repeat: Annotated[bool, typer.Option(["--repeat", "-r"], help="Indicates if the scheduled search should repeat or not, defaults to TRUE")]=True
+            formats=["%d/%m/ %H:%M", "%d-%m %H:%M"]
+        )] = None,
+    durrationMinutes: Annotated[int, typer.Option(..., help="Sets the the length of time in minutes the search runs")]=30,
+    numberOfSubmissions: Annotated[int, typer.Option(..., help="Indicates the number of submissions the search should complete before exiting")]=None,
+    everyHours: Annotated[int, typer.Option(..., help="Sets the scheduled search to run every x hours")]=None,
+    everyMins: Annotated[int, typer.Option(..., help="Sets the scheduled search to run every x minutes")]=None,
+    runType: Annotated[ScheduleType, typer.Option(..., help="Indicates the scheduled search run type, defaults to once")]=ScheduleType.ONCE
 
 ) -> None:
     """Enables previous scheduled searches to automatically run at a set date and time, certain days of weeks, certain days of the month, every x amount of hours, or every x amount of minutes"""
@@ -564,16 +551,19 @@ def enableScheduledSearch(
         )
         raise typer.Exit(1)
     
+    #TODO fix to use runDateTime and pull out days etc from that or use runTime and other
+    run_data = None 
     run_date = RunDate(
-        monthDay = runDateTime.weekday() if not runDayOfWeek else get_weekday_int(runDayOfWeek), 
-        weekDay = runDateTime.day, 
-        month = runDateTime.month if not runMonth else runMonth, 
+        monthDay = runDateTime.day, 
+        weekDay = WeekDays(runDateTime.weekday()), 
+        month = Months(runDateTime.month), 
         hour = runDateTime.hour, 
         minute = runDateTime.minute, 
         everyHr = everyHours,
         everyMin = everyMins, 
-        repeat = repeat
+        runType = runType
     )
+
     scheduledRun, exCode = bcontroller.enableScheduledRun(
         name, 
         run_date,
@@ -592,7 +582,9 @@ def enableScheduledSearch(
         f'Scheduled search "{scheduledRun["name"]}" was enabled successfully, it will begin executing at "{datetime.isofrmat(runDateTime)}"',
         fg=typer.colors.GREEN
     )
-    stable = get_singlerow_table(**scheduledRun)
+    stable = get_singlerow_table(
+        stringify_dict(**scheduledRun)
+    )
     print_table(stable)
         
 
@@ -607,10 +599,10 @@ def enableDailyScheduledSearch(
             formats=["%H:%M", "%H %M"],
             help='Time the scheduled search should occur'
     )],
-    everyHour: Annotated[int, typer.Option(["--every-hour", "-eh"], help="Sets the scheduled search to run every x hours")],
-    everyMin: Annotated[int, typer.Option(["--every-min", "-em"], help="Sets the scheduled search to run every x minutes")],
-    durrationMin: Annotated[int, typer.Option(["--durration", "-d"], help="Sets the durration of the search in minutes, defaults to 30")]=30,
-    numberOfSubs: Annotated[int, typer.Option(["--number-submissions", "-ns"], help="Sets the number of submissions for search to complete before exiting")]=None
+    everyHour: Annotated[int, typer.Option(..., help="Sets the scheduled search to run every x hours")],
+    everyMin: Annotated[int, typer.Option(..., help="Sets the scheduled search to run every x minutes")],
+    durrationMin: Annotated[int, typer.Option(..., help="Sets the durration of the search in minutes, defaults to 30")]=30,
+    numberOfSubs: Annotated[int, typer.Option(..., help="Sets the number of submissions for search to complete before exiting")]=None
 ) -> None:
     """Enable a scheduled search to run daily at a specific time"""
     bcontroller = get_controller()
@@ -639,7 +631,9 @@ def enableDailyScheduledSearch(
         f'Daily search for "{name}" enabled successfully',
         fg=typer.colors.GREEN
     )
-    stable = get_singlerow_table(**scheduledRun)
+    stable = get_singlerow_table(
+        stringify_dict(**scheduledRun)
+    )
     print_table(stable)
 
 
@@ -654,10 +648,10 @@ def enableWeeklyScheduledSearch(
             help="Time the daily scheduled search should occur"
     )],
     weekday: Annotated[WeekDays, typer.Argument(..., help="The day of the week the scheduled search should run")],
-    everyHour: Annotated[int, typer.Option(["--every-hour", "-eh"], help="Sets the search to run every x hours")],
-    everyMin: Annotated[int, typer.Option(["--every-min", "-em"], help="Sets the search to run every x minutes")],
-    durrationMin: Annotated[int, typer.Option(["--durration", "-d"], help="Sets the durration of the search in minutes, defatuls to 30")]=30,
-    numberOfSubs: Annotated[int, typer.Option(["--number-submissions", "-ns"], help="Sets the number of submissions for search to complete before exiting")]=None
+    everyHour: Annotated[int, typer.Option(..., help="Sets the search to run every x hours")],
+    everyMin: Annotated[int, typer.Option(..., help="Sets the search to run every x minutes")],
+    durrationMin: Annotated[int, typer.Option(..., help="Sets the durration of the search in minutes, defatuls to 30")]=30,
+    numberOfSubs: Annotated[int, typer.Option(..., help="Sets the number of submissions for search to complete before exiting")]=None
 ) -> None:
     """Enable a schedule search to run weekly on a specific day and time"""
     bcontroller = get_controller()
@@ -686,7 +680,9 @@ def enableWeeklyScheduledSearch(
         f'Weekly search for "{name}" enabled successfully',
         fg=typer.colors.GREEN
     )
-    stable = get_singlerow_table(**scheduledRun)
+    stable = get_singlerow_table(
+        stringify_dict(**scheduledRun)
+    )
     print_table(stable)    
 
 
@@ -698,6 +694,39 @@ def enableMontlyScheduledSearch():
         fg=typer.colors.YELLOW
     )
     pass
+
+
+@app.command()
+def getScheduleSearch(
+    name: Annotated[List[str], typer.Option(None, help="Name of a Scheduled Search")] = None,
+    run_type: Annotated[ScheduleType, typer.Option(None, help="Scheduled Search run type to look for")] = None,
+    all: Annotated[bool, typer.Option(None, help="Flag to retrieve all Scheduled Searches")] = False
+) -> None:
+    """Get all Scheduled Searches"""
+    bcontroller = get_controller()
+    searches = None
+    exCode = None
+    if all:
+        searches, exCode = bcontroller.getAllScheduledRuns()
+    if name and not all:
+        searches, exCode = bcontroller.getScheduledRunByName(name)
+    elif run_type and not all:
+        searches, exCode = bcontroller.getScheduledRunByType()
+    else:
+        typer.secho(
+            f"Error, please enter a name, run type, or use the all flag",
+            fg=typer.colors.RED
+        )
+        typer.Exit(1)
+    for search in searches:
+        search.setNext(CronTabService.getNext(search))
+        search.setPrevious(CronTabService.getPrevious(search))
+        search.setIsValid(CronTabService.isValid(search))
+        search.setIsEnabled(CronTabService.isEnabled(search))
+    #TODO create table with the values
+    
+    
+
 
 
 @app.callback()

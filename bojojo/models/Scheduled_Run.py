@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 from bojojo.types.days import WeekDays
+from bojojo.types.months import Months
 from bojojo.types.schedule_types import ScheduleType
 
 Base = declarative_base()
@@ -16,6 +17,7 @@ class ScheduledRun(Base):
     job_board_id = Column(Integer, ForeignKey("Job_Boards.id"), name="job_board_id", nullable=False, index=True)
     run_day = Column(Integer, name="run_day", nullable=True)
     run_dayOf_week = Column(Enum(WeekDays), name="run_dayOf_week", nullable=True, index=True)
+    run_month = Column(Enum(Months), name="run_month", nullable=True)
     run_time = Column(String, name="run_time", nullable=False)
     run_type = Column(Enum(ScheduleType), name="run_type", default=ScheduleType.ONCE, nullable=True)
     recurring = Column(Integer, name="recurring", default=0)

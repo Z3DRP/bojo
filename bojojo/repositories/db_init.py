@@ -117,29 +117,29 @@ def initialize_db(path):
         execute_query(connection, CREATE_COMPLETED_RUNS)
         execute_query(connection, CREATE_APPLICATIONS)
 
-        # indexes = [
-        #     "CREATE INDEX IF NOT EXISTS appsuccess_idx ON Applications (submitted_successfully)",
-        #     "CREATE INDEX IF NOT EXISTS app_jobtitle_idx ON Applications (job_title_id)",
-        #     "CREATE INDEX IF NOT EXISTS app_jobboard_idx ON Applications (job_board_id)",
-        #     "CREATE INDEX IF NOT EXISTS app_company_idx ON Applications (company)",
-        #     "CREATE INDEX IF NOT EXISTS jobtitle_name_idx ON Job_Titles (name)",
-        #     "CREATE INDEX IF NOT EXISTS resume_name_idx ON Resumes (name)",
-        #     "CREATE INDEX IF NOT EXISTS resume_jobtitle_idx ON Resumes (job_title_id)",
-        #     "CREATE INDEX IF NOT EXISTS jobboard_name_idx ON Job_Boards (name)",
-        #     "CREATE INDEX IF NOT EXISTS jobboard_easy_idx ON Job_Boards (has_easy_apply)",
-        #     "CREATE INDEX IF NOT EXISTS schedrun_jobtitle_idx ON Scheduled_Runs (job_title_id)",
-        #     "CREATE INDEX IF NOT EXISTS schedrun_job_board_idx ON Scheduled_Runs (job_board_id)",
-        #     "CREATE INDEX IF NOT EXISTS schedrun_runday_idx ON Scheduled_Runs (run_dayof_week)",
-        #     "CREATE INDEX IF NOT EXISTS comprun_executiondate_idx ON Completed_Runs (execution_date)",
-        #     "CREATE INDEX IF NOT EXISTS comprun_applicationsubmit_idx ON Completed_Runs (applications_submitted)",
-        #     "CREATE INDEX IF NOT EXISTS comprun_failedsubmits_idx ON Completed_Runs (failed_submissions)",
-        #     "CREATE INDEX IF NOT EXISTS comprun_runid_idx ON Completed_Runs (run_id)"
-        # ]
+        indexes = [
+            "CREATE INDEX IF NOT EXISTS appsuccess_idx ON Applications (submitted_successfully)",
+            "CREATE INDEX IF NOT EXISTS app_jobtitle_idx ON Applications (job_title_id)",
+            "CREATE INDEX IF NOT EXISTS app_jobboard_idx ON Applications (job_board_id)",
+            "CREATE INDEX IF NOT EXISTS app_company_idx ON Applications (company)",
+            "CREATE INDEX IF NOT EXISTS jobtitle_name_idx ON Job_Titles (name)",
+            "CREATE INDEX IF NOT EXISTS resume_name_idx ON Resumes (name)",
+            "CREATE INDEX IF NOT EXISTS resume_jobtitle_idx ON Resumes (job_title_id)",
+            "CREATE INDEX IF NOT EXISTS jobboard_name_idx ON Job_Boards (name)",
+            "CREATE INDEX IF NOT EXISTS jobboard_easy_idx ON Job_Boards (has_easy_apply)",
+            "CREATE INDEX IF NOT EXISTS schedrun_jobtitle_idx ON Scheduled_Runs (job_title_id)",
+            "CREATE INDEX IF NOT EXISTS schedrun_job_board_idx ON Scheduled_Runs (job_board_id)",
+            "CREATE INDEX IF NOT EXISTS schedrun_runday_idx ON Scheduled_Runs (run_dayof_week)",
+            "CREATE INDEX IF NOT EXISTS comprun_executiondate_idx ON Completed_Runs (execution_date)",
+            "CREATE INDEX IF NOT EXISTS comprun_applicationsubmit_idx ON Completed_Runs (applications_submitted)",
+            "CREATE INDEX IF NOT EXISTS comprun_failedsubmits_idx ON Completed_Runs (failed_submissions)",
+            "CREATE INDEX IF NOT EXISTS comprun_runid_idx ON Completed_Runs (run_id)"
+        ]
 
-        # for index_stmnt in indexes:
-        #     connection.execute(index_stmnt)
+        for index_stmnt in indexes:
+            connection.execute(index_stmnt)
         # connection.commit()
-        # connection.close()
+        connection.close()
     except Error as e:
         raise e
     
