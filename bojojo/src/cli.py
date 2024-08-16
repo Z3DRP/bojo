@@ -724,6 +724,18 @@ def getScheduleSearch(
         search.setIsValid(CronTabService.isValid(search))
         search.setIsEnabled(CronTabService.isEnabled(search))
     #TODO create table with the values
+    table = None
+    if len(searches) == 0:
+        typer.secho(
+            f'No Schedule Search records found',
+            fg=typer.colors.RED
+        )
+    elif len(searches) > 1:
+        table = get_multirow_table(searches)
+        print_table(table)
+    else:
+        table = get_singlerow_table(**stringify_dict(searches))
+        print_table(table)
     
     
 
