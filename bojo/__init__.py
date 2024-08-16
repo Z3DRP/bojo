@@ -5,7 +5,6 @@ __app_name__ = "bojo"
 __version__ = "0.1.0"
 
 from pathlib import Path
-
 import typer
 
 
@@ -59,6 +58,10 @@ def db_path():
     return str(DEFAULT_DB_FILE_PATH)
 
 DB_URL = f"sqlite:///{db_path()}"
+
+RUNNER_PATH = Path.cwd().joinpath(
+    Path.cwd().stem + "script/bojo/bojo_runner.py"
+)
 
 class BojoException(Exception):
     """Base clas for all errors"""

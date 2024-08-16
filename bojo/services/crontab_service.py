@@ -6,9 +6,9 @@ from bojojo.models.Cron_Schedule import CronSchedule
 
 class CronTabService:
     
-    def __init__(self):
+    def __init__(self, bojo_runner:str):
         self.initailize_cron()
-        self.bojoRunnerPath = "/path/to/update/for/autoApply"
+        self.bojoRunnerPath = bojo_runner
         # wil need need add arguements to be passed to path for applier script
         self.scriptArguements = None
         self.command = None
