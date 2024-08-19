@@ -1,5 +1,5 @@
 
-from bojojo.models.Cron_Schedule import CronSchedule
+from bojo.models.Cron_Schedule import CronSchedule
 
 
 class DailyCronSchedule(CronSchedule):

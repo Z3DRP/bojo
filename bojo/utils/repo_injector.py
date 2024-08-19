@@ -1,6 +1,6 @@
 
-from bojojo.base_repo.repository import Repository
-from bojojo.providers.db_session_provider import session_provider
+from bojo.base_repo.repository import Repository
+from bojo.providers.db_session_provider import session_provider
 
 
 def create_repo(repo_type: type[Repository]):

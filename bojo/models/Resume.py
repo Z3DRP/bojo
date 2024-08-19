@@ -1,8 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+from bojo.models.Scheduled_Run import Base
+
 
 class Resume(Base):
     __tablename__ = "Resumes"

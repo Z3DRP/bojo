@@ -1,12 +1,11 @@
 from sqlalchemy import Boolean, Column, Double, Enum, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
-from bojojo.types.days import WeekDays
-from bojojo.types.months import Months
-from bojojo.types.schedule_types import ScheduleType
+from bojo.base_model.base_model import Base
+from bojo.types.days import WeekDays
+from bojo.types.months import Months
+from bojo.types.schedule_types import ScheduleType
 
-Base = declarative_base()
 
 class ScheduledRun(Base):
     __tablename__ = "Scheduled_Runs"
@@ -20,7 +19,7 @@ class ScheduledRun(Base):
     run_month = Column(Enum(Months), name="run_month", nullable=True)
     run_time = Column(String, name="run_time", nullable=False)
     run_type = Column(Enum(ScheduleType), name="run_type", default=ScheduleType.ONCE, nullable=True)
-    recurring = Column(Integer, name="recurring", default=0)
+    recurring = Column(Boolean, name="recurring", default=False)
     easy_apply_only = Column(Boolean, name="easy_apply_only", default=False, nullable=False)
     durration_minutes = Column(Double, name="durration_minutes", nullable=True)
     number_of_submissions = Column(Integer, name="number_of_submissions", nullable=False, default=0)

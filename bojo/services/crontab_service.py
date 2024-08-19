@@ -1,8 +1,8 @@
 import datetime
 from crontab import CronTab
 
-from bojojo import CRON_NOT_FOUND, SUCCESS, NoCronJobFound
-from bojojo.models.Cron_Schedule import CronSchedule
+from bojo import CRON_NOT_FOUND, SUCCESS, NoCronJobFound
+from bojo.models.Cron_Schedule import CronSchedule
 
 class CronTabService:
     

@@ -1,6 +1,6 @@
 
 from sqlalchemy.orm import declarative_base
-from bojojo.models import Job_Title, Resume, Job_Board, Scheduled_Run, Completed_Run, Application
+from bojo.models import Job_Title, Resume, Job_Board, Scheduled_Run, Completed_Run, Application
 
 Base = declarative_base()
 

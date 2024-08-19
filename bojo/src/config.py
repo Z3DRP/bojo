@@ -2,7 +2,7 @@ import configparser
 from pathlib import Path
 import typer
 
-from bojojo import (
+from bojo import (
     CONFIG_DIR_PATH, CONFIG_FILE_PATH, DB_READ_ERROR, DB_WRITE_ERROR, DB_CREATE_ERROR, DIR_ERROR, FILE_ERROR, SUCCESS, __app_name__
 )
 

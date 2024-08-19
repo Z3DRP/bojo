@@ -1,6 +1,6 @@
 from rich.table import Table
 
-from bojojo.utils.dict_mapper import object_to_dict, stringify_dict
+from bojo.utils.dict_mapper import object_to_dict, stringify_dict
 
 def get_singlerow_table(**kwargs):
     headers = []

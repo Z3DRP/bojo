@@ -3,9 +3,9 @@ Bojo entry point script
 """
 
 import inject
-from bojojo import __app_name__
-from bojojo.inject_config.di_config import base_config
-from bojojo.src import cli
+from bojo import __app_name__
+from bojo.inject_config.di_config import base_config
+from bojo.src import cli
 
 def main():
     #config dependencies

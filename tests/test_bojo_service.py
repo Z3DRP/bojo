@@ -1,6 +1,6 @@
 import pytest
 from typer.testing import CliRunner
-from bojojo import __app_name__, __version__, cli
+from bojo import __app_name__, __version__, cli
 
 runner = CliRunner()
 

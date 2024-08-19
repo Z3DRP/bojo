@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 import os
-from bojojo.repositories import db_init
+from bojo.repositories import db_init
 
 
 @pytest.mark.db

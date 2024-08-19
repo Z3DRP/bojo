@@ -3,9 +3,9 @@ import configparser
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from bojojo import CONFIG_DIR_PATH, DB_URL, db_path
-from bojojo.base_model.base_model import init_db_models
-from bojojo.utils.config_reader import get_db_path
+from bojo import CONFIG_DIR_PATH, DB_URL, db_path
+from bojo.base_model.base_model import init_db_models
+from bojo.utils.config_reader import get_db_path
 
 
 def get_engine():

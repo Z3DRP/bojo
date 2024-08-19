@@ -1,9 +1,9 @@
 
-from bojojo.models.Cron_Schedule import CronSchedule
-from bojojo.models.Daily_Cron_Schedule import DailyCronSchedule
-from bojojo.models.Monthly_Cron_Schedule import MonthlyCronSchedule
-from bojojo.models.Weekly_Cron_Schedule import WeeklyCronSchedule
-from bojojo.types.schedule_types import ScheduleType
+from bojo.models.Cron_Schedule import CronSchedule
+from bojo.models.Daily_Cron_Schedule import DailyCronSchedule
+from bojo.models.Monthly_Cron_Schedule import MonthlyCronSchedule
+from bojo.models.Weekly_Cron_Schedule import WeeklyCronSchedule
+from bojo.types.schedule_types import ScheduleType
 
 
 class ScheduleFactory:

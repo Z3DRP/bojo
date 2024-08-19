@@ -1,14 +1,14 @@
 
 
-from bojojo import db_path
-from bojojo.handlers.db_handler import DbHandler
-from bojojo.services.application_service import ApplicationService
-from bojojo.services.completedRun_service import CompletedRunService
-from bojojo.services.jobBoard_service import JobBoardService
-from bojojo.services.jobTitle_service import JobTitleService
-from bojojo.services.resume_service import ResumeService
-from bojojo.services.scheduledRun_service import ScheduledRunService
-from bojojo.utils.service_injector import create_service
+from bojo import db_path
+from bojo.handlers.db_handler import DbHandler
+from bojo.services.application_service import ApplicationService
+from bojo.services.completedRun_service import CompletedRunService
+from bojo.services.jobBoard_service import JobBoardService
+from bojo.services.jobTitle_service import JobTitleService
+from bojo.services.resume_service import ResumeService
+from bojo.services.scheduledRun_service import ScheduledRunService
+from bojo.utils.service_injector import create_service
 
 
 def inject_handler():

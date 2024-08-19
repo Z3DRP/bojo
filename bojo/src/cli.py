@@ -8,23 +8,23 @@ from typing import List, Optional
 from typing_extensions import Annotated
 from sqlalchemy import create_engine
 import typer
-from bojojo import CONFIG_FILE_PATH, DB_URL, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
-from bojojo.base_model.base_model import init_db_models
-from bojojo.controllers.bojo_controller import BojoController
-from bojojo.services.crontab_service import CronTabService
-from bojojo.src import config, db_config
-from bojojo.repositories import db_init
-from bojojo.inject_config import base_config
+from bojo import CONFIG_FILE_PATH, DB_URL, DEFAULT_DB_FILE_PATH, ERRORS, SUCCESS, __app_name__, __version__, db_path
+from bojo.base_model.base_model import init_db_models
+from bojo.controllers.bojo_controller import BojoController
+from bojo.services.crontab_service import CronTabService
+from bojo.src import config, db_config
+from bojo.repositories import db_init
+from bojo.inject_config import base_config
 from rich.console import Console
 
-from bojojo.types.days import WeekDays, get_weekday_int
-from bojojo.types.experience_types import ExperienceType
-from bojojo.types.months import Months, get_month_str
-from bojojo.types.run_date import RunDate
-from bojojo.types.schedule_types import ScheduleType
-from bojojo.utils.cli_tables import get_multirow_table, get_singlerow_table
-from bojojo.utils.dbhandler_injector import inject_handler
-from bojojo.utils.dict_mapper import object_to_dict, stringify_dict
+from bojo.types.days import WeekDays, get_weekday_int
+from bojo.types.experience_types import ExperienceType
+from bojo.types.months import Months, get_month_str
+from bojo.types.run_date import RunDate
+from bojo.types.schedule_types import ScheduleType
+from bojo.utils.cli_tables import get_multirow_table, get_singlerow_table
+from bojo.utils.dbhandler_injector import inject_handler
+from bojo.utils.dict_mapper import object_to_dict, stringify_dict
 
 
 app = typer.Typer()

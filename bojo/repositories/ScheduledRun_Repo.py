@@ -3,9 +3,9 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.base_repo.repository import Repository
-from bojojo.models.Scheduled_Run import ScheduledRun
-from bojojo.types.schedule_types import ScheduleType
+from bojo.base_repo.repository import Repository
+from bojo.models.Scheduled_Run import ScheduledRun
+from bojo.types.schedule_types import ScheduleType
 
 
 class ScheduledRunRepository(Repository):

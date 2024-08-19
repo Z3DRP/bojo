@@ -6,12 +6,12 @@ import tempfile
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from bojojo.inject_config.di_config import test_config
-from bojojo.models.Application import Base
-from bojojo.repositories import db_init
-from bojojo.repositories.Resume_Repo import ResumeRepository
-from bojojo.models import Job_Title, Resume
-from bojojo.services.resume_service import ResumeService
+from bojo.inject_config.di_config import test_config
+from bojo.models.Application import Base
+from bojo.repositories import db_init
+from bojo.repositories.Resume_Repo import ResumeRepository
+from bojo.models import Job_Title, Resume
+from bojo.services.resume_service import ResumeService
 
 
 # used for testing db file initialization

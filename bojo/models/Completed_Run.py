@@ -1,8 +1,8 @@
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+from bojo.models.Scheduled_Run import Base
+
 
 class CompletedRun(Base):
     __tablename__ = "Completed_Runs"

@@ -1,6 +1,6 @@
 
 
-from bojojo.providers.db_session_provider import session_provider
+from bojo.providers.db_session_provider import session_provider
 
 
 class DbSession:

@@ -1,9 +1,9 @@
 from unittest.mock import patch
 import pytest
-from bojojo import DB_WRITE_ERROR, AddError, GetError, UpdateError
-from bojojo.repositories import Resume
-from bojojo.services.resume_service import ResumeService
-from bojojo.repositories.Resume_Repo import ResumeRepository
+from bojo import DB_WRITE_ERROR, AddError, GetError, UpdateError
+from bojo.repositories import Resume
+from bojo.services.resume_service import ResumeService
+from bojo.repositories.Resume_Repo import ResumeRepository
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 

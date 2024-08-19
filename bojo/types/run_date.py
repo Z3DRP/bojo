@@ -1,6 +1,6 @@
-from bojojo.types.days import WeekDays
-from bojojo.types.months import Months
-from bojojo.types.schedule_types import ScheduleType
+from bojo.types.days import WeekDays
+from bojo.types.months import Months
+from bojo.types.schedule_types import ScheduleType
 
 
 class RunDate:

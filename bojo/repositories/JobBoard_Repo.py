@@ -3,8 +3,8 @@ import inject
 from sqlalchemy import ChunkedIteratorResult, delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.base_repo.repository import Repository
-from bojojo.models.Job_Board import JobBoard
+from bojo.base_repo.repository import Repository
+from bojo.models.Job_Board import JobBoard
 
 
 class JobBoardRepository(Repository):

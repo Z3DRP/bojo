@@ -4,9 +4,9 @@ import inject
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.base_repo.repository import Repository
-from bojojo.models import Resume
-from bojojo.repositories import db_init
+from bojo.base_repo.repository import Repository
+from bojo.models import Resume
+from bojo.repositories import db_init
 
 class ResumeRepository(Repository):
 

@@ -1,23 +1,23 @@
 
 from pytest import Session
-from bojojo import db_path
-from bojojo.handlers.db_handler import DbHandler
-from bojojo.providers.db_session_provider import session_provider
-from bojojo.repositories.Application_Repo import ApplicationRepository
-from bojojo.repositories.CompletedRun_Repo import CompletedRunRepository
-from bojojo.repositories.JobBoard_Repo import JobBoardRepository
-from bojojo.repositories.JobTitle_Repo import JobTitleRepository
-from bojojo.repositories.Resume_Repo import ResumeRepository
-from bojojo.repositories.ScheduledRun_Repo import ScheduledRunRepository
-from bojojo.services.application_service import ApplicationService
-from bojojo.services.completedRun_service import CompletedRunService
-from bojojo.services.jobBoard_service import JobBoardService
-from bojojo.services.jobTitle_service import JobTitleService
-from bojojo.services.resume_service import ResumeService
-from bojojo.services.scheduledRun_service import ScheduledRunService
-from bojojo.utils.config_reader import get_db_path
-from bojojo.utils.bologger import Blogger
-from bojojo.utils.db_session import DbSession
+from bojo import db_path
+from bojo.handlers.db_handler import DbHandler
+from bojo.providers.db_session_provider import session_provider
+from bojo.repositories.Application_Repo import ApplicationRepository
+from bojo.repositories.CompletedRun_Repo import CompletedRunRepository
+from bojo.repositories.JobBoard_Repo import JobBoardRepository
+from bojo.repositories.JobTitle_Repo import JobTitleRepository
+from bojo.repositories.Resume_Repo import ResumeRepository
+from bojo.repositories.ScheduledRun_Repo import ScheduledRunRepository
+from bojo.services.application_service import ApplicationService
+from bojo.services.completedRun_service import CompletedRunService
+from bojo.services.jobBoard_service import JobBoardService
+from bojo.services.jobTitle_service import JobTitleService
+from bojo.services.resume_service import ResumeService
+from bojo.services.scheduledRun_service import ScheduledRunService
+from bojo.utils.config_reader import get_db_path
+from bojo.utils.bologger import Blogger
+from bojo.utils.db_session import DbSession
 
 
 def base_config(binder):

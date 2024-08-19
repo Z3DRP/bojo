@@ -1,6 +1,6 @@
 import sqlite3
 from sqlite3 import Error
-from bojojo import DB_CREATE_ERROR
+from bojo import DB_CREATE_ERROR
 
 def create_connection(path):
     connection = None

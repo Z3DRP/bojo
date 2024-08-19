@@ -1,6 +1,6 @@
 import configparser
 from pathlib import Path
-from bojojo import CONFIG_DIR_PATH, db_path
+from bojo import CONFIG_DIR_PATH, db_path
 
 
 def get_db_path():

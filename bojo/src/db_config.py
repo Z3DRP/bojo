@@ -4,9 +4,9 @@ This module provides sqlite db initialization
 """
 import configparser
 from pathlib import Path
-from bojojo import DB_WRITE_ERROR, DB_CREATE_ERROR, SUCCESS
-from bojojo.repositories import db_init as db
-from bojojo import DEFAULT_DB_FILE_PATH
+from bojo import DB_WRITE_ERROR, DB_CREATE_ERROR, SUCCESS
+from bojo.repositories import db_init as db
+from bojo import DEFAULT_DB_FILE_PATH
 
 def get_database_path(config_file: Path) -> Path:
     """Return the current path to the bojo database"""

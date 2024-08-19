@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, Integer, String, Double, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from bojojo.base_model import Base
+from bojo.base_model import Base
 
 class Application(Base):
     __tablename__ = "Applications"

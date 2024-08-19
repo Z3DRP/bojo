@@ -3,9 +3,9 @@ from sqlalchemy import ChunkedIteratorResult, delete, insert, select, update
 from sqlalchemy import ChunkedIteratorResult, delete, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.base_repo.repository import Repository
-from bojojo.models.Job_Title import JobTitle
-from bojojo.utils.db_session import DbSession
+from bojo.base_repo.repository import Repository
+from bojo.models.Job_Title import JobTitle
+from bojo.utils.db_session import DbSession
 
 
 class JobTitleRepository(Repository):

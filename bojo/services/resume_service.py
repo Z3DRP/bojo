@@ -1,13 +1,13 @@
 import inject
 from sqlalchemy.exc import SQLAlchemyError
-from bojojo.base_service import Service
-from bojojo.models import Resume
-from bojojo.repositories.Resume_Repo import ResumeRepository
-from bojojo.utils.bologger import Blogger
-from bojojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
+from bojo.base_service import Service
+from bojo.models import Resume
+from bojo.repositories.Resume_Repo import ResumeRepository
+from bojo.utils.bologger import Blogger
+from bojo import DB_DELETE_ERROR, DB_READ_ERROR, DB_UPDATE_ERROR, DB_WRITE_ERROR, AddError, GetError, UpdateError, DeleteError
 from typing import List
 
-from bojojo.utils.repo_injector import create_repo
+from bojo.utils.repo_injector import create_repo
 
 class ResumeService(Service):
     

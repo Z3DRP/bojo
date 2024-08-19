@@ -1,10 +1,9 @@
 from sqlalchemy import Column, Enum, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
-from bojojo.types.experience_types import ExperienceType
+from bojo.models.Scheduled_Run import Base
+from bojo.types.experience_types import ExperienceType
 
-Base = declarative_base()
 
 class JobTitle(Base):
     __tablename__ = "Job_Titles"
